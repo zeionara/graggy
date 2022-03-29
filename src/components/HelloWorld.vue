@@ -2,47 +2,14 @@
   <b>foo</b>
   <div class = "graph">
     <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
-    <div class = "node"></div>
   </div>
   <button @click="this.export()">export</button>
   <p class = "exported-graph">Draw graph and then click export button</p>
-  <!--<div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-router" target="_blank" rel="noopener">router</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-vuex" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-unit-mocha" target="_blank" rel="noopener">unit-mocha</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-typescript" target="_blank" rel="noopener">typescript</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>!-->
 </template>
 
 <script lang="ts">
 import interact from 'interactjs';
+import { foo, drawFilledSquare, getIntersectedEntities } from "@/geometry.ts";
 
 import { Options, Vue } from 'vue-class-component';
  
@@ -57,28 +24,33 @@ import { Options, Vue } from 'vue-class-component';
    y!: number 
 
     export() {
-        Array.prototype.forEach.call(document.getElementsByClassName('node'), (node, i) => {
-           let node_id = `entity-${i}` 
-           node.id = node_id
+        const triples = global.triples.map(triple => `${triple.head}\t${triple.relation}\t${triple.tail}`).join('<br/>')
+        // Array.prototype.forEach.call(document.getElementsByClassName('node'), (node, i) => {
+        //    let node_id = `entity-${i}` 
+        //    node.id = node_id
 
-           console.log(node)
+        //    console.log(node)
 
-           const canvas = document.getElementsByClassName('graph-canvas')[0];
-           const ctx = canvas.getContext('2d');
+        //    const canvas = document.getElementsByClassName('graph-canvas')[0];
+        //    const ctx = canvas.getContext('2d');
 
-           var p = ctx.getImageData(node.style.x, node.style.y, node.getBoundingClientRect().width, node.getBoundingClientRect().height).data; 
-           console.log(p)
-        })
-        document.getElementsByClassName('exported-graph')[0].innerHTML = "Graph has been exported successfully"
+        //    var p = ctx.getImageData(node.style.x, node.style.y, node.getBoundingClientRect().width, node.getBoundingClientRect().height).data; 
+        //    console.log(p)
+        // })
+        document.getElementsByClassName('exported-graph')[0].innerHTML = 'head\trelation\ttail<br/>' + triples // "Graph has been exported successfully"
     }
 
     mounted() {
         // console.log('foo')
 
         // console.log(this)
+        console.log(foo);
 
         this.x = 0
         this.y = 0
+
+        global.nEntities = 0
+        global.triples = []
 
         // const canvas = document.getElementsByClassName('graph-canvas')[0];
 
@@ -117,8 +89,20 @@ import { Options, Vue } from 'vue-class-component';
         }
 
         document.getElementsByClassName('graph')[0].onmouseup = function(event) {
-            const canvas = document.getElementsByClassName('graph-canvas')[0];
-            canvas.style.drawing_relation = false;
+            if (!event.target.classList.contains('node')) {
+                const canvas = document.getElementsByClassName('graph-canvas')[0];
+                canvas.style.drawing_relation = false;
+
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'red';
+                drawFilledSquare(ctx, event.offsetX, event.offsetY, 30, 'red')
+                
+                getIntersectedEntities(event.offsetX, event.offsetY, 30).forEach((tail) => {
+                    global.currentHeads.forEach((head) => {
+                        global.triples.push({'head': head, 'relation': global.currentRelation, 'tail': tail})
+                    })
+                })
+            }
         }
 
         document.getElementsByClassName('graph')[0].onmousedown = function(event) {
@@ -128,11 +112,20 @@ import { Options, Vue } from 'vue-class-component';
 
                 // set line stroke and line width
                 ctx.strokeStyle = 'red';
+                ctx.fillStyle = 'red';
                 ctx.lineWidth = 5;
+
+                drawFilledSquare(ctx, event.offsetX, event.offsetY, 30, 'red')
+
+                // ctx.rect(event.offsetX - 10, event.offsetY - 10, 30, 30);
+                // ctx.fillRect(event.offsetX - 10, event.offsetY - 10, 30, 30);
 
                 // draw a red line
                 ctx.beginPath();
                 ctx.moveTo(event.offsetX, event.offsetY);
+
+                global.currentHeads = getIntersectedEntities(event.offsetX, event.offsetY, 30)
+                global.currentRelation = 'red'
 
                 canvas.style.drawing_relation = true;
             } else {
@@ -146,18 +139,23 @@ import { Options, Vue } from 'vue-class-component';
                             data_attribute = attribute_name
                         }
                     })
-                    node.className = 'node'
+                    node.className = 'node unlocked'
                     node.setAttribute(data_attribute, '')
                     graph.appendChild(node)
 
                     node.style.x = event.offsetX - node.getBoundingClientRect().width / 2
                     node.style.y = event.offsetY - node.getBoundingClientRect().height / 2
+                    node.id = `entity-${global.nEntities++}`
                     node.style.transform = `translate(${node.style.x}px, ${node.style.y}px)`
+
+                    // global.nEntities += 1
+
+                    console.log(`Currently there are ${global.nEntities} entities`)
                 }
             }
         }
 
-        interact('.node')
+        interact('.node.unlocked')
             .draggable(
                 {
                     inertia: true,

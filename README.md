@@ -1,5 +1,7 @@
 # graggy
 
+![logo](public/logo.jpg)
+
 ## Project setup
 ```
 npm install
