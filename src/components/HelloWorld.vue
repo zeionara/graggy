@@ -1,8 +1,11 @@
 <template>
   <b>foo</b>
   <div class = "graph">
+    <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
     <div class = "node"></div>
   </div>
+  <button @click="this.export()">export</button>
+  <p class = "exported-graph">Draw graph and then click export button</p>
   <!--<div class="hello">
     <h1>{{ msg }}</h1>
     <p>
@@ -53,13 +56,45 @@ import { Options, Vue } from 'vue-class-component';
    x!: number
    y!: number 
 
-    mounted() {
-        console.log('foo')
+    export() {
+        Array.prototype.forEach.call(document.getElementsByClassName('node'), (node, i) => {
+           let node_id = `entity-${i}` 
+           node.id = node_id
 
-        console.log(this)
+           console.log(node)
+
+           const canvas = document.getElementsByClassName('graph-canvas')[0];
+           const ctx = canvas.getContext('2d');
+
+           var p = ctx.getImageData(node.style.x, node.style.y, node.getBoundingClientRect().width, node.getBoundingClientRect().height).data; 
+           console.log(p)
+        })
+        document.getElementsByClassName('exported-graph')[0].innerHTML = "Graph has been exported successfully"
+    }
+
+    mounted() {
+        // console.log('foo')
+
+        // console.log(this)
 
         this.x = 0
         this.y = 0
+
+        // const canvas = document.getElementsByClassName('graph-canvas')[0];
+
+        // if (canvas.getContext) {
+        //     const ctx = canvas.getContext('2d');
+
+        //     // set line stroke and line width
+        //     ctx.strokeStyle = 'red';
+        //     ctx.lineWidth = 5;
+
+        //     // draw a red line
+        //     ctx.beginPath();
+        //     ctx.moveTo(100, 100);
+        //     ctx.lineTo(300, 100);
+        //     ctx.stroke();
+        // }
 
         // var shift_node = function(event) {
         //     this.x += event.dx
@@ -70,30 +105,62 @@ import { Options, Vue } from 'vue-class-component';
 
         // console.log(this)
 
-        document.getElementsByClassName('graph')[0].onclick = function(event) {
-            if (!event.target.classList.contains('node')) {
-                console.log(event)
-                var node = document.createElement('div')
-                var graph = document.getElementsByClassName('graph')[0]
-                var data_attribute = null
-                graph.getAttributeNames().forEach((attribute_name) => {
-                    if (attribute_name.startsWith('data-v-')) {
-                        data_attribute = attribute_name
-                    }
-                })
-                node.style.x = event.offsetX
-                node.style.y = event.offsetY
-                node.style.transform = `translate(${node.style.x}px, ${node.style.y}px)`
-                node.className = 'node'
-                node.setAttribute(data_attribute, '')
-                graph.appendChild(node)
+        document.getElementsByClassName('graph')[0].onmousemove = function(event) {
+            const canvas = document.getElementsByClassName('graph-canvas')[0];
+
+            if (canvas.style.drawing_relation && !event.target.classList.contains('node')) {
+                const ctx = canvas.getContext('2d');
+
+                ctx.lineTo(event.offsetX, event.offsetY);
+                ctx.stroke();
+            }
+        }
+
+        document.getElementsByClassName('graph')[0].onmouseup = function(event) {
+            const canvas = document.getElementsByClassName('graph-canvas')[0];
+            canvas.style.drawing_relation = false;
+        }
+
+        document.getElementsByClassName('graph')[0].onmousedown = function(event) {
+            if (event.ctrlKey) {
+                const canvas = document.getElementsByClassName('graph-canvas')[0];
+                const ctx = canvas.getContext('2d');
+
+                // set line stroke and line width
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 5;
+
+                // draw a red line
+                ctx.beginPath();
+                ctx.moveTo(event.offsetX, event.offsetY);
+
+                canvas.style.drawing_relation = true;
+            } else {
+                if (!event.target.classList.contains('node')) {
+                    // console.log(event)
+                    var node = document.createElement('div')
+                    var graph = document.getElementsByClassName('graph')[0]
+                    var data_attribute = null
+                    graph.getAttributeNames().forEach((attribute_name) => {
+                        if (attribute_name.startsWith('data-v-')) {
+                            data_attribute = attribute_name
+                        }
+                    })
+                    node.className = 'node'
+                    node.setAttribute(data_attribute, '')
+                    graph.appendChild(node)
+
+                    node.style.x = event.offsetX - node.getBoundingClientRect().width / 2
+                    node.style.y = event.offsetY - node.getBoundingClientRect().height / 2
+                    node.style.transform = `translate(${node.style.x}px, ${node.style.y}px)`
+                }
             }
         }
 
         interact('.node')
             .draggable(
                 {
-                    intertia: true,
+                    inertia: true,
                     modifiers: [
                         interact.modifiers.restrictRect(
                             {
@@ -104,18 +171,18 @@ import { Options, Vue } from 'vue-class-component';
                     ],
                     listeners: {
                         start(event) {
-                            console.log(event.type, event.target)
+                            // console.log(event.type, event.target)
                         },
                         move(event) {
-                            console.log(event)
+                            // console.log(event)
                             // this.x += event.dx
                             // this.y += event.dy
                             if (!event.target.style.x) {
-                                console.log('no x')
+                                // console.log('no x')
                                 event.target.style.x = event.delta.x
                                 event.target.style.y = event.delta.y
                             } else {
-                                console.log('yes x')
+                                // console.log('yes x')
                                 var next_x = parseFloat(event.target.style.x) + parseFloat(event.delta.x)
                                 var next_y = parseFloat(event.target.style.y) + parseFloat(event.delta.y)
                                 event.target.style.x = next_x // event.delta.x
@@ -124,7 +191,7 @@ import { Options, Vue } from 'vue-class-component';
                                 // event.target.style.y += event.delta.y
                             }
 
-                            console.log(event.target.style.x, event.target.style.y)
+                            // console.log(event.target.style.x, event.target.style.y)
 
                             // event.target.style.transform = `translate(${this.x}px, ${this.y}px)`
                             // event.target.style.transform = `translate(100px, 100px)`
@@ -133,12 +200,6 @@ import { Options, Vue } from 'vue-class-component';
                     }
                 }
             )
-    }
-
-    create_node(event) {
-        var node = document.getElementsByClassName('graph')[0].createElement('div')
-        console.log(event)
-        console.log('create new node!')
     }
  }
 </script>
@@ -155,6 +216,10 @@ import { Options, Vue } from 'vue-class-component';
     height: 100px;
     background-color: red;
     position: absolute;
+}
+.graph-canvas {
+    position: absolute;
+    left: 7px;
 }
 // h3 {
 //   margin: 40px 0 0;
