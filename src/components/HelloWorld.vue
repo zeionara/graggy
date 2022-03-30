@@ -15,6 +15,12 @@
     <span v-else>disabled</span>
   </label>
 
+    <select v-model="current_relation">
+      <option value = "red">red</option>
+      <option value = "green">green</option>
+      <option value = "black">black</option>
+    </select>
+
   <div class = "graph">
     <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
   </div>
@@ -40,15 +46,21 @@ import { Options, Vue } from 'vue-class-component';
 
  @Options({
    props: {
-     msg: String
+     msg: String,
+     connector_size: Number,
+     relation_line_thickness: Number
    }
  })
  export default class HelloWorld extends Vue {
     msg!: string
+    connector_size!: number
+    relation_line_thickness!: number
+
     x!: number
     y!: number
     enable_relation_connector_automatic_alignment = false
     enable_straight_lines_drawing = false
+    current_relation = "red"
 
     current_head_connector_location = new Location(0, 0)
     previous_tail_connector_location!: Location // = new Location(0, 0)
@@ -105,17 +117,17 @@ import { Options, Vue } from 'vue-class-component';
 
                 // @ts-ignore
                 const ctx = canvas.getContext('2d');
-                ctx.fillStyle = 'red';
+                ctx.fillStyle = self.current_relation;
 
                 if (self.enable_relation_connector_automatic_alignment) {
                     const anchor_point = getClosestEntityAnchorPoint(event.offsetX, event.offsetY, 2)
 
                     ctx.lineTo(anchor_point.x, anchor_point.y);
                     ctx.stroke();
-                    drawFilledSquare(ctx, anchor_point.x, anchor_point.y, 30, 'red')
+                    drawFilledSquare(ctx, anchor_point.x, anchor_point.y, self.connector_size, self.current_relation)
                     
                     // @ts-ignore
-                    getIntersectedEntities(anchor_point.x, anchor_point.y, 30).forEach((tail) => {
+                    getIntersectedEntities(anchor_point.x, anchor_point.y, self.connector_size).forEach((tail) => {
                         // @ts-ignore
                         global.currentHeads.forEach((head) => {
                             // @ts-ignore
@@ -123,7 +135,7 @@ import { Options, Vue } from 'vue-class-component';
                         })
                     })
                 } else {
-                    drawFilledSquare(ctx, event.offsetX, event.offsetY, 30, 'red')
+                    drawFilledSquare(ctx, event.offsetX, event.offsetY, self.connector_size, self.current_relation)
 
                     if (self.enable_straight_lines_drawing) {
                         // ctx.moveTo(self.current_head_connector_location.x, self.current_head_connector_location.y)
@@ -132,7 +144,7 @@ import { Options, Vue } from 'vue-class-component';
                     }
                     
                     // @ts-ignore
-                    getIntersectedEntities(event.offsetX, event.offsetY, 30).forEach((tail) => {
+                    getIntersectedEntities(event.offsetX, event.offsetY, self.connector_size).forEach((tail) => {
                         // @ts-ignore
                         global.currentHeads.forEach((head) => {
                             // @ts-ignore
@@ -152,14 +164,14 @@ import { Options, Vue } from 'vue-class-component';
                 const ctx = canvas.getContext('2d');
 
                 // set line stroke and line width
-                ctx.strokeStyle = 'red';
-                ctx.fillStyle = 'red';
-                ctx.lineWidth = 5;
+                ctx.strokeStyle = self.current_relation;
+                ctx.fillStyle = self.current_relation;
+                ctx.lineWidth = self.relation_line_thickness;
 
                 if (self.enable_relation_connector_automatic_alignment) {
                     const anchor_point = getClosestEntityAnchorPoint(event.offsetX, event.offsetY, 2)
 
-                    drawFilledSquare(ctx, anchor_point.x, anchor_point.y, 30, 'red')
+                    drawFilledSquare(ctx, anchor_point.x, anchor_point.y, self.connector_size, self.current_relation)
 
                     // draw a red line
                     ctx.beginPath();
@@ -173,9 +185,9 @@ import { Options, Vue } from 'vue-class-component';
                     }
 
                     // @ts-ignore
-                    global.currentHeads = getIntersectedEntities(anchor_point.x, anchor_point.y, 30)
+                    global.currentHeads = getIntersectedEntities(anchor_point.x, anchor_point.y, self.connector_size)
                 } else {
-                    drawFilledSquare(ctx, event.offsetX, event.offsetY, 30, 'red')
+                    drawFilledSquare(ctx, event.offsetX, event.offsetY, self.connector_size, self.current_relation)
 
                     // draw a red line
                     ctx.beginPath();
@@ -186,10 +198,10 @@ import { Options, Vue } from 'vue-class-component';
                     }
 
                     // @ts-ignore
-                    global.currentHeads = getIntersectedEntities(event.offsetX, event.offsetY, 30)
+                    global.currentHeads = getIntersectedEntities(event.offsetX, event.offsetY, self.connector_size)
                 }
                 // @ts-ignore
-                global.currentRelation = 'red'
+                global.currentRelation = self.current_relation
 
                 // @ts-ignore
                 canvas.style.drawing_relation = true;
