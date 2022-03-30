@@ -1,5 +1,11 @@
 <template>
-  <b>foo</b>
+  <b>graggy</b>
+  <input type="checkbox" id="enable-relation-connector-automatic-alignment" v-model="enable_relation_connector_automatic_alignment" />
+  <label for="enable-relation-connector-automatic-alignment">
+    relation connector automatic alignment is
+    <span v-if="enable_relation_connector_automatic_alignment">enabled</span>
+    <span v-else>disabled</span>
+  </label>
   <div class = "graph">
     <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
   </div>
@@ -9,78 +15,45 @@
 
 <script lang="ts">
 import interact from 'interactjs';
-import { foo, drawFilledSquare, getIntersectedEntities } from "@/geometry.ts";
+import { drawFilledSquare, getIntersectedEntities, getClosestEntityAnchorPoint } from "@/geometry";
 
 import { Options, Vue } from 'vue-class-component';
- 
+
  @Options({
    props: {
      msg: String
    }
  })
  export default class HelloWorld extends Vue {
-   msg!: string
-   x!: number
-   y!: number 
+    msg!: string
+    x!: number
+    y!: number
+    enable_relation_connector_automatic_alignment = false
 
     export() {
+        // @ts-ignore
         const triples = global.triples.map(triple => `${triple.head}\t${triple.relation}\t${triple.tail}`).join('<br/>')
-        // Array.prototype.forEach.call(document.getElementsByClassName('node'), (node, i) => {
-        //    let node_id = `entity-${i}` 
-        //    node.id = node_id
-
-        //    console.log(node)
-
-        //    const canvas = document.getElementsByClassName('graph-canvas')[0];
-        //    const ctx = canvas.getContext('2d');
-
-        //    var p = ctx.getImageData(node.style.x, node.style.y, node.getBoundingClientRect().width, node.getBoundingClientRect().height).data; 
-        //    console.log(p)
-        // })
         document.getElementsByClassName('exported-graph')[0].innerHTML = 'head\trelation\ttail<br/>' + triples // "Graph has been exported successfully"
     }
 
     mounted() {
-        // console.log('foo')
-
-        // console.log(this)
-        console.log(foo);
-
         this.x = 0
         this.y = 0
 
+        // @ts-ignore
         global.nEntities = 0
+        // @ts-ignore
         global.triples = []
 
-        // const canvas = document.getElementsByClassName('graph-canvas')[0];
+        const self = this
 
-        // if (canvas.getContext) {
-        //     const ctx = canvas.getContext('2d');
-
-        //     // set line stroke and line width
-        //     ctx.strokeStyle = 'red';
-        //     ctx.lineWidth = 5;
-
-        //     // draw a red line
-        //     ctx.beginPath();
-        //     ctx.moveTo(100, 100);
-        //     ctx.lineTo(300, 100);
-        //     ctx.stroke();
-        // }
-
-        // var shift_node = function(event) {
-        //     this.x += event.dx
-        //     this.y += event.dy
-
-        //     event.target.style.transform = `translate(${this.x}px, ${this.y}px)`
-        // }
-
-        // console.log(this)
-
+        // @ts-ignore
         document.getElementsByClassName('graph')[0].onmousemove = function(event) {
             const canvas = document.getElementsByClassName('graph-canvas')[0];
 
+            // @ts-ignore
             if (canvas.style.drawing_relation && !event.target.classList.contains('node')) {
+                // @ts-ignore
                 const ctx = canvas.getContext('2d');
 
                 ctx.lineTo(event.offsetX, event.offsetY);
@@ -88,26 +61,55 @@ import { Options, Vue } from 'vue-class-component';
             }
         }
 
+        // @ts-ignore
         document.getElementsByClassName('graph')[0].onmouseup = function(event) {
             if (!event.target.classList.contains('node')) {
                 const canvas = document.getElementsByClassName('graph-canvas')[0];
+                // @ts-ignore
                 canvas.style.drawing_relation = false;
 
+                // @ts-ignore
                 const ctx = canvas.getContext('2d');
                 ctx.fillStyle = 'red';
-                drawFilledSquare(ctx, event.offsetX, event.offsetY, 30, 'red')
-                
-                getIntersectedEntities(event.offsetX, event.offsetY, 30).forEach((tail) => {
-                    global.currentHeads.forEach((head) => {
-                        global.triples.push({'head': head, 'relation': global.currentRelation, 'tail': tail})
+
+                if (self.enable_relation_connector_automatic_alignment) {
+                    const anchor_point = getClosestEntityAnchorPoint(event.offsetX, event.offsetY, 2)
+
+                    ctx.lineTo(anchor_point.x, anchor_point.y);
+                    ctx.stroke();
+                    drawFilledSquare(ctx, anchor_point.x, anchor_point.y, 30, 'red')
+                    
+                    console.log('############################')
+                    console.log(anchor_point.x, anchor_point.y)
+                    // @ts-ignore
+                    getIntersectedEntities(anchor_point.x, anchor_point.y, 30).forEach((tail) => {
+                        // @ts-ignore
+                        global.currentHeads.forEach((head) => {
+                            // @ts-ignore
+                            global.triples.push({'head': head, 'relation': global.currentRelation, 'tail': tail})
+                        })
                     })
-                })
+                } else {
+                    drawFilledSquare(ctx, event.offsetX, event.offsetY, 30, 'red')
+                    
+                    // @ts-ignore
+                    getIntersectedEntities(event.offsetX, event.offsetY, 30).forEach((tail) => {
+                        // @ts-ignore
+                        global.currentHeads.forEach((head) => {
+                            // @ts-ignore
+                            global.triples.push({'head': head, 'relation': global.currentRelation, 'tail': tail})
+                        })
+                    })
+                }
             }
         }
 
+        // @ts-ignore
         document.getElementsByClassName('graph')[0].onmousedown = function(event) {
+            // @ts-ignore
             if (event.ctrlKey) {
                 const canvas = document.getElementsByClassName('graph-canvas')[0];
+                // @ts-ignore
                 const ctx = canvas.getContext('2d');
 
                 // set line stroke and line width
@@ -115,18 +117,33 @@ import { Options, Vue } from 'vue-class-component';
                 ctx.fillStyle = 'red';
                 ctx.lineWidth = 5;
 
-                drawFilledSquare(ctx, event.offsetX, event.offsetY, 30, 'red')
+                if (self.enable_relation_connector_automatic_alignment) {
+                    const anchor_point = getClosestEntityAnchorPoint(event.offsetX, event.offsetY, 2)
 
-                // ctx.rect(event.offsetX - 10, event.offsetY - 10, 30, 30);
-                // ctx.fillRect(event.offsetX - 10, event.offsetY - 10, 30, 30);
+                    drawFilledSquare(ctx, anchor_point.x, anchor_point.y, 30, 'red')
 
-                // draw a red line
-                ctx.beginPath();
-                ctx.moveTo(event.offsetX, event.offsetY);
+                    // draw a red line
+                    ctx.beginPath();
+                    ctx.moveTo(anchor_point.x, anchor_point.y);
+                    ctx.lineTo(event.offsetX, event.offsetY);
+                    ctx.stroke();
 
-                global.currentHeads = getIntersectedEntities(event.offsetX, event.offsetY, 30)
+                    // @ts-ignore
+                    global.currentHeads = getIntersectedEntities(anchor_point.x, anchor_point.y, 30)
+                } else {
+                    drawFilledSquare(ctx, event.offsetX, event.offsetY, 30, 'red')
+
+                    // draw a red line
+                    ctx.beginPath();
+                    ctx.moveTo(event.offsetX, event.offsetY);
+
+                    // @ts-ignore
+                    global.currentHeads = getIntersectedEntities(event.offsetX, event.offsetY, 30)
+                }
+                // @ts-ignore
                 global.currentRelation = 'red'
 
+                // @ts-ignore
                 canvas.style.drawing_relation = true;
             } else {
                 if (!event.target.classList.contains('node')) {
@@ -140,16 +157,22 @@ import { Options, Vue } from 'vue-class-component';
                         }
                     })
                     node.className = 'node unlocked'
+                    // @ts-ignore
                     node.setAttribute(data_attribute, '')
                     graph.appendChild(node)
 
+                    // @ts-ignore
                     node.style.x = event.offsetX - node.getBoundingClientRect().width / 2
+                    // @ts-ignore
                     node.style.y = event.offsetY - node.getBoundingClientRect().height / 2
+                    // @ts-ignore
                     node.id = `entity-${global.nEntities++}`
+                    // @ts-ignore
                     node.style.transform = `translate(${node.style.x}px, ${node.style.y}px)`
 
                     // global.nEntities += 1
 
+                    // @ts-ignore
                     console.log(`Currently there are ${global.nEntities} entities`)
                 }
             }
@@ -219,18 +242,4 @@ import { Options, Vue } from 'vue-class-component';
     position: absolute;
     left: 7px;
 }
-// h3 {
-//   margin: 40px 0 0;
-// }
-// ul {
-//   list-style-type: none;
-//   padding: 0;
-// }
-// li {
-//   display: inline-block;
-//   margin: 0 10px;
-// }
-// a {
-//   color: #42b983;
-// }
 </style>
