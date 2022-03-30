@@ -1,11 +1,20 @@
 <template>
   <b>graggy</b>
+
   <input type="checkbox" id="enable-relation-connector-automatic-alignment" v-model="enable_relation_connector_automatic_alignment" />
   <label for="enable-relation-connector-automatic-alignment">
     relation connector automatic alignment is
     <span v-if="enable_relation_connector_automatic_alignment">enabled</span>
     <span v-else>disabled</span>
   </label>
+
+  <input type="checkbox" id="enable-straight-lines-drawing" v-model="enable_straight_lines_drawing" />
+  <label for="enable-straight-lines-drawing">
+    straight lines drawing is
+    <span v-if="enable_straight_lines_drawing">enabled</span>
+    <span v-else>disabled</span>
+  </label>
+
   <div class = "graph">
     <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
   </div>
@@ -19,6 +28,16 @@ import { drawFilledSquare, getIntersectedEntities, getClosestEntityAnchorPoint }
 
 import { Options, Vue } from 'vue-class-component';
 
+ class Location {
+    x!: number
+    y!: number
+
+    constructor(x: number, y: number) {
+        this.x = x
+        this.y = y
+    }
+ }
+
  @Options({
    props: {
      msg: String
@@ -29,6 +48,10 @@ import { Options, Vue } from 'vue-class-component';
     x!: number
     y!: number
     enable_relation_connector_automatic_alignment = false
+    enable_straight_lines_drawing = false
+
+    current_head_connector_location = new Location(0, 0)
+    previous_tail_connector_location!: Location // = new Location(0, 0)
 
     export() {
         // @ts-ignore
@@ -56,8 +79,20 @@ import { Options, Vue } from 'vue-class-component';
                 // @ts-ignore
                 const ctx = canvas.getContext('2d');
 
-                ctx.lineTo(event.offsetX, event.offsetY);
-                ctx.stroke();
+                if (self.enable_straight_lines_drawing) {
+                    // if (self.previous_tail_connector_location) {
+                    //     ctx.moveTo(self.current_head_connector_location.x, self.current_head_connector_location.y)
+                    //     ctx.strokeStyle = 'blue';
+                    //     ctx.lineTo(self.previous_tail_connector_location.x, self.previous_tail_connector_location.y);
+                    //     ctx.stroke()
+                    //     ctx.strokeStyle = 'red';
+                    // }
+                    // ctx.moveTo(self.current_head_connector_location.x, self.current_head_connector_location.y)
+                    // self.previous_tail_connector_location = new Location(event.offsetX, event.offsetY)
+                } else {
+                    ctx.lineTo(event.offsetX, event.offsetY);
+                    ctx.stroke();
+                }
             }
         }
 
@@ -79,8 +114,6 @@ import { Options, Vue } from 'vue-class-component';
                     ctx.stroke();
                     drawFilledSquare(ctx, anchor_point.x, anchor_point.y, 30, 'red')
                     
-                    console.log('############################')
-                    console.log(anchor_point.x, anchor_point.y)
                     // @ts-ignore
                     getIntersectedEntities(anchor_point.x, anchor_point.y, 30).forEach((tail) => {
                         // @ts-ignore
@@ -91,6 +124,12 @@ import { Options, Vue } from 'vue-class-component';
                     })
                 } else {
                     drawFilledSquare(ctx, event.offsetX, event.offsetY, 30, 'red')
+
+                    if (self.enable_straight_lines_drawing) {
+                        // ctx.moveTo(self.current_head_connector_location.x, self.current_head_connector_location.y)
+                        ctx.lineTo(event.offsetX, event.offsetY);
+                        ctx.stroke();
+                    }
                     
                     // @ts-ignore
                     getIntersectedEntities(event.offsetX, event.offsetY, 30).forEach((tail) => {
@@ -125,8 +164,13 @@ import { Options, Vue } from 'vue-class-component';
                     // draw a red line
                     ctx.beginPath();
                     ctx.moveTo(anchor_point.x, anchor_point.y);
-                    ctx.lineTo(event.offsetX, event.offsetY);
-                    ctx.stroke();
+
+                    if (self.enable_straight_lines_drawing) {
+                        self.current_head_connector_location = new Location(event.offsetX, event.offsetY)
+                    } else {
+                        ctx.lineTo(event.offsetX, event.offsetY);
+                        ctx.stroke();
+                    }
 
                     // @ts-ignore
                     global.currentHeads = getIntersectedEntities(anchor_point.x, anchor_point.y, 30)
@@ -136,6 +180,10 @@ import { Options, Vue } from 'vue-class-component';
                     // draw a red line
                     ctx.beginPath();
                     ctx.moveTo(event.offsetX, event.offsetY);
+
+                    if (self.enable_straight_lines_drawing) {
+                        self.current_head_connector_location = new Location(event.offsetX, event.offsetY)
+                    }
 
                     // @ts-ignore
                     global.currentHeads = getIntersectedEntities(event.offsetX, event.offsetY, 30)
