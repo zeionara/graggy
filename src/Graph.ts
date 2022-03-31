@@ -1,9 +1,11 @@
 import { Node } from '@/Node'
+import { Triple } from '@/Triple'
 
 class Graph {
     element: HTMLElement
     nEntities = 0
     nodes: Node[] = []
+    triples: Triple[] = []
 
     currentHeads: string[] = []
     currentRelation: string
@@ -30,7 +32,15 @@ class Graph {
     }
 
     get canvas() {
-        return this.element.firstChild
+        return this.element.firstChild as HTMLCanvasElement
+    }
+
+    push_triples(tails: string[]) {
+        tails.forEach((tail) => {
+            this.currentHeads.forEach((head) => {
+                this.triples.push(new Triple(head, this.currentRelation, tail))
+            })
+        })
     }
 }
 
