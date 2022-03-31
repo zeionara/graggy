@@ -31,8 +31,9 @@
 <script lang="ts">
 import interact from 'interactjs';
 import { drawFilledSquare, getIntersectedEntities, getClosestEntityAnchorPoint } from "@/geometry";
-
 import { Options, Vue } from 'vue-class-component';
+import { Node } from '@/Node'
+import { Graph } from '@/Graph'
 
  class Location {
     x!: number
@@ -65,6 +66,9 @@ import { Options, Vue } from 'vue-class-component';
     current_head_connector_location = new Location(0, 0)
     previous_tail_connector_location!: Location // = new Location(0, 0)
 
+    // nodes: Node[] = []
+    graphs: Graph[] = []
+
     export() {
         // @ts-ignore
         const triples = global.triples.map(triple => `${triple.head}\t${triple.relation}\t${triple.tail}`).join('<br/>')
@@ -75,168 +79,192 @@ import { Options, Vue } from 'vue-class-component';
         this.x = 0
         this.y = 0
 
+        console.log('fffff')
+        const self = this
+        Array.prototype.forEach.call(document.getElementsByClassName('graph'), function(graph) {
+            self.graphs.push(new Graph(graph))
+        })
+
         // @ts-ignore
         global.nEntities = 0
         // @ts-ignore
         global.triples = []
 
-        const self = this
 
-        // @ts-ignore
-        document.getElementsByClassName('graph')[0].onmousemove = function(event) {
-            const canvas = document.getElementsByClassName('graph-canvas')[0];
-
-            // @ts-ignore
-            if (canvas.style.drawing_relation && !event.target.classList.contains('node')) {
-                // @ts-ignore
-                const ctx = canvas.getContext('2d');
-
-                if (self.enable_straight_lines_drawing) {
-                    // if (self.previous_tail_connector_location) {
-                    //     ctx.moveTo(self.current_head_connector_location.x, self.current_head_connector_location.y)
-                    //     ctx.strokeStyle = 'blue';
-                    //     ctx.lineTo(self.previous_tail_connector_location.x, self.previous_tail_connector_location.y);
-                    //     ctx.stroke()
-                    //     ctx.strokeStyle = 'red';
-                    // }
-                    // ctx.moveTo(self.current_head_connector_location.x, self.current_head_connector_location.y)
-                    // self.previous_tail_connector_location = new Location(event.offsetX, event.offsetY)
-                } else {
-                    ctx.lineTo(event.offsetX, event.offsetY);
-                    ctx.stroke();
-                }
-            }
-        }
-
-        // @ts-ignore
-        document.getElementsByClassName('graph')[0].onmouseup = function(event) {
-            if (!event.target.classList.contains('node')) {
-                const canvas = document.getElementsByClassName('graph-canvas')[0];
-                // @ts-ignore
-                canvas.style.drawing_relation = false;
+        // document.getElementsByClassName('graph')[0].onmousemove =
+        this.graphs.forEach((graph) => {
+            graph.element.onmousemove = function(event) {
+                const canvas = graph.canvas // document.getElementsByClassName('graph-canvas')[0];
 
                 // @ts-ignore
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = self.current_relation;
-
-                if (self.enable_relation_connector_automatic_alignment) {
-                    const anchor_point = getClosestEntityAnchorPoint(event.offsetX, event.offsetY, 2)
-
-                    ctx.lineTo(anchor_point.x, anchor_point.y);
-                    ctx.stroke();
-                    drawFilledSquare(ctx, anchor_point.x, anchor_point.y, self.connector_size, self.current_relation)
-                    
+                if (graph.drawing_relation && event.target == graph.canvas) {
                     // @ts-ignore
-                    getIntersectedEntities(anchor_point.x, anchor_point.y, self.connector_size).forEach((tail) => {
-                        // @ts-ignore
-                        global.currentHeads.forEach((head) => {
-                            // @ts-ignore
-                            global.triples.push({'head': head, 'relation': global.currentRelation, 'tail': tail})
-                        })
-                    })
-                } else {
-                    drawFilledSquare(ctx, event.offsetX, event.offsetY, self.connector_size, self.current_relation)
+                    const ctx = canvas.getContext('2d');
 
                     if (self.enable_straight_lines_drawing) {
+                        // if (self.previous_tail_connector_location) {
+                        //     ctx.moveTo(self.current_head_connector_location.x, self.current_head_connector_location.y)
+                        //     ctx.strokeStyle = 'blue';
+                        //     ctx.lineTo(self.previous_tail_connector_location.x, self.previous_tail_connector_location.y);
+                        //     ctx.stroke()
+                        //     ctx.strokeStyle = 'red';
+                        // }
                         // ctx.moveTo(self.current_head_connector_location.x, self.current_head_connector_location.y)
+                        // self.previous_tail_connector_location = new Location(event.offsetX, event.offsetY)
+                    } else {
+                        console.log('wtd')
                         ctx.lineTo(event.offsetX, event.offsetY);
                         ctx.stroke();
                     }
-                    
-                    // @ts-ignore
-                    getIntersectedEntities(event.offsetX, event.offsetY, self.connector_size).forEach((tail) => {
-                        // @ts-ignore
-                        global.currentHeads.forEach((head) => {
-                            // @ts-ignore
-                            global.triples.push({'head': head, 'relation': global.currentRelation, 'tail': tail})
-                        })
-                    })
                 }
             }
-        }
+        });
 
         // @ts-ignore
-        document.getElementsByClassName('graph')[0].onmousedown = function(event) {
-            // @ts-ignore
-            if (event.ctrlKey) {
-                const canvas = document.getElementsByClassName('graph-canvas')[0];
-                // @ts-ignore
-                const ctx = canvas.getContext('2d');
+        // document.getElementsByClassName('graph')[0].onmouseup = function(event) {
+        this.graphs.forEach((graph) => {
+            graph.element.onmouseup = function(event) {
+                if (event.target == graph.canvas) {
+                    const canvas = graph.canvas // document.getElementsByClassName('graph-canvas')[0];
+                    // @ts-ignore
+                    // canvas.style.drawing_relation = false;
+                    graph.drawing_relation = false
 
-                // set line stroke and line width
-                ctx.strokeStyle = self.current_relation;
-                ctx.fillStyle = self.current_relation;
-                ctx.lineWidth = self.relation_line_thickness;
+                    // @ts-ignore
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = self.current_relation;
 
-                if (self.enable_relation_connector_automatic_alignment) {
-                    const anchor_point = getClosestEntityAnchorPoint(event.offsetX, event.offsetY, 2)
+                    if (self.enable_relation_connector_automatic_alignment) {
+                        // console.log('----------------------------------------------------------------------')
+                        // console.log(event.offsetX, event.offsetY)
+                        const anchor_point = getClosestEntityAnchorPoint(graph.nodes, event.offsetX, event.offsetY, 2)
 
-                    drawFilledSquare(ctx, anchor_point.x, anchor_point.y, self.connector_size, self.current_relation)
-
-                    // draw a red line
-                    ctx.beginPath();
-                    ctx.moveTo(anchor_point.x, anchor_point.y);
-
-                    if (self.enable_straight_lines_drawing) {
-                        self.current_head_connector_location = new Location(event.offsetX, event.offsetY)
-                    } else {
-                        ctx.lineTo(event.offsetX, event.offsetY);
+                        ctx.lineTo(anchor_point.x, anchor_point.y);
                         ctx.stroke();
-                    }
+                        drawFilledSquare(ctx, anchor_point.x, anchor_point.y, self.connector_size, self.current_relation)
+                        
+                        // @ts-ignore
+                        getIntersectedEntities(graph.nodes, anchor_point.x, anchor_point.y, self.connector_size).forEach((tail) => {
+                            // @ts-ignore
+                            graph.currentHeads.forEach((head) => {
+                                // @ts-ignore
+                                global.triples.push({'head': head, 'relation': global.currentRelation, 'tail': tail})
+                            })
+                        })
+                    } else {
+                        // console.log('----------------------------------------------------------------------')
+                        // console.log(ctx, event.offsetX, event.offsetY, self.connector_size, self.current_relation)
+                        drawFilledSquare(ctx, event.offsetX, event.offsetY, self.connector_size, self.current_relation)
 
-                    // @ts-ignore
-                    global.currentHeads = getIntersectedEntities(anchor_point.x, anchor_point.y, self.connector_size)
-                } else {
-                    drawFilledSquare(ctx, event.offsetX, event.offsetY, self.connector_size, self.current_relation)
-
-                    // draw a red line
-                    ctx.beginPath();
-                    ctx.moveTo(event.offsetX, event.offsetY);
-
-                    if (self.enable_straight_lines_drawing) {
-                        self.current_head_connector_location = new Location(event.offsetX, event.offsetY)
-                    }
-
-                    // @ts-ignore
-                    global.currentHeads = getIntersectedEntities(event.offsetX, event.offsetY, self.connector_size)
-                }
-                // @ts-ignore
-                global.currentRelation = self.current_relation
-
-                // @ts-ignore
-                canvas.style.drawing_relation = true;
-            } else {
-                if (!event.target.classList.contains('node')) {
-                    // console.log(event)
-                    var node = document.createElement('div')
-                    var graph = document.getElementsByClassName('graph')[0]
-                    var data_attribute = null
-                    graph.getAttributeNames().forEach((attribute_name) => {
-                        if (attribute_name.startsWith('data-v-')) {
-                            data_attribute = attribute_name
+                        if (self.enable_straight_lines_drawing) {
+                            // ctx.moveTo(self.current_head_connector_location.x, self.current_head_connector_location.y)
+                            ctx.lineTo(event.offsetX, event.offsetY);
+                            ctx.stroke();
                         }
-                    })
-                    node.className = 'node unlocked'
-                    // @ts-ignore
-                    node.setAttribute(data_attribute, '')
-                    graph.appendChild(node)
-
-                    // @ts-ignore
-                    node.style.x = event.offsetX - node.getBoundingClientRect().width / 2
-                    // @ts-ignore
-                    node.style.y = event.offsetY - node.getBoundingClientRect().height / 2
-                    // @ts-ignore
-                    node.id = `entity-${global.nEntities++}`
-                    // @ts-ignore
-                    node.style.transform = `translate(${node.style.x}px, ${node.style.y}px)`
-
-                    // global.nEntities += 1
-
-                    // @ts-ignore
-                    console.log(`Currently there are ${global.nEntities} entities`)
+                        
+                        // @ts-ignore
+                        getIntersectedEntities(graph.nodes, event.offsetX, event.offsetY, self.connector_size).forEach((tail) => {
+                            // @ts-ignore
+                            graph.currentHeads.forEach((head) => {
+                                // @ts-ignore
+                                global.triples.push({'head': head, 'relation': global.currentRelation, 'tail': tail})
+                            })
+                        })
+                    }
                 }
             }
-        }
+        })
+
+        // @ts-ignore
+        this.graphs.forEach((graph) => {
+            // document.getElementsByClassName('graph')[0].onmousedown
+            graph.element.onmousedown = function(event) {
+                // @ts-ignore
+                if (event.ctrlKey) {
+                    const graph = self.find_target_graph(event)
+                    const canvas = graph.canvas // document.getElementsByClassName('graph-canvas')[0];
+                    // @ts-ignore
+                    const ctx = canvas.getContext('2d');
+
+                    // set line stroke and line width
+                    ctx.strokeStyle = self.current_relation;
+                    ctx.fillStyle = self.current_relation;
+                    ctx.lineWidth = self.relation_line_thickness;
+
+                    if (self.enable_relation_connector_automatic_alignment) {
+                        // console.log('----------------------------------------------------------------------')
+                        // console.log(event.offsetX, event.offsetY)
+                        const anchor_point = getClosestEntityAnchorPoint(graph.nodes, event.offsetX, event.offsetY, 2)
+
+                        drawFilledSquare(ctx, anchor_point.x, anchor_point.y, self.connector_size, self.current_relation)
+
+                        // draw a red line
+                        ctx.beginPath();
+                        ctx.moveTo(anchor_point.x, anchor_point.y);
+
+                        if (self.enable_straight_lines_drawing) {
+                            self.current_head_connector_location = new Location(event.offsetX, event.offsetY)
+                        } else {
+                            ctx.lineTo(event.offsetX, event.offsetY);
+                            ctx.stroke();
+                        }
+
+                        graph.currentHeads = getIntersectedEntities(graph.nodes, anchor_point.x, anchor_point.y, self.connector_size)
+                    } else {
+                        drawFilledSquare(ctx, event.offsetX, event.offsetY, self.connector_size, self.current_relation)
+
+                        // draw a red line
+                        ctx.beginPath();
+                        ctx.moveTo(event.offsetX, event.offsetY);
+
+                        if (self.enable_straight_lines_drawing) {
+                            self.current_head_connector_location = new Location(event.offsetX, event.offsetY)
+                        }
+
+                        graph.currentHeads = getIntersectedEntities(graph.nodes, event.offsetX, event.offsetY, self.connector_size)
+                    }
+                    graph.currentRelation = self.current_relation
+                    graph.drawing_relation = true
+                } else {
+                    if (!event.target.classList.contains('node')) {
+                        new Node(self.find_target_graph(event), event.offsetX, event.offsetY)
+                        // self.graphs.forEach((graph) => {
+                        //     if (graph.element.firstChild == event.target) {
+                        //         console.log('create new node')
+                        //         new Node(graph, event.offsetX, event.offsetY)
+                        //     }
+                        // })
+                        // // console.log(event)
+                        // var node = document.createElement('div')
+                        // var graph = document.getElementsByClassName('graph')[0]
+                        // var data_attribute = null
+                        // graph.getAttributeNames().forEach((attribute_name) => {
+                        //     if (attribute_name.startsWith('data-v-')) {
+                        //         data_attribute = attribute_name
+                        //     }
+                        // })
+                        // node.className = 'node unlocked'
+                        // // @ts-ignore
+                        // node.setAttribute(data_attribute, '')
+                        // graph.appendChild(node)
+
+                        // // @ts-ignore
+                        // node.style.x = event.offsetX - node.getBoundingClientRect().width / 2
+                        // // @ts-ignore
+                        // node.style.y = event.offsetY - node.getBoundingClientRect().height / 2
+                        // // @ts-ignore
+                        // node.id = `entity-${global.nEntities++}`
+                        // // @ts-ignore
+                        // node.style.transform = `translate(${node.style.x}px, ${node.style.y}px)`
+
+                        // // global.nEntities += 1
+
+                        // // @ts-ignore
+                        // console.log(`Currently there are ${global.nEntities} entities`)
+                    }
+                }
+            }
+        })
 
         interact('.node.unlocked')
             .draggable(
@@ -281,6 +309,18 @@ import { Options, Vue } from 'vue-class-component';
                     }
                 }
             )
+    }
+
+    find_target_graph(event) {
+        let target_graph: Graph
+
+        this.graphs.forEach((graph) => {
+            if (graph.canvas == event.target) {
+                target_graph = graph
+            }
+        })
+
+        return target_graph
     }
  }
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <!-- <img alt="Vue logo" src="../assets/logo.png"> !-->
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" connector_size = 10 relation_line_thickness = 2 />
+    <HelloWorld msg = "Welcome to Your Vue.js + TypeScript App" connector_size = 30 relation_line_thickness = 4 />
   </div>
 </template>
 
