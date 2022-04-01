@@ -35,6 +35,14 @@ class Graph {
         return this.element.firstChild as HTMLCanvasElement
     }
 
+    get width() {
+        return this.element.getBoundingClientRect().width
+    }
+
+    get height() {
+        return this.element.getBoundingClientRect().height
+    }
+
     push_triples(tails: string[]) {
         tails.forEach((tail) => {
             this.currentHeads.forEach((head) => {

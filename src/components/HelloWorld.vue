@@ -15,6 +15,13 @@
     <span v-else>disabled</span>
   </label>
 
+  <input type="checkbox" id="enable-grid" v-model="enable_grid" />
+  <label for="enable-grid">
+    grid is
+    <span v-if="enable_grid">enabled</span>
+    <span v-else>disabled</span>
+  </label>
+
     <select v-model="current_relation">
       <option value = "red">red</option>
       <option value = "green">green</option>
@@ -36,6 +43,8 @@ import { Graph } from '@/Graph'
 import { Location } from '@/Location'
 import { drawLineSegment } from '@/drawing/relation_line'
 import { drawAnchoredConnectorAndAdjacentLineSegment, drawConnector, drawTerminalAnchoredConnectorAndAdjacentLineSegment, drawTerminalConnector } from '@/drawing/connectors'
+import { Watch } from 'vue-property-decorator'
+import { drawGrid } from '@/drawing/grid'
 
  @Options({
    props: {
@@ -53,6 +62,7 @@ import { drawAnchoredConnectorAndAdjacentLineSegment, drawConnector, drawTermina
     y!: number
     enable_relation_connector_automatic_alignment = false
     enable_straight_lines_drawing = false
+    enable_grid = false
     current_relation = "red"
 
     current_head_connector_location!: Location
@@ -162,6 +172,21 @@ import { drawAnchoredConnectorAndAdjacentLineSegment, drawConnector, drawTermina
         })
 
         return target_graph
+    }
+
+    @Watch('enable_grid')
+    toggle_grid(value: boolean) {
+        // console.log(`change grid visibility from ${old_value} to ${value}`)
+        if (value) {
+            this.graphs.forEach((graph) => {
+                drawGrid(graph, 100 / (this.n_anchor_points_per_edge + 1))
+            })
+        } else {
+            this.graphs.forEach((graph) => {
+                const ctx = graph.canvas.getContext('2d')
+                ctx.clearRect(0, 0, graph.width, graph.height)
+            })
+        }
     }
  }
 </script>
