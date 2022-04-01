@@ -1,14 +1,21 @@
 import { Node } from '@/Node'
 import { Triple } from '@/Triple'
+import { Connector } from '@/Connector'
+import { Relation } from '@/relation/Relation'
+import { Location } from '@/Location'
+import { UserDefinedPathRelation } from '@/relation/UserDefinedPathRelation'
 
 class Graph {
     element: HTMLElement
     nEntities = 0
     nodes: Node[] = []
     triples: Triple[] = []
+    connectors: Connector[] = []
+    relations: Relation[] = []
 
     currentHeads: string[] = []
     currentRelation: string
+    currentRelationLineThickness: number
     drawingRelation = false
 
     constructor(element: HTMLElement) {
@@ -49,6 +56,25 @@ class Graph {
                 this.triples.push(new Triple(head, this.currentRelation, tail))
             })
         })
+    }
+
+    push_connector(connector: Connector) {
+        this.connectors.push(connector)
+    }
+
+    push_relation(relation: Relation) {
+        this.relations.push(relation)
+    }
+
+    push_relation_segment(segment: Location) {
+        const last_relation = this.relations[this.relations.length - 1] as UserDefinedPathRelation
+        last_relation.segments.push(segment)
+    }
+
+    draw() {
+        const ctx = this.canvas.getContext('2d')
+        this.connectors.forEach(connector => connector.draw(ctx))
+        this.relations.forEach(relation => relation.draw(ctx))
     }
 }
 

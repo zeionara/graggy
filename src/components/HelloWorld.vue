@@ -86,15 +86,18 @@ import { drawGrid } from '@/drawing/grid'
             graph.element.onmousedown = (event) => {
                 if (event.ctrlKey) {
                     const graph = this.find_target_graph(event)
+
                     graph.currentRelation = this.current_relation
+                    graph.currentRelationLineThickness = this.relation_line_thickness
+
                     const canvas = graph.canvas
                     const ctx = canvas.getContext('2d');
 
                     // set line stroke and line width
 
-                    ctx.strokeStyle = this.current_relation;
-                    ctx.fillStyle = this.current_relation;
-                    ctx.lineWidth = this.relation_line_thickness;
+                    // ctx.strokeStyle = this.current_relation;
+                    // ctx.fillStyle = this.current_relation;
+                    // ctx.lineWidth = this.relation_line_thickness;
 
                     if (this.enable_relation_connector_automatic_alignment) {
                         this.current_head_connector_location = drawAnchoredConnectorAndAdjacentLineSegment(
@@ -124,7 +127,7 @@ import { drawGrid } from '@/drawing/grid'
                     ctx.fillStyle = this.current_relation;
 
                     if (this.enable_relation_connector_automatic_alignment) {
-                        drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connector_size, this.n_anchor_points_per_edge)
+                        drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connector_size, this.n_anchor_points_per_edge, this.enable_straight_lines_drawing)
                     } else {
                         drawTerminalConnector(graph, ctx, event, this.connector_size, this.enable_straight_lines_drawing)
                     }
@@ -178,13 +181,63 @@ import { drawGrid } from '@/drawing/grid'
     toggle_grid(value: boolean) {
         // console.log(`change grid visibility from ${old_value} to ${value}`)
         if (value) {
+            const grid_step = 100 / (this.n_anchor_points_per_edge + 1)
+            // console.log(interact.snappers.grid({ x: grid_step, y: grid_step })())
+            let targets: Location[]
+
             this.graphs.forEach((graph) => {
-                drawGrid(graph, 100 / (this.n_anchor_points_per_edge + 1))
+                const ctx = graph.canvas.getContext('2d')
+                ctx.clearRect(0, 0, graph.width, graph.height)
+                targets = drawGrid(graph, grid_step)
+                graph.draw()
             })
+            interact('.node.unlocked').draggable(
+                {
+                    inertia: false,
+                    modifiers: [
+                          interact.modifiers.snap({
+                            // targets: [
+                            //     {x: 0, y: 0},
+                            //     {x: 33, y: 0},
+                            //     {x: 66, y: 0}
+                            // ],
+                            targets: targets,
+                            offset: 'parent',
+                            // targets: [
+                            //   interact.snappers.grid({ x: Math.floor(grid_step), y: Math.floor(grid_step)})
+                            // ]
+                            // range: Infinity
+                            // relativePoints: [ { x: 0, y: 0 } ]
+                          }),
+                          interact.modifiers.restrictRect(
+                              {
+                                  restriction: 'parent',
+                                  endOnly: true
+                              }
+                          )
+                    ],
+                    listeners: {
+                        move(event) {
+                            if (!event.target.style.x) {
+                                event.target.style.x = event.delta.x
+                                event.target.style.y = event.delta.y
+                            } else {
+                                var next_x = parseFloat(event.target.style.x) + parseFloat(event.delta.x)
+                                var next_y = parseFloat(event.target.style.y) + parseFloat(event.delta.y)
+                                event.target.style.x = next_x
+                                event.target.style.y = next_y
+                            }
+
+                            event.target.style.transform = `translate(${event.target.style.x}px, ${event.target.style.y}px)`
+                        }
+                    }
+                }
+            )
         } else {
             this.graphs.forEach((graph) => {
                 const ctx = graph.canvas.getContext('2d')
                 ctx.clearRect(0, 0, graph.width, graph.height)
+                graph.draw()
             })
         }
     }
@@ -207,5 +260,9 @@ import { drawGrid } from '@/drawing/grid'
 .graph-canvas {
     position: absolute;
     left: 7px;
+}
+html,body {
+    margin: 0 !important;
+    padding: 0 !important;
 }
 </style>

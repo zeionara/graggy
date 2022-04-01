@@ -10,8 +10,12 @@ function drawFilledSquare(ctx: CanvasRenderingContext2D, x: number, y: number, l
     region.lineTo(x + length / 2, y - length / 2);
     region.closePath();
 
-    ctx.fillStyle = color;
+    const previous_fill_style = ctx.fillStyle
+
+    ctx.fillStyle = color
     ctx.fill(region)
+
+    ctx.fillStyle = previous_fill_style
 }
 
 function getIntersectedEntities(nodes: Node[], x: number, y: number, length: number) {
