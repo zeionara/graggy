@@ -1,12 +1,6 @@
-class NodeAnchorPoint {
-    x: number
-    y: number
+import { Location } from '@/Location'
 
-    constructor(x: number, y: number) {
-        this.x = x
-        this.y = y
-    }
-    
+class NodeAnchorPoint extends Location {
     measure_distance(x: number, y: number) {
         return Math.sqrt((x - this.x) ** 2 + (y - this.y) ** 2)
     }
