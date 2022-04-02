@@ -79,8 +79,10 @@ import { drawGrid } from '@/drawing/grid'
     mounted() {
         // Wrap all graphs on the page into typescript objects
 
+        const grid_step = 100 / (this.n_anchor_points_per_edge + 1)
+
         Array.prototype.forEach.call(document.getElementsByClassName('graph'), (graph) => {
-            this.graphs.push(new Graph(graph))
+            this.graphs.push(new Graph(graph, this.enable_grid, grid_step))
         })
 
         this.graphs.forEach((graph) => {
@@ -182,15 +184,16 @@ import { drawGrid } from '@/drawing/grid'
     toggle_grid(value: boolean) {
         // console.log(`change grid visibility from ${old_value} to ${value}`)
         if (value) {
-            const grid_step = 100 / (this.n_anchor_points_per_edge + 1)
             // console.log(interact.snappers.grid({ x: grid_step, y: grid_step })())
             let targets: NodeAnchorPoint[]
 
             this.graphs.forEach((graph) => {
-                const ctx = graph.canvas.getContext('2d')
-                ctx.clearRect(0, 0, graph.width, graph.height)
-                targets = drawGrid(graph, grid_step)
-                graph.draw()
+                // const ctx = graph.canvas.getContext('2d')
+                // ctx.clearRect(0, 0, graph.width, graph.height)
+                // targets = drawGrid(graph, grid_step)
+                // graph.draw()
+                graph.enableGrid = true
+                const targets = graph.redraw()
 
                 interact('.node.unlocked').draggable(
                     {
@@ -243,9 +246,11 @@ import { drawGrid } from '@/drawing/grid'
             })
         } else {
             this.graphs.forEach((graph) => {
-                const ctx = graph.canvas.getContext('2d')
-                ctx.clearRect(0, 0, graph.width, graph.height)
-                graph.draw()
+                graph.enableGrid = false
+                graph.redraw()
+                // const ctx = graph.canvas.getContext('2d')
+                // ctx.clearRect(0, 0, graph.width, graph.height)
+                // graph.draw()
             })
 
             interact('.node.unlocked').draggable(

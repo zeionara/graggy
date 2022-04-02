@@ -70,7 +70,14 @@ function drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph: Graph, ctx: 
     graph.push_connector(connector)
 
     if (enable_straight_lines_drawing) {
+        graph.redraw()
         const last_relation = graph.relations[graph.relations.length - 1] as LinearRelation
+
+        const beginning = last_relation.beginning
+
+        ctx.beginPath();
+        ctx.moveTo(beginning.x, beginning.y);
+
         last_relation.dst = connector
         last_relation.ending = new Location(anchor_point.x, anchor_point.y)
     } else {
@@ -94,7 +101,14 @@ function drawTerminalConnector(graph: Graph, ctx: CanvasRenderingContext2D, even
     connector.draw(ctx)
 
     if (enable_straight_lines_drawing) {
+        graph.redraw()
         const last_relation = graph.relations[graph.relations.length - 1] as LinearRelation
+
+        const beginning = last_relation.beginning
+
+        ctx.beginPath();
+        ctx.moveTo(beginning.x, beginning.y);
+
         last_relation.dst = connector
         last_relation.ending = new Location(event.offsetX, event.offsetY)
 

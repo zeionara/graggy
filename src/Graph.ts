@@ -4,6 +4,8 @@ import { Connector } from '@/Connector'
 import { Relation } from '@/relation/Relation'
 import { Location } from '@/Location'
 import { UserDefinedPathRelation } from '@/relation/UserDefinedPathRelation'
+import { drawGrid } from '@/drawing/grid'
+import { NodeAnchorPoint } from '@/NodeAnchorPoint'
 
 class Graph {
     element: HTMLElement
@@ -17,9 +19,13 @@ class Graph {
     currentRelation: string
     currentRelationLineThickness: number
     drawingRelation = false
+    enableGrid = false
+    gridStep: number
 
-    constructor(element: HTMLElement) {
+    constructor(element: HTMLElement, enableGrid, gridStep) {
         this.element = element
+        this.enableGrid = enableGrid
+        this.gridStep = gridStep
     }
 
     appendNode(node: Node) {
@@ -75,6 +81,21 @@ class Graph {
         const ctx = this.canvas.getContext('2d')
         this.connectors.forEach(connector => connector.draw(ctx))
         this.relations.forEach(relation => relation.draw(ctx))
+    }
+
+    redraw() {
+        const ctx = this.canvas.getContext('2d')
+        let targets: NodeAnchorPoint[]
+
+        ctx.clearRect(0, 0, this.width, this.height)
+
+        if (this.enableGrid) {
+            targets = drawGrid(this, this.gridStep)
+        }
+
+        this.draw()
+
+        return targets
     }
 }
 
