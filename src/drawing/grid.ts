@@ -1,5 +1,5 @@
 import { Graph } from '@/Graph'
-import { Location } from '@/Location'
+import { NodeAnchorPoint } from '@/NodeAnchorPoint'
 
 function drawGrid(graph: Graph, distance: number, color = "grey", line_thickness = 1) {
     const canvas = graph.canvas
@@ -44,11 +44,11 @@ function drawGrid(graph: Graph, distance: number, color = "grey", line_thickness
         ctx.stroke()
     }
 
-    const targets: Location[] = []
+    const targets: NodeAnchorPoint[] = []
 
     for (let x = 0; x <= width; x = x + distance) {
         for (let y = 0; y <= height; y = y + distance) {
-            targets.push(new Location(Math.floor(x), Math.floor(y)))
+            targets.push(new NodeAnchorPoint(Math.floor(x), Math.floor(y)))
         }
     }
 

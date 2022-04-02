@@ -41,6 +41,7 @@ import { Options, Vue } from 'vue-class-component';
 import { Node } from '@/Node'
 import { Graph } from '@/Graph'
 import { Location } from '@/Location'
+import { NodeAnchorPoint } from '@/NodeAnchorPoint'
 import { drawLineSegment } from '@/drawing/relation_line'
 import { drawAnchoredConnectorAndAdjacentLineSegment, drawConnector, drawTerminalAnchoredConnectorAndAdjacentLineSegment, drawTerminalConnector } from '@/drawing/connectors'
 import { Watch } from 'vue-property-decorator'
@@ -183,41 +184,88 @@ import { drawGrid } from '@/drawing/grid'
         if (value) {
             const grid_step = 100 / (this.n_anchor_points_per_edge + 1)
             // console.log(interact.snappers.grid({ x: grid_step, y: grid_step })())
-            let targets: Location[]
+            let targets: NodeAnchorPoint[]
 
             this.graphs.forEach((graph) => {
                 const ctx = graph.canvas.getContext('2d')
                 ctx.clearRect(0, 0, graph.width, graph.height)
                 targets = drawGrid(graph, grid_step)
                 graph.draw()
+
+                interact('.node.unlocked').draggable(
+                    {
+                        inertia: false,
+                        modifiers: [
+                              interact.modifiers.restrictRect(
+                                  {
+                                      restriction: 'parent',
+                                      endOnly: true
+                                  }
+                              )
+                        ],
+                        listeners: {
+                            move(event) {
+                                if (event.target.parentElement == graph.element) {
+                                    let next_x: number
+                                    let next_y: number
+
+                                    if (!event.target.style.virtual_x) {
+                                        if (event.target.style.x) {
+                                            next_x = parseFloat(event.target.style.x)
+                                            next_y = parseFloat(event.target.style.y)
+                                        } else {
+                                            next_x = event.delta.x
+                                            next_y = event.delta.y
+                                        }
+                                    } else {
+                                        next_x = parseFloat(event.target.style.virtual_x) + parseFloat(event.delta.x)
+                                        next_y = parseFloat(event.target.style.virtual_y) + parseFloat(event.delta.y)
+                                    }
+
+                                    event.target.style.virtual_x = next_x
+                                    event.target.style.virtual_y = next_y
+
+                                    const closest_target = targets.map(
+                                        target => [target, target.measure_distance(next_x, next_y)]
+                                    ).sort(
+                                        (lhs, rhs) => (lhs[1] as number) - (rhs[1] as number)
+                                    )[0][0] as NodeAnchorPoint
+
+                                    event.target.style.x = closest_target.x
+                                    event.target.style.y = closest_target.y
+
+                                    event.target.style.transform = `translate(${closest_target.x}px, ${closest_target.y}px)`
+                                }
+                            }
+                        }
+                    }
+                )
             })
+        } else {
+            this.graphs.forEach((graph) => {
+                const ctx = graph.canvas.getContext('2d')
+                ctx.clearRect(0, 0, graph.width, graph.height)
+                graph.draw()
+            })
+
             interact('.node.unlocked').draggable(
                 {
-                    inertia: false,
+                    inertia: true,
                     modifiers: [
-                          interact.modifiers.snap({
-                            // targets: [
-                            //     {x: 0, y: 0},
-                            //     {x: 33, y: 0},
-                            //     {x: 66, y: 0}
-                            // ],
-                            targets: targets,
-                            offset: 'parent',
-                            // targets: [
-                            //   interact.snappers.grid({ x: Math.floor(grid_step), y: Math.floor(grid_step)})
-                            // ]
-                            // range: Infinity
-                            // relativePoints: [ { x: 0, y: 0 } ]
-                          }),
-                          interact.modifiers.restrictRect(
-                              {
-                                  restriction: 'parent',
-                                  endOnly: true
-                              }
-                          )
+                        interact.modifiers.restrictRect(
+                            {
+                                restriction: 'parent',
+                                endOnly: true
+                            }
+                        )
                     ],
                     listeners: {
                         move(event) {
+                            if (event.target.style.virtual_x) {
+                                delete event.target.style.virtual_x
+                                delete event.target.style.virtual_y
+                            }
+
                             if (!event.target.style.x) {
                                 event.target.style.x = event.delta.x
                                 event.target.style.y = event.delta.y
@@ -233,12 +281,6 @@ import { drawGrid } from '@/drawing/grid'
                     }
                 }
             )
-        } else {
-            this.graphs.forEach((graph) => {
-                const ctx = graph.canvas.getContext('2d')
-                ctx.clearRect(0, 0, graph.width, graph.height)
-                graph.draw()
-            })
         }
     }
  }
