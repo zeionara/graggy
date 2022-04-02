@@ -14,9 +14,11 @@ function drawGrid(graph: Graph, distance: number, color = "grey", line_thickness
 
     const previous_stroke_style = ctx.strokeStyle
     const previous_line_thickness = ctx.lineWidth
+    const previous_line_dash = ctx.getLineDash()
     
     ctx.strokeStyle = color
     ctx.lineWidth = line_thickness
+    ctx.setLineDash([])
 
     const top_y = 0
     const bot_y = height
@@ -54,6 +56,7 @@ function drawGrid(graph: Graph, distance: number, color = "grey", line_thickness
 
     ctx.strokeStyle = previous_stroke_style
     ctx.lineWidth = previous_line_thickness
+    ctx.setLineDash(previous_line_dash)
 
     return targets
 }

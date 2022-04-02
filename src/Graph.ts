@@ -6,12 +6,13 @@ import { Location } from '@/Location'
 import { UserDefinedPathRelation } from '@/relation/UserDefinedPathRelation'
 import { drawGrid } from '@/drawing/grid'
 import { NodeAnchorPoint } from '@/NodeAnchorPoint'
+import { TripleSet } from '@/TripleSet'
 
 class Graph {
     element: HTMLElement
     nEntities = 0
     nodes: Node[] = []
-    triples: Triple[] = []
+    triples = new TripleSet()
     connectors: Connector[] = []
     relations: Relation[] = []
 
@@ -19,6 +20,7 @@ class Graph {
     currentRelation: string
     currentRelationLineThickness: number
     drawingRelation = false
+    currentRelationSubset: string
     enableGrid = false
     gridStep: number
 
@@ -57,11 +59,15 @@ class Graph {
     }
 
     push_triples(tails: string[]) {
+        const triples: Triple[] = []
+
         tails.forEach((tail) => {
             this.currentHeads.forEach((head) => {
-                this.triples.push(new Triple(head, this.currentRelation, tail))
+                triples.push(new Triple(head, this.currentRelation, tail))
             })
         })
+
+        this.triples.push(triples, this.currentRelationSubset)
     }
 
     push_connector(connector: Connector) {
@@ -96,6 +102,20 @@ class Graph {
         this.draw()
 
         return targets
+    }
+
+    changeCurrentRelationSubset(value: string) {
+        this.currentRelationSubset = value
+    }
+
+    get currentLineDash() {
+        if (this.currentRelationSubset == "train") {
+            return []
+        } else if (this.currentRelationSubset == "test") {
+            return [10, 10]
+        } else if (this.currentRelationSubset == "valid") {
+            return [15, 3, 3, 3]
+        }
     }
 }
 

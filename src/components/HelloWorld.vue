@@ -28,6 +28,12 @@
       <option value = "black">black</option>
     </select>
 
+    <select v-model="current_relation_subset">
+      <option value = "train">train</option>
+      <option value = "test">test</option>
+      <option value = "valid">valid</option>
+    </select>
+
   <div class = "graph">
     <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
   </div>
@@ -65,6 +71,7 @@ import { drawGrid } from '@/drawing/grid'
     enable_straight_lines_drawing = false
     enable_grid = false
     current_relation = "red"
+    current_relation_subset = "train"
 
     current_head_connector_location!: Location
     previous_tail_connector_location!: Location
@@ -72,8 +79,11 @@ import { drawGrid } from '@/drawing/grid'
     graphs: Graph[] = []
 
     export() {
-        const triples = this.graphs[0].triples.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
-        document.getElementsByClassName('exported-graph')[0].innerHTML = 'head\trelation\ttail<br/>' + triples
+        const train_triples = this.graphs[0].triples.train.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
+        const test_triples = this.graphs[0].triples.test.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
+        const valid_triples = this.graphs[0].triples.valid.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
+
+        document.getElementsByClassName('exported-graph')[0].innerHTML = `head\trelation\ttail<br/>${train_triples}<br/><br/>${test_triples}<br/><br/>${valid_triples}`
     }
 
     mounted() {
@@ -91,6 +101,7 @@ import { drawGrid } from '@/drawing/grid'
                     const graph = this.find_target_graph(event)
 
                     graph.currentRelation = this.current_relation
+                    graph.changeCurrentRelationSubset(this.current_relation_subset)
                     graph.currentRelationLineThickness = this.relation_line_thickness
 
                     const canvas = graph.canvas
@@ -288,6 +299,13 @@ import { drawGrid } from '@/drawing/grid'
             )
         }
     }
+
+    // @Watch('current_relation_subset')
+    // change_current_relation_subset(value: string) {
+    //     this.graphs.forEach((graph) => {
+    //         graph.changeCurrentRelationSubset(value)
+    //     })
+    // }
  }
 </script>
 
