@@ -49,7 +49,7 @@ class Node {
 
     get_anchor_points(n_anchor_points_per_entity_edge: number) {
        const node_left_x = this.x
-       const node_top_y = this.y
+       const node_top_y = this.y + 647
 
        const node_right_x = node_left_x + this.element.getBoundingClientRect().width
        const node_bot_y = node_top_y + this.element.getBoundingClientRect().height

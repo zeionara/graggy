@@ -50,7 +50,7 @@ function drawGrid(graph: Graph, distance: number, color = "grey", line_thickness
 
     for (let x = 0; x <= width; x = x + distance) {
         for (let y = 0; y <= height; y = y + distance) {
-            targets.push(new NodeAnchorPoint(Math.floor(x), Math.floor(y)))
+            targets.push(new NodeAnchorPoint(Math.floor(x), Math.floor(y) - 647))
         }
     }
 
