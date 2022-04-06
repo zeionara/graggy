@@ -171,7 +171,7 @@ export default class HelloWorld extends Vue {
                    graph.drawingRelation = true
                } else {
                    if (!(event.target as HTMLElement).classList.contains('node')) {
-                       new Node(this.find_target_graph(event), event.offsetX, event.offsetY - 647)
+                       new Node(this.find_target_graph(event), event.offsetX, event.offsetY)
                    }
                }
            }

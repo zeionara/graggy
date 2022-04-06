@@ -32,7 +32,8 @@ class Graph {
 
     appendNode(node: Node) {
         node.id = `entity-${this.nEntities++}`
-        this.element.appendChild(node.element)
+        // this.element.appendChild(node.element)
+        this.element.insertBefore(node.element, this.element.firstChild)
         this.nodes.push(node)
     }
 
@@ -47,7 +48,7 @@ class Graph {
     }
 
     get canvas() {
-        return this.element.firstChild as HTMLCanvasElement
+        return this.element.lastChild as HTMLCanvasElement
     }
 
     get width() {

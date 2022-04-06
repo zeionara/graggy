@@ -32,9 +32,9 @@ function getIntersectedEntities(nodes: Node[], x: number, y: number, length: num
        // node.id = node_id
 
        const node_left_x = node.x // node.style.x
-       const node_top_y = node.y + 640 // node.style.y
+       const node_top_y = node.y // node.style.y
        const node_right_x = node.x + node.width // parseFloat(node_left_x) + node.getBoundingClientRect().width
-       const node_bot_y = node.y + 640 + node.height // parseFloat(node_top_y) + node.getBoundingClientRect().height
+       const node_bot_y = node.y + node.height // parseFloat(node_top_y) + node.getBoundingClientRect().height
 
        if (
             rect_left_x <= node_right_x && rect_left_x >= node_left_x && rect_top_y <= node_bot_y && rect_top_y >= node_top_y ||
