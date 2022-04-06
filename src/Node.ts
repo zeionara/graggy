@@ -5,22 +5,32 @@ import { Graph } from '@/Graph'
 class Node {
     element: HTMLElement
     locked = false
+    modifiableName = false
+    permanentlyLocked = false
 
     // constructor(node: HTMLElement) {
     constructor(graph: Graph, x: number, y: number) {
         const node = document.createElement('div')
+        const nodeName = document.createElement('p')
 
         node.className = 'node unlocked'
         node.setAttribute(graph.data_attribute_name, '')
+        // node.innerHTML = `<input placeholder = "{node.id}" style = "width: 80px; margin-top: 40px"/>`
+        // node.appendChild(nodeName)
+        
         this.element = node
         graph.appendNode(this)
+        nodeName.innerHTML = node.id
+        nodeName.style['margin-top'] = '40px'
+        nodeName.style['color'] = 'white'
+        nodeName.style['font-weight'] = 'bold'
+        node.appendChild(nodeName)
 
         const nodeStyle = node.style as NodeElementCSSStyleDeclaration
 
         nodeStyle.x = (x - node.getBoundingClientRect().width / 2).toString()
         nodeStyle.y = (y - node.getBoundingClientRect().height / 2).toString()
         nodeStyle.transform = `translate(${nodeStyle.x}px, ${nodeStyle.y}px)`
-
     }
 
     get x(): number {
@@ -45,6 +55,34 @@ class Node {
 
     get height(): number {
         return this.element.getBoundingClientRect().width
+    }
+
+    toggleNameChangeability() {
+        if (this.modifiableName) {
+            const nodeName = document.createElement('p')
+            const new_id = this.element.firstChild.value
+            this.element.innerHTML = ''
+            if (new_id) {
+                this.element.id = new_id
+            }
+            nodeName.innerHTML = this.element.id
+            nodeName.style['margin-top'] = '40px'
+            nodeName.style['color'] = 'white'
+            nodeName.style['font-weight'] = 'bold'
+            this.element.appendChild(nodeName)
+            if (!this.permanentlyLocked) {
+                this.unlock()
+            }
+        } else {
+            this.element.innerHTML = ''
+            const nodeName = document.createElement('input')
+            nodeName.placeholder = this.element.id
+            nodeName.style['margin-top'] = '40px'
+            nodeName.style['width'] = '80px'
+            this.element.appendChild(nodeName)
+            this.lock()
+        }
+        this.modifiableName = !this.modifiableName
     }
 
     get_anchor_points(n_anchor_points_per_entity_edge: number) {
@@ -94,10 +132,13 @@ class Node {
        return anchor_points
     }
 
-    lock() {
+    lock(permanently = false) {
         if (!this.locked) {
             this.element.classList.remove('unlocked')
             this.locked = true
+        }
+        if (permanently && !this.permanentlyLocked) {
+            this.permanentlyLocked = true
         }
     }
 

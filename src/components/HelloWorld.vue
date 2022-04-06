@@ -32,6 +32,15 @@
         <span v-else>disabled</span>
       </label>
     </n-space>
+
+    <n-space>
+      <n-switch id="enable-node-rename-mode" v-model:value="enable_node_rename_mode" />
+      <label for="enable-node-rename-mode">
+        node rename mode is
+        <span v-if="enable_node_rename_mode">active</span>
+        <span v-else>inactive</span>
+      </label>
+    </n-space>
   <!--</n-space>!-->
 
   <!--<n-space vertical>!-->
@@ -56,7 +65,7 @@
 </template>
 
 <script lang="ts">
-import { NSwitch, NButton, NSpace, NSelect, NCode } from 'naive-ui'
+import { NSwitch, NButton, NSpace, NSelect, NCode, NInput } from 'naive-ui'
 import interact from 'interactjs';
 import { Options, Vue } from 'vue-class-component';
 import { Node } from '@/Node'
@@ -75,7 +84,7 @@ import { drawGrid } from '@/drawing/grid'
     n_anchor_points_per_edge: Number
   },
   components: {
-    NSwitch, NButton, NSpace, NSelect, NCode
+    NSwitch, NButton, NSpace, NSelect, NCode, NInput
   }
 })
 export default class HelloWorld extends Vue {
@@ -117,6 +126,7 @@ export default class HelloWorld extends Vue {
    enable_relation_connector_automatic_alignment = false
    enable_straight_lines_drawing = false
    enable_grid = false
+   enable_node_rename_mode = false
    current_relation = "red"
    current_relation_subset = "train"
 
@@ -170,7 +180,7 @@ export default class HelloWorld extends Vue {
 
                    graph.drawingRelation = true
                } else {
-                   if (!(event.target as HTMLElement).classList.contains('node')) {
+                   if (!(event.target as HTMLElement).classList.contains('node') && !((event.target as HTMLElement).parentNode as HTMLElement).classList.contains('node')) {
                        new Node(this.find_target_graph(event), event.offsetX, event.offsetY)
                    }
                }
@@ -236,6 +246,15 @@ export default class HelloWorld extends Vue {
        })
 
        return target_graph
+   }
+
+   @Watch('enable_node_rename_mode')
+   toggle_editable_node_names(value: boolean) {
+       this.graphs.forEach((graph) => {
+            graph.nodes.forEach((node) => {
+                node.toggleNameChangeability()
+            })
+       })
    }
 
    @Watch('enable_grid')
