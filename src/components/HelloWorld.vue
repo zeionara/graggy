@@ -6,6 +6,9 @@
   </div>
 
   <n-space vertical>
+      <n-divider title-placement = "left">
+        Graph properties
+      </n-divider>
       <n-space>
           <n-switch id="enable-relation-connector-automatic-alignment" v-model:value="enable_relation_connector_automatic_alignment"/>
           <label for="enable-relation-connector-automatic-alignment">
@@ -41,6 +44,23 @@
         <span v-else>inactive</span>
       </label>
     </n-space>
+      <n-space>
+        <n-button type="primary" @click="this.export()">export</n-button>
+        <n-button type="error" disabled>clear</n-button>
+      </n-space>
+      <n-divider title-placement = "left">
+        Relation properties
+      </n-divider>
+        <!--<div><n-color-picker :modes="['hex']"  /><n-button>ok</n-button></div>!-->
+      <n-radio-group v-model:value="selected_relation_name" name="relation_selector">
+      <n-space vertical v-for="relation in this.relations" :key="relation.name">
+        <n-space><n-input round type="text" size="small" v-model:value="relation.name" /> <n-radio :key="relation.name" :value="relation.name" /> </n-space>
+        <n-color-picker :modes="['hex']" v-model:value="relation.color" />
+      </n-space>
+      </n-radio-group>
+      <n-divider title-placement = "left">
+        Subset properties
+      </n-divider>
   <!--</n-space>!-->
 
   <!--<n-space vertical>!-->
@@ -53,10 +73,6 @@
           <n-select v-model:value="current_relation_subset" :options="subsets" />
       </n-space>
       <n-space>
-        <n-button type="primary" @click="this.export()">export</n-button>
-        <n-button type="error" disabled>clear</n-button>
-      </n-space>
-      <n-space>
          <p class = "exported-graph" style = "text-align: left">Draw graph and then click export button</p>
       </n-space>
   </n-space>
@@ -65,7 +81,7 @@
 </template>
 
 <script lang="ts">
-import { NSwitch, NButton, NSpace, NSelect, NCode, NInput } from 'naive-ui'
+import { NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio } from 'naive-ui'
 import interact from 'interactjs';
 import { Options, Vue } from 'vue-class-component';
 import { Node } from '@/Node'
@@ -84,7 +100,7 @@ import { RelationConfig } from '@/relation/RelationConfig'
     n_anchor_points_per_edge: Number
   },
   components: {
-    NSwitch, NButton, NSpace, NSelect, NCode, NInput
+    NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio
   }
 })
 export default class HelloWorld extends Vue {
@@ -93,9 +109,9 @@ export default class HelloWorld extends Vue {
    n_anchor_points_per_edge!: number
 
     relations = [
-        new RelationConfig("red"),
-        new RelationConfig("green"),
-        new RelationConfig("black"),
+        new RelationConfig("red", "#FF0000"),
+        new RelationConfig("green", "#00FF00"),
+        new RelationConfig("black", "#000000"),
         // {
         //     label: "red",
         //     value: "red"
@@ -132,6 +148,7 @@ export default class HelloWorld extends Vue {
    enable_node_rename_mode = false
    current_relation = this.relations[0]
    current_relation_subset = "train"
+   selected_relation_name = this.current_relation.name
 
    current_head_connector_location!: Location
    previous_tail_connector_location!: Location
@@ -257,6 +274,15 @@ export default class HelloWorld extends Vue {
             graph.nodes.forEach((node) => {
                 node.toggleNameChangeability()
             })
+       })
+   }
+
+   @Watch('selected_relation_name')
+   update_current_relation(value: string) {
+       this.relations.forEach((relation) => {
+            if (relation.name == value) {
+                this.current_relation = relation
+            }
        })
    }
 
