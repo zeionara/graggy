@@ -7,6 +7,7 @@ import { UserDefinedPathRelation } from '@/relation/UserDefinedPathRelation'
 import { drawGrid } from '@/drawing/grid'
 import { NodeAnchorPoint } from '@/NodeAnchorPoint'
 import { TripleSet } from '@/TripleSet'
+import { RelationConfig } from '@/relation/RelationConfig'
 
 class Graph {
     element: HTMLElement
@@ -17,7 +18,7 @@ class Graph {
     relations: Relation[] = []
 
     currentHeads: string[] = []
-    currentRelation: string
+    currentRelation: RelationConfig
     currentRelationLineThickness: number
     drawingRelation = false
     currentRelationSubset: string

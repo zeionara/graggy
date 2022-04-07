@@ -60,7 +60,7 @@ class Node {
     toggleNameChangeability() {
         if (this.modifiableName) {
             const nodeName = document.createElement('p')
-            const new_id = this.element.firstChild.value
+            const new_id = (this.element.firstChild as HTMLInputElement).value
             this.element.innerHTML = ''
             if (new_id) {
                 this.element.id = new_id

@@ -1,19 +1,20 @@
 import { Relation } from '@/relation/Relation'
 import { Connector } from '@/Connector'
 import { Location } from '@/Location'
+import { RelationConfig } from '@/relation/RelationConfig'
 
 class UserDefinedPathRelation implements Relation {
     src: Connector
     dst: Connector
 
-    type: string
+    type: RelationConfig
     thickness: number
     line_dash: number[]
 
     beginning: Location
     segments: Location[]
 
-    constructor(beginning: Location, src: Connector, type: string, thickness: number, line_dash: number[]) {
+    constructor(beginning: Location, src: Connector, type: RelationConfig, thickness: number, line_dash: number[]) {
         this.beginning = beginning
         this.src = src
         this.segments = []
@@ -29,7 +30,7 @@ class UserDefinedPathRelation implements Relation {
         const previous_line_thickness = ctx.lineWidth
         const previous_line_dash = ctx.getLineDash()
 
-        ctx.strokeStyle = this.type
+        ctx.strokeStyle = this.type.color
         ctx.lineWidth = this.thickness
         ctx.setLineDash(this.line_dash)
 

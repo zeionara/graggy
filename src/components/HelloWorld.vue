@@ -44,10 +44,10 @@
   <!--</n-space>!-->
 
   <!--<n-space vertical>!-->
-      <n-space>
+      <!--<n-space>
           Current relation:
           <n-select v-model:value="current_relation" :options="relations" />
-      </n-space>
+      </n-space>!-->
       <n-space>
           Current subset:
           <n-select v-model:value="current_relation_subset" :options="subsets" />
@@ -75,7 +75,7 @@ import { NodeAnchorPoint } from '@/NodeAnchorPoint'
 import { drawLineSegment } from '@/drawing/relation_line'
 import { drawAnchoredConnectorAndAdjacentLineSegment, drawConnector, drawTerminalAnchoredConnectorAndAdjacentLineSegment, drawTerminalConnector } from '@/drawing/connectors'
 import { Watch } from 'vue-property-decorator'
-import { drawGrid } from '@/drawing/grid'
+import { RelationConfig } from '@/relation/RelationConfig'
 
 @Options({
   props: {
@@ -93,18 +93,21 @@ export default class HelloWorld extends Vue {
    n_anchor_points_per_edge!: number
 
     relations = [
-        {
-            label: "red",
-            value: "red"
-        },
-        {
-            label: "green",
-            value: "green"
-        },
-        {
-            label: "black",
-            value: "black"
-        }
+        new RelationConfig("red"),
+        new RelationConfig("green"),
+        new RelationConfig("black"),
+        // {
+        //     label: "red",
+        //     value: "red"
+        // },
+        // {
+        //     label: "green",
+        //     value: "green"
+        // },
+        // {
+        //     label: "black",
+        //     value: "black"
+        // }
     ]
     subsets = [
         {
@@ -127,7 +130,7 @@ export default class HelloWorld extends Vue {
    enable_straight_lines_drawing = false
    enable_grid = false
    enable_node_rename_mode = false
-   current_relation = "red"
+   current_relation = this.relations[0]
    current_relation_subset = "train"
 
    current_head_connector_location!: Location
@@ -195,7 +198,7 @@ export default class HelloWorld extends Vue {
                    const canvas = graph.canvas
                    graph.drawingRelation = false
                    const ctx = canvas.getContext('2d');
-                   ctx.fillStyle = this.current_relation;
+                   ctx.fillStyle = this.current_relation.color;
 
                    if (this.enable_relation_connector_automatic_alignment) {
                        drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connector_size, this.n_anchor_points_per_edge, this.enable_straight_lines_drawing)

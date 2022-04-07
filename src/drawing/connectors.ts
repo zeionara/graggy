@@ -16,7 +16,7 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph: Graph, ctx: CanvasRe
     ctx.beginPath();
     ctx.moveTo(anchor_point.x, anchor_point.y);
 
-    ctx.strokeStyle = graph.currentRelation
+    ctx.strokeStyle = graph.currentRelation.color
     ctx.lineWidth = graph.currentRelationLineThickness
     ctx.setLineDash(graph.currentLineDash)
 
@@ -48,7 +48,7 @@ function drawConnector(graph: Graph, ctx: CanvasRenderingContext2D, event, conne
     ctx.beginPath();
     ctx.moveTo(event.offsetX, event.offsetY);
 
-    ctx.strokeStyle = graph.currentRelation
+    ctx.strokeStyle = graph.currentRelation.color
     ctx.lineWidth = graph.currentRelationLineThickness
     ctx.setLineDash(graph.currentLineDash)
 
