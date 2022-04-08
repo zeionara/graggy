@@ -44,18 +44,27 @@
         <span v-else>inactive</span>
       </label>
     </n-space>
+    <n-space>
+      <n-switch id="enable-live-redraw" v-model:value="enable_live_redraw" />
+      <label for="enable-live-redraw">
+        live redraw mode is
+        <span v-if="enable_live_redraw">active</span>
+        <span v-else>inactive</span>
+      </label>
+    </n-space>
       <n-space>
         <n-button type="primary" @click="this.export()">export</n-button>
+        <n-button type="info" @click="this.redrawAllGraphs()" :disabled="enable_live_redraw">redraw</n-button>
         <n-button type="error" disabled>clear</n-button>
       </n-space>
       <n-divider title-placement = "left">
         Relation properties
       </n-divider>
         <!--<div><n-color-picker :modes="['hex']"  /><n-button>ok</n-button></div>!-->
-      <n-radio-group v-model:value="selected_relation_name" name="relation_selector">
-      <n-space vertical v-for="relation in this.relations" :key="relation.name">
-        <n-space><n-input round type="text" size="small" v-model:value="relation.name" /> <n-radio :key="relation.name" :value="relation.name" /> </n-space>
-        <n-color-picker :modes="['hex']" v-model:value="relation.color" />
+      <n-radio-group v-model:value="selected_relation_index" name="relation_selector" size="large" style="width: 100%">
+      <n-space vertical v-for="(relation, i) in this.relations" :key="i" size="large">
+        <n-space><n-input round type="text" size="small" v-model:value="relation.name" style="width: 300px"/> <n-radio :key="i" :value="i" /> </n-space>
+        <n-color-picker :modes="['hex']" v-model:value="relation.color"/>
       </n-space>
       </n-radio-group>
       <n-divider title-placement = "left">
@@ -146,9 +155,10 @@ export default class HelloWorld extends Vue {
    enable_straight_lines_drawing = false
    enable_grid = false
    enable_node_rename_mode = false
+   enable_live_redraw = false
    current_relation = this.relations[0]
    current_relation_subset = "train"
-   selected_relation_name = this.current_relation.name
+   selected_relation_index = 0
 
    current_head_connector_location!: Location
    previous_tail_connector_location!: Location
@@ -277,13 +287,9 @@ export default class HelloWorld extends Vue {
        })
    }
 
-   @Watch('selected_relation_name')
-   update_current_relation(value: string) {
-       this.relations.forEach((relation) => {
-            if (relation.name == value) {
-                this.current_relation = relation
-            }
-       })
+   @Watch('selected_relation_index')
+   update_current_relation(value: number) {
+        this.current_relation = this.relations[value]
    }
 
    @Watch('enable_grid')
@@ -394,6 +400,35 @@ export default class HelloWorld extends Vue {
            )
        }
    }
+
+   @Watch("enable_live_redraw")
+   toggleLiveRedrawMode() {
+     this.redrawGraph()
+   }
+
+   @Watch("relations", { deep: true })
+   redrawGraph() { // value: RelationConfig[], previous_value: RelationConfig[]
+        // let hasColorChanged = false
+        // for (let i = 0; i < value.length; i++) {
+        //     console.log(value[i].color, previous_value[i].color)
+        //     console.log(value[i].name, previous_value[i].name)
+        //     if (value[i].color != previous_value[i].color) {
+        //         hasColorChanged = true
+        //         break
+        //     }
+        // }
+        // if (hasColorChanged) {
+        if (this.enable_live_redraw) {
+            this.redrawAllGraphs()
+        }
+        // }
+   }
+
+    redrawAllGraphs() {
+        this.graphs.forEach((graph) => {
+            graph.redraw()
+        })
+    }
 
    // @Watch('current_relation_subset')
    // change_current_relation_subset(value: string) {
