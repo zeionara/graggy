@@ -13,6 +13,7 @@
     "@vue/cli-plugin-eslint": "^5.0.4",
     "core-js": "^3.8.3",
     "interactjs": "^1.10.11",
+    "js-yaml": "^4.1.0",
     "typescript-eslint": "^0.0.1-alpha.0",
     "vue": "^3.2.13",
     "vue-class-component": "^8.0.0-0",

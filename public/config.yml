@@ -1,0 +1,7 @@
+relations:
+    - name: red
+      color: "#ff0000"
+    - name: green
+      color: "#00ff00"
+    - name: black
+      color: "#000000"

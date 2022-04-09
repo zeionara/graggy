@@ -105,6 +105,7 @@ import { drawLineSegment } from '@/drawing/relation_line'
 import { drawAnchoredConnectorAndAdjacentLineSegment, drawConnector, drawTerminalAnchoredConnectorAndAdjacentLineSegment, drawTerminalConnector } from '@/drawing/connectors'
 import { Watch } from 'vue-property-decorator'
 import { RelationConfig } from '@/relation/RelationConfig'
+import App from '@/App.vue'
 
 @Options({
   props: {
@@ -113,7 +114,7 @@ import { RelationConfig } from '@/relation/RelationConfig'
     n_anchor_points_per_edge: Number
   },
   components: {
-    NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon
+    NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, App
   }
 })
 export default class HelloWorld extends Vue {
@@ -121,23 +122,7 @@ export default class HelloWorld extends Vue {
    relation_line_thickness!: number
    n_anchor_points_per_edge!: number
 
-    relations = [
-        new RelationConfig("red", "#FF0000"),
-        new RelationConfig("green", "#00FF00"),
-        new RelationConfig("black", "#000000"),
-        // {
-        //     label: "red",
-        //     value: "red"
-        // },
-        // {
-        //     label: "green",
-        //     value: "green"
-        // },
-        // {
-        //     label: "black",
-        //     value: "black"
-        // }
-    ]
+    relations = App.config.relations.map(relation => new RelationConfig(relation['name'], relation['color']))
     subsets = [
         {
             label: "train",
@@ -179,6 +164,7 @@ export default class HelloWorld extends Vue {
 
    mounted() {
        // Wrap all graphs on the page into typescript objects
+        console.log(App.config)
 
        const grid_step = 100 / (this.n_anchor_points_per_edge + 1)
 
