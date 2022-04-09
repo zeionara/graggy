@@ -19,7 +19,7 @@ function drawFilledSquare(ctx: CanvasRenderingContext2D, x: number, y: number, l
 }
 
 function getIntersectedEntities(nodes: Node[], x: number, y: number, length: number) {
-    const intersected_entities: string[] = []
+    const intersected_entities: Node[] = []
 
     const rect_left_x = x - length / 2
     const rect_top_y = y - length / 2
@@ -43,7 +43,7 @@ function getIntersectedEntities(nodes: Node[], x: number, y: number, length: num
             rect_right_x <= node_right_x && rect_right_x >= node_left_x && rect_bot_y <= node_bot_y && rect_bot_y >= node_top_y
        ) {
             node.lock(true)
-            intersected_entities.push(node.id);
+            intersected_entities.push(node);
        }
     })
 

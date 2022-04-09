@@ -1,18 +1,19 @@
 import { RelationConfig } from '@/relation/RelationConfig'
+import { Node } from '@/Node'
 
 class Triple {
-    head!: string
+    head!: Node
     relation!: RelationConfig
-    tail!: string
+    tail!: Node
 
-    constructor(head: string, relation: RelationConfig, tail: string) {
+    constructor(head: Node, relation: RelationConfig, tail: Node) {
         this.head = head
         this.relation = relation
         this.tail = tail
     }
 
     get description() {
-        return `${this.head}\t${this.relation.name}\t${this.tail}`
+        return `${this.head.name}\t${this.relation.name}\t${this.tail.name}`
     }
 }
 

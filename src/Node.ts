@@ -57,6 +57,10 @@ class Node {
         return this.element.getBoundingClientRect().width
     }
 
+    get name(): string {
+        return this.element.id
+    }
+
     toggleNameChangeability() {
         if (this.modifiableName) {
             const nodeName = document.createElement('p')

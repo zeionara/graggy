@@ -17,7 +17,7 @@ class Graph {
     connectors: Connector[] = []
     relations: Relation[] = []
 
-    currentHeads: string[] = []
+    currentHeads: Node[] = []
     currentRelation: RelationConfig
     currentRelationLineThickness: number
     drawingRelation = false
@@ -60,7 +60,7 @@ class Graph {
         return this.element.getBoundingClientRect().height
     }
 
-    push_triples(tails: string[]) {
+    push_triples(tails: Node[]) {
         const triples: Triple[] = []
 
         tails.forEach((tail) => {
