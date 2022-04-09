@@ -67,6 +67,9 @@
         <n-color-picker :modes="['hex']" v-model:value="relation.color"/>
       </n-space>
       </n-radio-group>
+      <n-button tertiary circle type="info" @click="createRelation()">
+        <n-icon><plus-icon /></n-icon>
+      </n-button>
       <n-divider title-placement = "left">
         Subset properties
       </n-divider>
@@ -90,7 +93,8 @@
 </template>
 
 <script lang="ts">
-import { NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio } from 'naive-ui'
+import { NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, NIcon } from 'naive-ui'
+import { AddOutline as PlusIcon } from '@vicons/ionicons5'
 import interact from 'interactjs';
 import { Options, Vue } from 'vue-class-component';
 import { Node } from '@/Node'
@@ -109,7 +113,7 @@ import { RelationConfig } from '@/relation/RelationConfig'
     n_anchor_points_per_edge: Number
   },
   components: {
-    NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio
+    NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon
   }
 })
 export default class HelloWorld extends Vue {
@@ -264,6 +268,21 @@ export default class HelloWorld extends Vue {
                }
            }
        )
+   }
+
+   createRelation() {
+      // <n-space vertical v-for="(relation, i) in this.relations" :key="i" size="large">
+      //   <n-space><n-input round type="text" size="small" v-model:value="relation.name" style="width: 300px"/> <n-radio :key="i" :value="i" /> </n-space>
+      //   <n-color-picker :modes="['hex']" v-model:value="relation.color"/>
+      // </n-space>
+      // let SpaceInit = VueBase.extend(NSpace)
+      // let InputInit = VueBase.extend(NInput)
+      // let ColorPickerInit = VueBase.extend(NColorPicker)
+    
+      let relationConfig = new RelationConfig("dummy", "#ffffff")
+      let relationIndex = this.relations.length
+      this.relations.push(relationConfig)
+      // console.log("creating a new relation...")
    }
 
    find_target_graph(event) {
