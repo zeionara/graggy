@@ -1,7 +1,7 @@
 <template>
 
 <n-space justify="center">
-  <div class = "graph">
+  <div class = "graph" :style="`background-color:${this.bgColor};`">
     <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
   </div>
 
@@ -152,6 +152,10 @@ export default class HelloWorld extends Vue {
    current_head_connector_location!: Location
    previous_tail_connector_location!: Location
 
+   bgColor = App.config.graph["bg-color"]
+   gridColor = App.config.graph["grid-color"]
+   nodeSize = App.config.node.size
+
    graphs: Graph[] = []
 
    export() {
@@ -164,12 +168,11 @@ export default class HelloWorld extends Vue {
 
    mounted() {
        // Wrap all graphs on the page into typescript objects
-        console.log(App.config)
 
-       const grid_step = 100 / (this.n_anchor_points_per_edge + 1)
+       const grid_step = this.nodeSize / (this.n_anchor_points_per_edge + 1)
 
        Array.prototype.forEach.call(document.getElementsByClassName('graph'), (graph) => {
-           this.graphs.push(new Graph(graph, this.enable_grid, grid_step))
+           this.graphs.push(new Graph(graph, this.enable_grid, grid_step, this.gridColor))
        })
 
        this.graphs.forEach((graph) => {
@@ -201,7 +204,7 @@ export default class HelloWorld extends Vue {
                    graph.drawingRelation = true
                } else {
                    if (!(event.target as HTMLElement).classList.contains('node') && !((event.target as HTMLElement).parentNode as HTMLElement).classList.contains('node')) {
-                       new Node(this.find_target_graph(event), event.offsetX, event.offsetY)
+                       new Node(this.find_target_graph(event), event.offsetX, event.offsetY, this.nodeSize)
                    }
                }
            }
@@ -444,16 +447,14 @@ export default class HelloWorld extends Vue {
 }
 </script>
 
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .graph {
     width: 1024px;
     height: 640px;
-    background-color: blue;
 }
 .node {
-    width: 100px;
-    height: 100px;
     background-color: red;
     position: absolute;
 }

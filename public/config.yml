@@ -5,3 +5,8 @@ relations:
       color: "#00ff00"
     - name: black
       color: "#000000"
+graph:
+    bg-color: "#F5F5F5FF"
+    grid-color: white
+node:
+    size: 100

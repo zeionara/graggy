@@ -24,11 +24,13 @@ class Graph {
     currentRelationSubset: string
     enableGrid = false
     gridStep: number
+    gridColor: string
 
-    constructor(element: HTMLElement, enableGrid, gridStep) {
+    constructor(element: HTMLElement, enableGrid, gridStep, gridColor: string) {
         this.element = element
         this.enableGrid = enableGrid
         this.gridStep = gridStep
+        this.gridColor = gridColor
     }
 
     appendNode(node: Node) {
@@ -98,7 +100,7 @@ class Graph {
         ctx.clearRect(0, 0, this.width, this.height)
 
         if (this.enableGrid) {
-            targets = drawGrid(this, this.gridStep)
+            targets = drawGrid(this, this.gridStep, this.gridColor)
         }
 
         this.draw()

@@ -9,8 +9,10 @@ class Node {
     permanentlyLocked = false
 
     // constructor(node: HTMLElement) {
-    constructor(graph: Graph, x: number, y: number) {
+    constructor(graph: Graph, x: number, y: number, size: number) {
         const node = document.createElement('div')
+        node.style['width'] = `${size}px`
+        node.style['height'] = `${size}px`
         const nodeName = document.createElement('p')
 
         node.className = 'node unlocked'
@@ -21,7 +23,7 @@ class Node {
         this.element = node
         graph.appendNode(this)
         nodeName.innerHTML = node.id
-        nodeName.style['margin-top'] = '40px'
+        nodeName.style['margin-top'] = `${size * 0.4}px`
         nodeName.style['color'] = 'white'
         nodeName.style['font-weight'] = 'bold'
         node.appendChild(nodeName)
