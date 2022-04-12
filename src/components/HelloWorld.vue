@@ -61,7 +61,7 @@
         Relation properties
       </n-divider>
         <!--<div><n-color-picker :modes="['hex']"  /><n-button>ok</n-button></div>!-->
-      <n-radio-group v-model:value="selected_relation_index" name="relation_selector" size="large" style="width: 100%">
+      <!--<n-radio-group v-model:value="selected_relation_index" name="relation_selector" size="large" style="width: 100%">
       <n-space vertical v-for="(relation, i) in this.relations" :key="i" size="large">
         <n-space><n-input round type="text" size="small" v-model:value="relation.name" style="width: 300px"/> <n-radio :key="i" :value="i" /> </n-space>
         <n-color-picker :modes="['hex']" v-model:value="relation.color"/>
@@ -70,6 +70,10 @@
       <n-button tertiary circle type="info" @click="createRelation()">
         <n-icon><plus-icon /></n-icon>
       </n-button>
+      <n-divider title-placement = "left">
+        More relation properties
+      </n-divider>!-->
+      <RelationsPane @current-relation-change = "setCurrentRelation" @redraw-graph = "redrawGraph"/>
       <n-divider title-placement = "left">
         Subset properties
       </n-divider>
@@ -107,6 +111,8 @@ import { Watch } from 'vue-property-decorator'
 import { RelationConfig } from '@/relation/RelationConfig'
 import App from '@/App.vue'
 
+import RelationsPane from '@/components/RelationsPane.vue'
+
 @Options({
   props: {
     connector_size: Number,
@@ -114,7 +120,8 @@ import App from '@/App.vue'
     n_anchor_points_per_edge: Number
   },
   components: {
-    NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, App
+    NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, App,
+    RelationsPane
   }
 })
 export default class HelloWorld extends Vue {
@@ -122,7 +129,7 @@ export default class HelloWorld extends Vue {
    relation_line_thickness!: number
    n_anchor_points_per_edge!: number
 
-    relations = App.config.relations.map(relation => new RelationConfig(relation['name'], relation['color']))
+    // relations = App.config.relations.map(relation => new RelationConfig(relation['name'], relation['color']))
     subsets = [
         {
             label: "train",
@@ -145,7 +152,7 @@ export default class HelloWorld extends Vue {
    enable_grid = false
    enable_node_rename_mode = false
    enable_live_redraw = false
-   current_relation = this.relations[0]
+   currentRelation: RelationConfig // = this.relations[0]
    current_relation_subset = "train"
    selected_relation_index = 0
 
@@ -157,6 +164,10 @@ export default class HelloWorld extends Vue {
    nodeSize = App.config.node.size
 
    graphs: Graph[] = []
+
+   setCurrentRelation(value: RelationConfig) {
+        this.currentRelation = value
+   }
 
    export() {
        const train_triples = this.graphs[0].triples.train.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
@@ -180,7 +191,7 @@ export default class HelloWorld extends Vue {
                if (event.ctrlKey) {
                    const graph = this.find_target_graph(event)
 
-                   graph.currentRelation = this.current_relation
+                   graph.currentRelation = this.currentRelation
                    graph.changeCurrentRelationSubset(this.current_relation_subset)
                    graph.currentRelationLineThickness = this.relation_line_thickness
 
@@ -218,7 +229,7 @@ export default class HelloWorld extends Vue {
                    const canvas = graph.canvas
                    graph.drawingRelation = false
                    const ctx = canvas.getContext('2d');
-                   ctx.fillStyle = this.current_relation.color;
+                   ctx.fillStyle = this.currentRelation.color
 
                    if (this.enable_relation_connector_automatic_alignment) {
                        drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connector_size, this.n_anchor_points_per_edge, this.enable_straight_lines_drawing)
@@ -259,20 +270,20 @@ export default class HelloWorld extends Vue {
        )
    }
 
-   createRelation() {
-      // <n-space vertical v-for="(relation, i) in this.relations" :key="i" size="large">
-      //   <n-space><n-input round type="text" size="small" v-model:value="relation.name" style="width: 300px"/> <n-radio :key="i" :value="i" /> </n-space>
-      //   <n-color-picker :modes="['hex']" v-model:value="relation.color"/>
-      // </n-space>
-      // let SpaceInit = VueBase.extend(NSpace)
-      // let InputInit = VueBase.extend(NInput)
-      // let ColorPickerInit = VueBase.extend(NColorPicker)
-    
-      let relationConfig = new RelationConfig("dummy", "#ffffff")
-      let relationIndex = this.relations.length
-      this.relations.push(relationConfig)
-      // console.log("creating a new relation...")
-   }
+   // createRelation() {
+   //    // <n-space vertical v-for="(relation, i) in this.relations" :key="i" size="large">
+   //    //   <n-space><n-input round type="text" size="small" v-model:value="relation.name" style="width: 300px"/> <n-radio :key="i" :value="i" /> </n-space>
+   //    //   <n-color-picker :modes="['hex']" v-model:value="relation.color"/>
+   //    // </n-space>
+   //    // let SpaceInit = VueBase.extend(NSpace)
+   //    // let InputInit = VueBase.extend(NInput)
+   //    // let ColorPickerInit = VueBase.extend(NColorPicker)
+   //  
+   //    let relationConfig = new RelationConfig("dummy", "#ffffff")
+   //    let relationIndex = this.relations.length
+   //    this.relations.push(relationConfig)
+   //    // console.log("creating a new relation...")
+   // }
 
    find_target_graph(event) {
        let target_graph: Graph
@@ -295,10 +306,10 @@ export default class HelloWorld extends Vue {
        })
    }
 
-   @Watch('selected_relation_index')
-   update_current_relation(value: number) {
-        this.current_relation = this.relations[value]
-   }
+   // @Watch('selected_relation_index')
+   // update_current_relation(value: number) {
+   //      this.current_relation = this.relations[value]
+   // }
 
    @Watch('enable_grid')
    toggle_grid(value: boolean) {
@@ -414,7 +425,7 @@ export default class HelloWorld extends Vue {
      this.redrawGraph()
    }
 
-   @Watch("relations", { deep: true })
+   // @Watch("relations", { deep: true })
    redrawGraph() { // value: RelationConfig[], previous_value: RelationConfig[]
         // let hasColorChanged = false
         // for (let i = 0; i < value.length; i++) {

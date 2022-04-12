@@ -1,10 +1,15 @@
-relations:
-    - name: red
-      color: "#ff0000"
-    - name: green
-      color: "#00ff00"
-    - name: black
-      color: "#000000"
+relation:
+    items:
+        - name: red
+          color: "#ff0000"
+        - name: green
+          color: "#00ff00"
+        - name: black
+          color: "#000000"
+    default:
+        index: 1
+        name: dummy
+        color: "#FFFFFF"
 graph:
     bg-color: "#F5F5F5FF"
     grid-color: white
