@@ -17,6 +17,23 @@ switch:
     connector-auto-alignment: true
     node-rename: false
     live-redraw: false
+subset:
+    items:
+        - name: train
+          pattern: solid
+        - name: test
+          pattern: dashed
+        - name: valid
+          pattern: dashed-dotted
+    patterns:
+        - solid
+        - dashed
+        - dotted
+        - dashed-dotted
+    default:
+        index: 0
+        name: dummy
+        pattern: solid
 graph:
     bg-color: "#F5F5F5FF"
     grid-color: white

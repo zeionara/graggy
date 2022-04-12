@@ -1,105 +1,39 @@
 <template>
-
-<n-space justify="center">
-  <div class = "graph" :style="`background-color:${this.bgColor};`">
-    <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
-  </div>
-
-  <n-space vertical>
-      <n-divider title-placement = "left">
-        Graph properties
-      </n-divider>
-      <Switch purpose="test switch" v-bind:defaultValue = "testSwitch" @update-value = "updateSwitchValue" />
-      <Switch purpose="relation connector automatic alignment" v-bind:defaultValue = "connectorAutoAlignmentSwitch" @update-value = "updateSwitchValue" />
-      <!--<n-space>
-          <n-switch id="enable-relation-connector-automatic-alignment" v-model:value="enable_relation_connector_automatic_alignment"/>
-          <label for="enable-relation-connector-automatic-alignment">
-            relation connector automatic alignment is
-            <span v-if="enable_relation_connector_automatic_alignment">enabled</span>
-            <span v-else>disabled</span>
-          </label>
-     </n-space>!-->
-
-      <Switch purpose="straight lines drawing" v-bind:defaultValue = "straightLinesSwitch" @update-value = "updateSwitchValue" />
-     <!--<n-space>
-          <n-switch id="enable-straight-lines-drawing" v-model:value="enable_straight_lines_drawing" />
-          <label for="enable-straight-lines-drawing">
-            straight lines drawing is
-            <span v-if="enable_straight_lines_drawing">enabled</span>
-            <span v-else>disabled</span>
-          </label>
-    </n-space>!-->
-
-      <Switch purpose="grid" v-bind:defaultValue = "gridSwitch" @update-value = "updateSwitchValue" />
-    <!--<n-space>
-      <n-switch id="enable-grid" v-model:value="enable_grid" />
-      <label for="enable-grid">
-        grid is
-        <span v-if="enable_grid">enabled</span>
-        <span v-else>disabled</span>
-      </label>
-    </n-space>!-->
-
-      <Switch purpose="node rename mode" v-bind:defaultValue = "nodeRenameSwitch" @update-value = "updateSwitchValue($event); toggleNodeRenameMode($event.value)" />
-      <Switch purpose="live redraw" v-bind:defaultValue = "liveRedrawSwitch" @update-value = "updateSwitchValue" />
-    <!--<n-space>
-      <n-switch id="enable-node-rename-mode" v-model:value="enable_node_rename_mode" />
-      <label for="enable-node-rename-mode">
-        node rename mode is
-        <span v-if="enable_node_rename_mode">active</span>
-        <span v-else>inactive</span>
-      </label>
+    <n-space justify="center">
+        <div class = "graph" :style="`background-color:${this.bgColor};`">
+            <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
+        </div>
+        <n-space vertical>
+            <n-divider title-placement = "left">
+                Graph properties
+            </n-divider>
+            <Switch purpose="relation connector automatic alignment" v-bind:defaultValue = "connectorAutoAlignmentSwitch" @update-value = "updateSwitchValue" />
+            <Switch purpose="straight lines drawing" v-bind:defaultValue = "straightLinesSwitch" @update-value = "updateSwitchValue" />
+            <Switch purpose="grid" v-bind:defaultValue = "gridSwitch" @update-value = "updateSwitchValue" />
+            <Switch purpose="node rename mode" v-bind:defaultValue = "nodeRenameSwitch" @update-value = "updateSwitchValue($event); toggleNodeRenameMode($event.value)" />
+            <Switch purpose="live redraw" v-bind:defaultValue = "liveRedrawSwitch" @update-value = "updateSwitchValue" />
+            <n-space>
+                <n-button type="primary" @click="this.export()">export</n-button>
+                <n-button type="info" @click="this.redrawAllGraphs()" :disabled="liveRedrawSwitch">redraw</n-button>
+                <n-button type="error" disabled>clear</n-button>
+            </n-space>
+            <n-divider title-placement = "left">
+                Relation properties
+            </n-divider>
+            <RelationsPane @current-relation-change = "setCurrentRelation" @redraw-graph = "redrawGraph"/>
+            <n-divider title-placement = "left">
+                Subset properties
+            </n-divider>
+            <SubsetsPane @current-subset-change = "setCurrentSubset" @redraw-graph = "redrawGraph"/>
+            <!--<n-space>
+                Current subset:
+                <n-select v-model:value="current_relation_subset" :options="subsets" />
+            </n-space>!-->
+            <n-space>
+                <p class = "exported-graph" style = "text-align: left">Draw graph and then click export button</p>
+            </n-space>
+        </n-space>
     </n-space>
-    <n-space>
-      <n-switch id="enable-live-redraw" v-model:value="enable_live_redraw" />
-      <label for="enable-live-redraw">
-        live redraw mode is
-        <span v-if="enable_live_redraw">active</span>
-        <span v-else>inactive</span>
-      </label>
-    </n-space>!-->
-      <n-space>
-        <n-button type="primary" @click="this.export()">export</n-button>
-        <n-button type="info" @click="this.redrawAllGraphs()" :disabled="liveRedrawSwitch">redraw</n-button>
-        <n-button type="error" disabled>clear</n-button>
-      </n-space>
-      <n-divider title-placement = "left">
-        Relation properties
-      </n-divider>
-        <!--<div><n-color-picker :modes="['hex']"  /><n-button>ok</n-button></div>!-->
-      <!--<n-radio-group v-model:value="selected_relation_index" name="relation_selector" size="large" style="width: 100%">
-      <n-space vertical v-for="(relation, i) in this.relations" :key="i" size="large">
-        <n-space><n-input round type="text" size="small" v-model:value="relation.name" style="width: 300px"/> <n-radio :key="i" :value="i" /> </n-space>
-        <n-color-picker :modes="['hex']" v-model:value="relation.color"/>
-      </n-space>
-      </n-radio-group>
-      <n-button tertiary circle type="info" @click="createRelation()">
-        <n-icon><plus-icon /></n-icon>
-      </n-button>
-      <n-divider title-placement = "left">
-        More relation properties
-      </n-divider>!-->
-      <RelationsPane @current-relation-change = "setCurrentRelation" @redraw-graph = "redrawGraph"/>
-      <n-divider title-placement = "left">
-        Subset properties
-      </n-divider>
-  <!--</n-space>!-->
-
-  <!--<n-space vertical>!-->
-      <!--<n-space>
-          Current relation:
-          <n-select v-model:value="current_relation" :options="relations" />
-      </n-space>!-->
-      <n-space>
-          Current subset:
-          <n-select v-model:value="current_relation_subset" :options="subsets" />
-      </n-space>
-      <n-space>
-         <p class = "exported-graph" style = "text-align: left">Draw graph and then click export button</p>
-      </n-space>
-  </n-space>
-</n-space>
-
 </template>
 
 <script lang="ts">
@@ -115,9 +49,11 @@ import { drawLineSegment } from '@/drawing/relation_line'
 import { drawAnchoredConnectorAndAdjacentLineSegment, drawConnector, drawTerminalAnchoredConnectorAndAdjacentLineSegment, drawTerminalConnector } from '@/drawing/connectors'
 import { Watch } from 'vue-property-decorator'
 import { RelationConfig } from '@/relation/RelationConfig'
+import { SubsetConfig } from '@/subset/SubsetConfig'
 import App from '@/App.vue'
 
 import RelationsPane from '@/components/RelationsPane.vue'
+import SubsetsPane from '@/components/SubsetsPane.vue'
 import Switch from '@/components/Switch.vue'
 
 @Options({
@@ -128,7 +64,7 @@ import Switch from '@/components/Switch.vue'
   },
   components: {
     NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, App,
-    RelationsPane, Switch
+    RelationsPane, SubsetsPane, Switch
   }
 })
 export default class HelloWorld extends Vue {
@@ -197,6 +133,10 @@ export default class HelloWorld extends Vue {
 
    setCurrentRelation(value: RelationConfig) {
         this.currentRelation = value
+   }
+
+   setCurrentSubset(value: SubsetConfig) {
+        this.current_relation_subset = value.name
    }
 
    export() {
