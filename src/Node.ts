@@ -9,7 +9,7 @@ class Node {
     permanentlyLocked = false
 
     // constructor(node: HTMLElement) {
-    constructor(graph: Graph, x: number, y: number, size: number) {
+    constructor(graph: Graph, x: number, y: number, size: number, enableRenameMode: boolean) {
         const node = document.createElement('div')
         node.style['width'] = `${size}px`
         node.style['height'] = `${size}px`
@@ -33,6 +33,8 @@ class Node {
         nodeStyle.x = (x - node.getBoundingClientRect().width / 2).toString()
         nodeStyle.y = (y - node.getBoundingClientRect().height / 2).toString()
         nodeStyle.transform = `translate(${nodeStyle.x}px, ${nodeStyle.y}px)`
+
+        this.toggleNameChangeability(enableRenameMode)
     }
 
     get x(): number {
@@ -63,8 +65,8 @@ class Node {
         return this.element.id
     }
 
-    toggleNameChangeability() {
-        if (this.modifiableName) {
+    toggleNameChangeability(value: boolean) {
+        if (this.modifiableName && !value) {
             const nodeName = document.createElement('p')
             const new_id = (this.element.firstChild as HTMLInputElement).value
             this.element.innerHTML = ''
@@ -79,7 +81,8 @@ class Node {
             if (!this.permanentlyLocked) {
                 this.unlock()
             }
-        } else {
+            this.modifiableName = !this.modifiableName
+        } else if (!this.modifiableName && value) {
             this.element.innerHTML = ''
             const nodeName = document.createElement('input')
             nodeName.placeholder = this.element.id
@@ -87,8 +90,8 @@ class Node {
             nodeName.style['width'] = '80px'
             this.element.appendChild(nodeName)
             this.lock()
+            this.modifiableName = !this.modifiableName
         }
-        this.modifiableName = !this.modifiableName
     }
 
     get_anchor_points(n_anchor_points_per_entity_edge: number) {

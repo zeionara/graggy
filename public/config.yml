@@ -10,6 +10,13 @@ relation:
         index: 1
         name: dummy
         color: "#FFFFFF"
+switch:
+    test: true
+    grid: true
+    straight-lines: true
+    connector-auto-alignment: true
+    node-rename: false
+    live-redraw: false
 graph:
     bg-color: "#F5F5F5FF"
     grid-color: white

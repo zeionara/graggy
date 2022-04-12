@@ -9,34 +9,40 @@
       <n-divider title-placement = "left">
         Graph properties
       </n-divider>
-      <n-space>
+      <Switch purpose="test switch" v-bind:defaultValue = "testSwitch" @update-value = "updateSwitchValue" />
+      <Switch purpose="relation connector automatic alignment" v-bind:defaultValue = "connectorAutoAlignmentSwitch" @update-value = "updateSwitchValue" />
+      <!--<n-space>
           <n-switch id="enable-relation-connector-automatic-alignment" v-model:value="enable_relation_connector_automatic_alignment"/>
           <label for="enable-relation-connector-automatic-alignment">
             relation connector automatic alignment is
             <span v-if="enable_relation_connector_automatic_alignment">enabled</span>
             <span v-else>disabled</span>
           </label>
-     </n-space>
+     </n-space>!-->
 
-     <n-space>
+      <Switch purpose="straight lines drawing" v-bind:defaultValue = "straightLinesSwitch" @update-value = "updateSwitchValue" />
+     <!--<n-space>
           <n-switch id="enable-straight-lines-drawing" v-model:value="enable_straight_lines_drawing" />
           <label for="enable-straight-lines-drawing">
             straight lines drawing is
             <span v-if="enable_straight_lines_drawing">enabled</span>
             <span v-else>disabled</span>
           </label>
-    </n-space>
+    </n-space>!-->
 
-    <n-space>
+      <Switch purpose="grid" v-bind:defaultValue = "gridSwitch" @update-value = "updateSwitchValue" />
+    <!--<n-space>
       <n-switch id="enable-grid" v-model:value="enable_grid" />
       <label for="enable-grid">
         grid is
         <span v-if="enable_grid">enabled</span>
         <span v-else>disabled</span>
       </label>
-    </n-space>
+    </n-space>!-->
 
-    <n-space>
+      <Switch purpose="node rename mode" v-bind:defaultValue = "nodeRenameSwitch" @update-value = "updateSwitchValue($event); toggleNodeRenameMode($event.value)" />
+      <Switch purpose="live redraw" v-bind:defaultValue = "liveRedrawSwitch" @update-value = "updateSwitchValue" />
+    <!--<n-space>
       <n-switch id="enable-node-rename-mode" v-model:value="enable_node_rename_mode" />
       <label for="enable-node-rename-mode">
         node rename mode is
@@ -51,10 +57,10 @@
         <span v-if="enable_live_redraw">active</span>
         <span v-else>inactive</span>
       </label>
-    </n-space>
+    </n-space>!-->
       <n-space>
         <n-button type="primary" @click="this.export()">export</n-button>
-        <n-button type="info" @click="this.redrawAllGraphs()" :disabled="enable_live_redraw">redraw</n-button>
+        <n-button type="info" @click="this.redrawAllGraphs()" :disabled="liveRedrawSwitch">redraw</n-button>
         <n-button type="error" disabled>clear</n-button>
       </n-space>
       <n-divider title-placement = "left">
@@ -112,6 +118,7 @@ import { RelationConfig } from '@/relation/RelationConfig'
 import App from '@/App.vue'
 
 import RelationsPane from '@/components/RelationsPane.vue'
+import Switch from '@/components/Switch.vue'
 
 @Options({
   props: {
@@ -121,10 +128,11 @@ import RelationsPane from '@/components/RelationsPane.vue'
   },
   components: {
     NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, App,
-    RelationsPane
+    RelationsPane, Switch
   }
 })
 export default class HelloWorld extends Vue {
+    testSwitch: boolean = App.config.switch.test
    connector_size!: number
    relation_line_thickness!: number
    n_anchor_points_per_edge!: number
@@ -147,11 +155,11 @@ export default class HelloWorld extends Vue {
 
    x!: number
    y!: number
-   enable_relation_connector_automatic_alignment = false
-   enable_straight_lines_drawing = false
-   enable_grid = false
-   enable_node_rename_mode = false
-   enable_live_redraw = false
+   connectorAutoAlignmentSwitch: boolean = App.config.switch['connector-auto-alignment']
+   straightLinesSwitch: boolean = App.config.switch['straight-lines']
+   gridSwitch: boolean = App.config.switch.grid
+   nodeRenameSwitch: boolean = App.config.switch['node-rename']
+   liveRedrawSwitch: boolean = App.config.switch['live-redraw']
    currentRelation: RelationConfig // = this.relations[0]
    current_relation_subset = "train"
    selected_relation_index = 0
@@ -164,6 +172,28 @@ export default class HelloWorld extends Vue {
    nodeSize = App.config.node.size
 
    graphs: Graph[] = []
+
+    updateSwitchValue(event) {
+        switch (event.purpose) {
+            case 'grid':
+                this.gridSwitch = event.value
+                break;
+            case 'straight lines drawing':
+                this.straightLinesSwitch = event.value
+                break;
+            case 'relation connector automatic alignment':
+                this.connectorAutoAlignmentSwitch = event.value
+                break;
+            case 'node rename mod':
+                this.nodeRenameSwitch = event.value
+                break;
+            case 'live redraw':
+                this.liveRedrawSwitch = event.value
+                break;
+        }
+        // console.log(this.testSwitch)
+        // console.log(value)
+    }
 
    setCurrentRelation(value: RelationConfig) {
         this.currentRelation = value
@@ -183,8 +213,12 @@ export default class HelloWorld extends Vue {
        const grid_step = this.nodeSize / (this.n_anchor_points_per_edge + 1)
 
        Array.prototype.forEach.call(document.getElementsByClassName('graph'), (graph) => {
-           this.graphs.push(new Graph(graph, this.enable_grid, grid_step, this.gridColor))
+           this.graphs.push(new Graph(graph, this.gridSwitch, grid_step, this.gridColor))
        })
+
+        if (this.gridSwitch) {
+            this.toggleGrid(this.gridSwitch)
+        }
 
        this.graphs.forEach((graph) => {
            graph.element.onmousedown = (event) => {
@@ -204,24 +238,24 @@ export default class HelloWorld extends Vue {
                    // ctx.fillStyle = this.current_relation;
                    // ctx.lineWidth = this.relation_line_thickness;
 
-                   if (this.enable_relation_connector_automatic_alignment) {
+                   if (this.connectorAutoAlignmentSwitch) {
                        this.current_head_connector_location = drawAnchoredConnectorAndAdjacentLineSegment(
-                           graph, ctx, event, this.connector_size, this.n_anchor_points_per_edge, this.enable_straight_lines_drawing
+                           graph, ctx, event, this.connector_size, this.n_anchor_points_per_edge, this.straightLinesSwitch
                        )
                    } else {
-                       this.current_head_connector_location = drawConnector(graph, ctx, event, this.connector_size, this.enable_straight_lines_drawing)
+                       this.current_head_connector_location = drawConnector(graph, ctx, event, this.connector_size, this.straightLinesSwitch)
                    }
 
                    graph.drawingRelation = true
                } else {
                    if (!(event.target as HTMLElement).classList.contains('node') && !((event.target as HTMLElement).parentNode as HTMLElement).classList.contains('node')) {
-                       new Node(this.find_target_graph(event), event.offsetX, event.offsetY, this.nodeSize)
+                       new Node(this.find_target_graph(event), event.offsetX, event.offsetY, this.nodeSize, this.nodeRenameSwitch)
                    }
                }
            }
 
            graph.element.onmousemove = (event) => {
-               drawLineSegment(graph, event, this.enable_straight_lines_drawing)
+               drawLineSegment(graph, event, this.straightLinesSwitch)
            }
 
            graph.element.onmouseup = (event) => {
@@ -231,43 +265,45 @@ export default class HelloWorld extends Vue {
                    const ctx = canvas.getContext('2d');
                    ctx.fillStyle = this.currentRelation.color
 
-                   if (this.enable_relation_connector_automatic_alignment) {
-                       drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connector_size, this.n_anchor_points_per_edge, this.enable_straight_lines_drawing)
+                   if (this.connectorAutoAlignmentSwitch) {
+                       drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connector_size, this.n_anchor_points_per_edge, this.straightLinesSwitch)
                    } else {
-                       drawTerminalConnector(graph, ctx, event, this.connector_size, this.enable_straight_lines_drawing)
+                       drawTerminalConnector(graph, ctx, event, this.connector_size, this.straightLinesSwitch)
                    }
                }
            }
        })
+        
+        if (!this.gridSwitch) {
+           interact('.node.unlocked').draggable(
+               {
+                   inertia: true,
+                   modifiers: [
+                       interact.modifiers.restrictRect(
+                           {
+                               restriction: 'parent',
+                               endOnly: true
+                           }
+                       )
+                   ],
+                   listeners: {
+                       move(event) {
+                           if (!event.target.style.x) {
+                               event.target.style.x = event.delta.x
+                               event.target.style.y = event.delta.y
+                           } else {
+                               var next_x = parseFloat(event.target.style.x) + parseFloat(event.delta.x)
+                               var next_y = parseFloat(event.target.style.y) + parseFloat(event.delta.y)
+                               event.target.style.x = next_x
+                               event.target.style.y = next_y
+                           }
 
-       interact('.node.unlocked').draggable(
-           {
-               inertia: true,
-               modifiers: [
-                   interact.modifiers.restrictRect(
-                       {
-                           restriction: 'parent',
-                           endOnly: true
+                           event.target.style.transform = `translate(${event.target.style.x}px, ${event.target.style.y}px)`
                        }
-                   )
-               ],
-               listeners: {
-                   move(event) {
-                       if (!event.target.style.x) {
-                           event.target.style.x = event.delta.x
-                           event.target.style.y = event.delta.y
-                       } else {
-                           var next_x = parseFloat(event.target.style.x) + parseFloat(event.delta.x)
-                           var next_y = parseFloat(event.target.style.y) + parseFloat(event.delta.y)
-                           event.target.style.x = next_x
-                           event.target.style.y = next_y
-                       }
-
-                       event.target.style.transform = `translate(${event.target.style.x}px, ${event.target.style.y}px)`
                    }
                }
-           }
-       )
+           )
+        }
    }
 
    // createRelation() {
@@ -297,11 +333,10 @@ export default class HelloWorld extends Vue {
        return target_graph
    }
 
-   @Watch('enable_node_rename_mode')
-   toggle_editable_node_names(value: boolean) {
+   toggleNodeRenameMode(value: boolean) {
        this.graphs.forEach((graph) => {
             graph.nodes.forEach((node) => {
-                node.toggleNameChangeability()
+                node.toggleNameChangeability(value)
             })
        })
    }
@@ -311,8 +346,8 @@ export default class HelloWorld extends Vue {
    //      this.current_relation = this.relations[value]
    // }
 
-   @Watch('enable_grid')
-   toggle_grid(value: boolean) {
+   @Watch('gridSwitch')
+   toggleGrid(value: boolean) {
        // console.log(`change grid visibility from ${old_value} to ${value}`)
        if (value) {
            // console.log(interact.snappers.grid({ x: grid_step, y: grid_step })())
@@ -437,7 +472,7 @@ export default class HelloWorld extends Vue {
         //     }
         // }
         // if (hasColorChanged) {
-        if (this.enable_live_redraw) {
+        if (this.liveRedrawSwitch) {
             this.redrawAllGraphs()
         }
         // }
