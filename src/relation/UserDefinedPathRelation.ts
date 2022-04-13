@@ -2,6 +2,7 @@ import { Relation } from '@/relation/Relation'
 import { Connector } from '@/Connector'
 import { Location } from '@/Location'
 import { RelationConfig } from '@/relation/RelationConfig'
+import { SubsetConfig } from '@/subset/SubsetConfig'
 
 class UserDefinedPathRelation implements Relation {
     src: Connector
@@ -9,18 +10,18 @@ class UserDefinedPathRelation implements Relation {
 
     type: RelationConfig
     thickness: number
-    line_dash: number[]
+    subset: SubsetConfig
 
     beginning: Location
     segments: Location[]
 
-    constructor(beginning: Location, src: Connector, type: RelationConfig, thickness: number, line_dash: number[]) {
+    constructor(beginning: Location, src: Connector, type: RelationConfig, thickness: number, subset: SubsetConfig) {
         this.beginning = beginning
         this.src = src
         this.segments = []
         this.type = type
         this.thickness = thickness
-        this.line_dash = line_dash
+        this.subset = subset
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -32,7 +33,7 @@ class UserDefinedPathRelation implements Relation {
 
         ctx.strokeStyle = this.type.color
         ctx.lineWidth = this.thickness
-        ctx.setLineDash(this.line_dash)
+        ctx.setLineDash(this.subset.lineDash)
 
         ctx.moveTo(this.beginning.x, this.beginning.y);
 

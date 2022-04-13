@@ -18,15 +18,23 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph: Graph, ctx: CanvasRe
 
     ctx.strokeStyle = graph.currentRelation.color
     ctx.lineWidth = graph.currentRelationLineThickness
-    ctx.setLineDash(graph.currentLineDash)
+    ctx.setLineDash(graph.currentRelationSubset.lineDash)
 
     let current_head_connector_location: Location
 
     if (enable_straight_lines_drawing) {
         current_head_connector_location = new Location(event.offsetX, event.offsetY)
-        graph.push_relation(new LinearRelation(new Location(anchor_point.x, anchor_point.y), connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentLineDash))
+        graph.push_relation(
+            new LinearRelation(
+                new Location(anchor_point.x, anchor_point.y), connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentRelationSubset
+            )
+        )
     } else {
-        graph.push_relation(new UserDefinedPathRelation(new Location(anchor_point.x, anchor_point.y), connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentLineDash))
+        graph.push_relation(
+            new UserDefinedPathRelation(
+                new Location(anchor_point.x, anchor_point.y), connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentRelationSubset
+            )
+        )
         graph.push_relation_segment(new Location(event.offsetX, event.offsetY))
 
         ctx.lineTo(event.offsetX, event.offsetY);
@@ -50,15 +58,23 @@ function drawConnector(graph: Graph, ctx: CanvasRenderingContext2D, event, conne
 
     ctx.strokeStyle = graph.currentRelation.color
     ctx.lineWidth = graph.currentRelationLineThickness
-    ctx.setLineDash(graph.currentLineDash)
+    ctx.setLineDash(graph.currentRelationSubset.lineDash)
 
     let current_head_connector_location: Location
 
     if (enable_straight_lines_drawing) {
         current_head_connector_location = new Location(event.offsetX, event.offsetY)
-        graph.push_relation(new LinearRelation(current_head_connector_location, connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentLineDash))
+        graph.push_relation(
+            new LinearRelation(
+                current_head_connector_location, connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentRelationSubset
+            )
+        )
     } else {
-        graph.push_relation(new UserDefinedPathRelation(new Location(event.offsetX, event.offsetY), connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentLineDash))
+        graph.push_relation(
+            new UserDefinedPathRelation(
+                new Location(event.offsetX, event.offsetY), connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentRelationSubset
+            )
+        )
     }
 
     graph.currentHeads = getIntersectedEntities(graph.nodes, event.offsetX, event.offsetY, connector_size)

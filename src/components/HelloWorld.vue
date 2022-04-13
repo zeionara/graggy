@@ -25,10 +25,6 @@
                 Subset properties
             </n-divider>
             <SubsetsPane @current-subset-change = "setCurrentSubset" @redraw-graph = "redrawGraph"/>
-            <!--<n-space>
-                Current subset:
-                <n-select v-model:value="current_relation_subset" :options="subsets" />
-            </n-space>!-->
             <n-space>
                 <p class = "exported-graph" style = "text-align: left">Draw graph and then click export button</p>
             </n-space>
@@ -73,22 +69,6 @@ export default class HelloWorld extends Vue {
    relation_line_thickness!: number
    n_anchor_points_per_edge!: number
 
-    // relations = App.config.relations.map(relation => new RelationConfig(relation['name'], relation['color']))
-    subsets = [
-        {
-            label: "train",
-            value: "train"
-        },
-        {
-            label: "test",
-            value: "test"
-        },
-        {
-            label: "valid",
-            value: "valid"
-        }
-    ]
-
    x!: number
    y!: number
    connectorAutoAlignmentSwitch: boolean = App.config.switch['connector-auto-alignment']
@@ -97,7 +77,7 @@ export default class HelloWorld extends Vue {
    nodeRenameSwitch: boolean = App.config.switch['node-rename']
    liveRedrawSwitch: boolean = App.config.switch['live-redraw']
    currentRelation: RelationConfig // = this.relations[0]
-   current_relation_subset = "train"
+   currentSubset: SubsetConfig
    selected_relation_index = 0
 
    current_head_connector_location!: Location
@@ -136,15 +116,18 @@ export default class HelloWorld extends Vue {
    }
 
    setCurrentSubset(value: SubsetConfig) {
-        this.current_relation_subset = value.name
+        this.currentSubset = value
    }
 
    export() {
-       const train_triples = this.graphs[0].triples.train.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
-       const test_triples = this.graphs[0].triples.test.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
-       const valid_triples = this.graphs[0].triples.valid.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
+       const content = this.graphs[0].triples.subsets.map(subset =>
+            ([subset.config.name, ''].concat(subset.items.map(triple => triple.description))).join('<br/>')
+       ).join('<br/>')
+       // const train_triples = this.graphs[0].triples.train.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
+       // const test_triples = this.graphs[0].triples.test.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
+       // const valid_triples = this.graphs[0].triples.valid.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
 
-       document.getElementsByClassName('exported-graph')[0].innerHTML = `head\trelation\ttail<br/>${train_triples}<br/><br/>${test_triples}<br/><br/>${valid_triples}`
+       document.getElementsByClassName('exported-graph')[0].innerHTML = content // `head\trelation\ttail<br/>${train_triples}<br/><br/>${test_triples}<br/><br/>${valid_triples}`
    }
 
    mounted() {
@@ -166,7 +149,7 @@ export default class HelloWorld extends Vue {
                    const graph = this.find_target_graph(event)
 
                    graph.currentRelation = this.currentRelation
-                   graph.changeCurrentRelationSubset(this.current_relation_subset)
+                   graph.changeCurrentRelationSubset(this.currentSubset)
                    graph.currentRelationLineThickness = this.relation_line_thickness
 
                    const canvas = graph.canvas

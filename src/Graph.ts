@@ -8,6 +8,7 @@ import { drawGrid } from '@/drawing/grid'
 import { NodeAnchorPoint } from '@/NodeAnchorPoint'
 import { TripleSet } from '@/TripleSet'
 import { RelationConfig } from '@/relation/RelationConfig'
+import { SubsetConfig } from '@/subset/SubsetConfig'
 
 class Graph {
     element: HTMLElement
@@ -21,7 +22,7 @@ class Graph {
     currentRelation: RelationConfig
     currentRelationLineThickness: number
     drawingRelation = false
-    currentRelationSubset: string
+    currentRelationSubset: SubsetConfig
     enableGrid = false
     gridStep: number
     gridColor: string
@@ -108,19 +109,21 @@ class Graph {
         return targets
     }
 
-    changeCurrentRelationSubset(value: string) {
+    changeCurrentRelationSubset(value: SubsetConfig) {
         this.currentRelationSubset = value
     }
 
-    get currentLineDash() {
-        if (this.currentRelationSubset == "train") {
-            return []
-        } else if (this.currentRelationSubset == "test") {
-            return [10, 10]
-        } else if (this.currentRelationSubset == "valid") {
-            return [15, 3, 3, 3]
-        }
-    }
+    // get currentLineDash() {
+    //     if (this.currentRelationSubset.pattern == "solid") {
+    //         return []
+    //     } else if (this.currentRelationSubset.pattern == "dashed") {
+    //         return [10, 10]
+    //     } else if (this.currentRelationSubset.pattern == "dotted") {
+    //         return [3, 3]
+    //     } else if (this.currentRelationSubset.pattern == "dashed-dotted") {
+    //         return [15, 3, 3, 3]
+    //     }
+    // }
 }
 
 export { Graph }
