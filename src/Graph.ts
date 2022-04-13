@@ -94,17 +94,21 @@ class Graph {
         this.relations.forEach(relation => relation.draw(ctx))
     }
 
-    redraw() {
+    redraw(drawingEnabled = true) {
         const ctx = this.canvas.getContext('2d')
         let targets: NodeAnchorPoint[]
 
-        ctx.clearRect(0, 0, this.width, this.height)
-
-        if (this.enableGrid) {
-            targets = drawGrid(this, this.gridStep, this.gridColor)
+        if (drawingEnabled) {
+            ctx.clearRect(0, 0, this.width, this.height)
         }
 
-        this.draw()
+        if (this.enableGrid) {
+            targets = drawGrid(this, this.gridStep, this.gridColor, 1, drawingEnabled)
+        }
+
+        if (drawingEnabled) {
+            this.draw()
+        }
 
         return targets
     }

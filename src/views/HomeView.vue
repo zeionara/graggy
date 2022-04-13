@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <!-- <img alt="Vue logo" src="../assets/logo.png"> !-->
-    <HelloWorld :relation_line_thickness = 4 :n_anchor_points_per_edge = 2 />
+    <HelloWorld/>
   </div>
 </template>
 

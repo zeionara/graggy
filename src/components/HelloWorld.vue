@@ -16,6 +16,14 @@
                 purpose="connector size" v-bind:defaultValue = "connectorSize" @update-value = "updateSliderValue($event); redrawGraph();"
                 v-bind:min = "connectorSizeMin" v-bind:max = "connectorSizeMax" v-bind:step = "connectorSizeStep"
             />
+            <Slider
+                purpose="line thickness" v-bind:defaultValue = "relationLineThickness" @update-value = "updateSliderValue($event); redrawGraph();"
+                v-bind:min = "relationLineThicknessMin" v-bind:max = "relationLineThicknessMax" v-bind:step = "relationLineThicknessStep"
+            />
+            <Slider
+                purpose="grid density" v-bind:defaultValue = "nAnchorPointsPerEdge" @update-value = "updateSliderValue($event); toggleGrid(gridSwitch);"
+                v-bind:min = "nAnchorPointsPerEdgeMin" v-bind:max = "nAnchorPointsPerEdgeMax" v-bind:step = "nAnchorPointsPerEdgeStep"
+            />
             <n-space>
                 <n-button type="primary" @click="this.export()">export</n-button>
                 <n-button type="info" @click="this.redrawAllGraphs()" :disabled="liveRedrawSwitch">redraw</n-button>
@@ -45,7 +53,7 @@ import { Node } from '@/Node'
 import { Graph } from '@/Graph'
 import { Location } from '@/Location'
 import { NodeAnchorPoint } from '@/NodeAnchorPoint'
-import { drawLineSegment } from '@/drawing/relation_line'
+import { drawLineSegment } from '@/drawing/relationLine'
 import { drawAnchoredConnectorAndAdjacentLineSegment, drawConnector, drawTerminalAnchoredConnectorAndAdjacentLineSegment, drawTerminalConnector } from '@/drawing/connectors'
 import { Watch } from 'vue-property-decorator'
 import { RelationConfig } from '@/relation/RelationConfig'
@@ -58,10 +66,6 @@ import Switch from '@/components/Switch.vue'
 import Slider from '@/components/Slider.vue'
 
 @Options({
-  props: {
-    relation_line_thickness: Number,
-    n_anchor_points_per_edge: Number
-  },
   components: {
     NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, App,
     RelationsPane, SubsetsPane, Switch, Slider
@@ -73,9 +77,17 @@ export default class HelloWorld extends Vue {
     connectorSizeMin: number = App.config.connector.min
     connectorSizeMax: number = App.config.connector.max
 
+   relationLineThickness: number = App.config.line.thickness
+   relationLineThicknessStep: number = App.config.line.step
+   relationLineThicknessMin: number = App.config.line.min
+   relationLineThicknessMax: number = App.config.line.max
+
+   nAnchorPointsPerEdge: number = App.config.grid['n-anchor-points-per-edge']
+   nAnchorPointsPerEdgeStep: number = App.config.grid.step
+   nAnchorPointsPerEdgeMin: number = App.config.grid.min
+   nAnchorPointsPerEdgeMax: number = App.config.grid.max
+
     testSwitch: boolean = App.config.switch.test
-   relation_line_thickness!: number
-   n_anchor_points_per_edge!: number
 
    x!: number
    y!: number
@@ -121,6 +133,14 @@ export default class HelloWorld extends Vue {
                 this.connectorSize = event.value
                 this.graphs.forEach(graph => graph.connectors.forEach(connector => connector.size = event.value))
                 break;
+            case 'line thickness':
+                this.relationLineThickness = event.value
+                this.graphs.forEach(graph => graph.relations.forEach(relation => relation.thickness = event.value))
+                break;
+            case 'grid density':
+                this.nAnchorPointsPerEdge = event.value
+                this.graphs.forEach(graph => graph.gridStep = this.nodeSize / (this.nAnchorPointsPerEdge + 1))
+                break;
         }
     }
 
@@ -143,10 +163,10 @@ export default class HelloWorld extends Vue {
    mounted() {
        // Wrap all graphs on the page into typescript objects
 
-       const grid_step = this.nodeSize / (this.n_anchor_points_per_edge + 1)
+       const gridStep = this.nodeSize / (this.nAnchorPointsPerEdge + 1)
 
        Array.prototype.forEach.call(document.getElementsByClassName('graph'), (graph) => {
-           this.graphs.push(new Graph(graph, this.gridSwitch, grid_step, this.gridColor))
+           this.graphs.push(new Graph(graph, this.gridSwitch, gridStep, this.gridColor))
        })
 
         if (this.gridSwitch) {
@@ -156,24 +176,20 @@ export default class HelloWorld extends Vue {
        this.graphs.forEach((graph) => {
            graph.element.onmousedown = (event) => {
                if (event.ctrlKey) {
-                   const graph = this.find_target_graph(event)
+                   const graph = this.findTargetGraph(event)
 
                    graph.currentRelation = this.currentRelation
                    graph.changeCurrentRelationSubset(this.currentSubset)
-                   graph.currentRelationLineThickness = this.relation_line_thickness
+                   graph.currentRelationLineThickness = this.relationLineThickness
 
                    const canvas = graph.canvas
                    const ctx = canvas.getContext('2d');
 
                    // set line stroke and line width
 
-                   // ctx.strokeStyle = this.current_relation;
-                   // ctx.fillStyle = this.current_relation;
-                   // ctx.lineWidth = this.relation_line_thickness;
-
                    if (this.connectorAutoAlignmentSwitch) {
                        this.currentHeadConnectorLocation = drawAnchoredConnectorAndAdjacentLineSegment(
-                           graph, ctx, event, this.connectorSize, this.n_anchor_points_per_edge, this.straightLinesSwitch
+                           graph, ctx, event, this.connectorSize, this.nAnchorPointsPerEdge, this.straightLinesSwitch
                        )
                    } else {
                        this.currentHeadConnectorLocation = drawConnector(graph, ctx, event, this.connectorSize, this.straightLinesSwitch)
@@ -182,7 +198,7 @@ export default class HelloWorld extends Vue {
                    graph.drawingRelation = true
                } else {
                    if (!(event.target as HTMLElement).classList.contains('node') && !((event.target as HTMLElement).parentNode as HTMLElement).classList.contains('node')) {
-                       new Node(this.find_target_graph(event), event.offsetX, event.offsetY, this.nodeSize, this.nodeRenameSwitch)
+                       new Node(this.findTargetGraph(event), event.offsetX, event.offsetY, this.nodeSize, this.nodeRenameSwitch)
                    }
                }
            }
@@ -199,7 +215,7 @@ export default class HelloWorld extends Vue {
                    ctx.fillStyle = this.currentRelation.color
 
                    if (this.connectorAutoAlignmentSwitch) {
-                       drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connectorSize, this.n_anchor_points_per_edge, this.straightLinesSwitch)
+                       drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connectorSize, this.nAnchorPointsPerEdge, this.straightLinesSwitch)
                    } else {
                        drawTerminalConnector(graph, ctx, event, this.connectorSize, this.straightLinesSwitch)
                    }
@@ -225,10 +241,10 @@ export default class HelloWorld extends Vue {
                                event.target.style.x = event.delta.x
                                event.target.style.y = event.delta.y
                            } else {
-                               var next_x = parseFloat(event.target.style.x) + parseFloat(event.delta.x)
-                               var next_y = parseFloat(event.target.style.y) + parseFloat(event.delta.y)
-                               event.target.style.x = next_x
-                               event.target.style.y = next_y
+                               var nextX = parseFloat(event.target.style.x) + parseFloat(event.delta.x)
+                               var nextY = parseFloat(event.target.style.y) + parseFloat(event.delta.y)
+                               event.target.style.x = nextX
+                               event.target.style.y = nextY
                            }
 
                            event.target.style.transform = `translate(${event.target.style.x}px, ${event.target.style.y}px)`
@@ -239,16 +255,16 @@ export default class HelloWorld extends Vue {
         }
    }
 
-   find_target_graph(event) {
-       let target_graph: Graph
+   findTargetGraph(event) {
+       let targetGraph: Graph
 
        this.graphs.forEach((graph) => {
            if (graph.canvas == event.target) {
-               target_graph = graph
+               targetGraph = graph
            }
        })
 
-       return target_graph
+       return targetGraph
    }
 
    toggleNodeRenameMode(value: boolean) {
@@ -260,19 +276,13 @@ export default class HelloWorld extends Vue {
    }
 
    @Watch('gridSwitch')
-   toggleGrid(value: boolean) {
-       // console.log(`change grid visibility from ${old_value} to ${value}`)
+   toggleGrid(value: boolean, redraw = true) {
        if (value) {
-           // console.log(interact.snappers.grid({ x: grid_step, y: grid_step })())
            let targets: NodeAnchorPoint[]
 
            this.graphs.forEach((graph) => {
-               // const ctx = graph.canvas.getContext('2d')
-               // ctx.clearRect(0, 0, graph.width, graph.height)
-               // targets = drawGrid(graph, grid_step)
-               // graph.draw()
                graph.enableGrid = true
-               const targets = graph.redraw()
+               const targets = graph.redraw(redraw)
 
                interact('.node.unlocked').draggable(
                    {
@@ -288,35 +298,35 @@ export default class HelloWorld extends Vue {
                        listeners: {
                            move(event) {
                                if (event.target.parentElement == graph.element) {
-                                   let next_x: number
-                                   let next_y: number
+                                   let nextX: number
+                                   let nextY: number
 
-                                   if (!event.target.style.virtual_x) {
+                                   if (!event.target.style.virtualX) {
                                        if (event.target.style.x) {
-                                           next_x = parseFloat(event.target.style.x)
-                                           next_y = parseFloat(event.target.style.y)
+                                           nextX = parseFloat(event.target.style.x)
+                                           nextY = parseFloat(event.target.style.y)
                                        } else {
-                                           next_x = event.delta.x
-                                           next_y = event.delta.y
+                                           nextX = event.delta.x
+                                           nextY = event.delta.y
                                        }
                                    } else {
-                                       next_x = parseFloat(event.target.style.virtual_x) + parseFloat(event.delta.x)
-                                       next_y = parseFloat(event.target.style.virtual_y) + parseFloat(event.delta.y)
+                                       nextX = parseFloat(event.target.style.virtualX) + parseFloat(event.delta.x)
+                                       nextY = parseFloat(event.target.style.virtualY) + parseFloat(event.delta.y)
                                    }
 
-                                   event.target.style.virtual_x = next_x
-                                   event.target.style.virtual_y = next_y
+                                   event.target.style.virtualX = nextX
+                                   event.target.style.virtualY = nextY
 
-                                   const closest_target = targets.map(
-                                       target => [target, target.measure_distance(next_x, next_y)]
+                                   const closestTarget = targets.map(
+                                       target => [target, target.measureDistance(nextX, nextY)]
                                    ).sort(
                                        (lhs, rhs) => (lhs[1] as number) - (rhs[1] as number)
                                    )[0][0] as NodeAnchorPoint
 
-                                   event.target.style.x = closest_target.x
-                                   event.target.style.y = closest_target.y
+                                   event.target.style.x = closestTarget.x
+                                   event.target.style.y = closestTarget.y
 
-                                   event.target.style.transform = `translate(${closest_target.x}px, ${closest_target.y}px)`
+                                   event.target.style.transform = `translate(${closestTarget.x}px, ${closestTarget.y}px)`
                                }
                            }
                        }
@@ -326,7 +336,7 @@ export default class HelloWorld extends Vue {
        } else {
            this.graphs.forEach((graph) => {
                graph.enableGrid = false
-               graph.redraw()
+               graph.redraw(redraw)
                // const ctx = graph.canvas.getContext('2d')
                // ctx.clearRect(0, 0, graph.width, graph.height)
                // graph.draw()
@@ -345,19 +355,19 @@ export default class HelloWorld extends Vue {
                    ],
                    listeners: {
                        move(event) {
-                           if (event.target.style.virtual_x) {
-                               delete event.target.style.virtual_x
-                               delete event.target.style.virtual_y
+                           if (event.target.style.virtualX) {
+                               delete event.target.style.virtualX
+                               delete event.target.style.virtualY
                            }
 
                            if (!event.target.style.x) {
                                event.target.style.x = event.delta.x
                                event.target.style.y = event.delta.y
                            } else {
-                               var next_x = parseFloat(event.target.style.x) + parseFloat(event.delta.x)
-                               var next_y = parseFloat(event.target.style.y) + parseFloat(event.delta.y)
-                               event.target.style.x = next_x
-                               event.target.style.y = next_y
+                               var nextX = parseFloat(event.target.style.x) + parseFloat(event.delta.x)
+                               var nextY = parseFloat(event.target.style.y) + parseFloat(event.delta.y)
+                               event.target.style.x = nextX
+                               event.target.style.y = nextY
                            }
 
                            event.target.style.transform = `translate(${event.target.style.x}px, ${event.target.style.y}px)`
@@ -368,12 +378,12 @@ export default class HelloWorld extends Vue {
        }
    }
 
-   @Watch("enable_live_redraw")
+   @Watch("liveRedrawSwitch")
    toggleLiveRedrawMode() {
      this.redrawGraph()
    }
 
-   redrawGraph() { // value: RelationConfig[], previous_value: RelationConfig[]
+   redrawGraph() {
         if (this.liveRedrawSwitch) {
             this.redrawAllGraphs()
         }

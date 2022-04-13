@@ -56,7 +56,7 @@ function getClosestEntityAnchorPoint(nodes: Node[], x: number, y: number, n_anch
     // Array.prototype.forEach.call(document.getElementsByClassName('node'), (node) => {
     nodes.forEach((node) => {
         anchor_points_with_distances = anchor_points_with_distances.concat(
-            node.get_anchor_points(n_anchor_points_per_entity_edge).map(point => [point, point.measure_distance(x, y)])
+            node.get_anchor_points(n_anchor_points_per_entity_edge).map(point => [point, point.measureDistance(x, y)])
         )
     })
 

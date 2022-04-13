@@ -1,49 +1,56 @@
 import { Graph } from '@/Graph'
 import { NodeAnchorPoint } from '@/NodeAnchorPoint'
 
-function drawGrid(graph: Graph, distance: number, color = "grey", line_thickness = 1) {
-    const canvas = graph.canvas
-    const ctx = canvas.getContext('2d');
-
+function drawGrid(graph: Graph, distance: number, color = "grey", line_thickness = 1, drawingEnabled = true) {
     const width = graph.width
     const height = graph.height
 
-    // const distance = 100 / (this.n_anchor_points_per_edge + 1)
+    if (drawingEnabled) {
+        const canvas = graph.canvas
+        const ctx = canvas.getContext('2d');
 
-    // Draw vertical lines
 
-    const previous_stroke_style = ctx.strokeStyle
-    const previous_line_thickness = ctx.lineWidth
-    const previous_line_dash = ctx.getLineDash()
-    
-    ctx.strokeStyle = color
-    ctx.lineWidth = line_thickness
-    ctx.setLineDash([])
+        // const distance = 100 / (this.n_anchor_points_per_edge + 1)
 
-    const top_y = 0
-    const bot_y = height
+        // Draw vertical lines
 
-    ctx.beginPath();
+        const previous_stroke_style = ctx.strokeStyle
+        const previous_line_thickness = ctx.lineWidth
+        const previous_line_dash = ctx.getLineDash()
+        
+        ctx.strokeStyle = color
+        ctx.lineWidth = line_thickness
+        ctx.setLineDash([])
 
-    for (let x = 0; x <= width; x = x + distance) {
-        const top_bot_x = Math.floor(x)
+        const top_y = 0
+        const bot_y = height
 
-        ctx.moveTo(top_bot_x, top_y)
-        ctx.lineTo(top_bot_x, bot_y)
-        ctx.stroke()
-    }
+        ctx.beginPath();
 
-    // Draw horizontal lines
+        for (let x = 0; x <= width; x = x + distance) {
+            const top_bot_x = Math.floor(x)
 
-    const left_x = 0
-    const right_x = width
+            ctx.moveTo(top_bot_x, top_y)
+            ctx.lineTo(top_bot_x, bot_y)
+            ctx.stroke()
+        }
 
-    for (let y = 0; y <= height; y = y + distance) {
-        const left_right_y = Math.floor(y)
+        // Draw horizontal lines
 
-        ctx.moveTo(left_x, left_right_y)
-        ctx.lineTo(right_x, left_right_y)
-        ctx.stroke()
+        const left_x = 0
+        const right_x = width
+
+        for (let y = 0; y <= height; y = y + distance) {
+            const left_right_y = Math.floor(y)
+
+            ctx.moveTo(left_x, left_right_y)
+            ctx.lineTo(right_x, left_right_y)
+            ctx.stroke()
+        }
+
+        ctx.strokeStyle = previous_stroke_style
+        ctx.lineWidth = previous_line_thickness
+        ctx.setLineDash(previous_line_dash)
     }
 
     const targets: NodeAnchorPoint[] = []
@@ -53,10 +60,6 @@ function drawGrid(graph: Graph, distance: number, color = "grey", line_thickness
             targets.push(new NodeAnchorPoint(Math.floor(x), Math.floor(y)))
         }
     }
-
-    ctx.strokeStyle = previous_stroke_style
-    ctx.lineWidth = previous_line_thickness
-    ctx.setLineDash(previous_line_dash)
 
     return targets
 }
