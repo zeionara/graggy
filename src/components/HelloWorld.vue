@@ -12,6 +12,10 @@
             <Switch purpose="grid" v-bind:defaultValue = "gridSwitch" @update-value = "updateSwitchValue" />
             <Switch purpose="node rename mode" v-bind:defaultValue = "nodeRenameSwitch" @update-value = "updateSwitchValue($event); toggleNodeRenameMode($event.value)" />
             <Switch purpose="live redraw" v-bind:defaultValue = "liveRedrawSwitch" @update-value = "updateSwitchValue" />
+            <Slider
+                purpose="connector size" v-bind:defaultValue = "connectorSize" @update-value = "updateSliderValue($event); redrawGraph();"
+                v-bind:min = "connectorSizeMin" v-bind:max = "connectorSizeMax" v-bind:step = "connectorSizeStep"
+            />
             <n-space>
                 <n-button type="primary" @click="this.export()">export</n-button>
                 <n-button type="info" @click="this.redrawAllGraphs()" :disabled="liveRedrawSwitch">redraw</n-button>
@@ -51,21 +55,25 @@ import App from '@/App.vue'
 import RelationsPane from '@/components/RelationsPane.vue'
 import SubsetsPane from '@/components/SubsetsPane.vue'
 import Switch from '@/components/Switch.vue'
+import Slider from '@/components/Slider.vue'
 
 @Options({
   props: {
-    connector_size: Number,
     relation_line_thickness: Number,
     n_anchor_points_per_edge: Number
   },
   components: {
     NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, App,
-    RelationsPane, SubsetsPane, Switch
+    RelationsPane, SubsetsPane, Switch, Slider
   }
 })
 export default class HelloWorld extends Vue {
+    connectorSize: number = App.config.connector.size
+    connectorSizeStep: number = App.config.connector.step
+    connectorSizeMin: number = App.config.connector.min
+    connectorSizeMax: number = App.config.connector.max
+
     testSwitch: boolean = App.config.switch.test
-   connector_size!: number
    relation_line_thickness!: number
    n_anchor_points_per_edge!: number
 
@@ -76,12 +84,10 @@ export default class HelloWorld extends Vue {
    gridSwitch: boolean = App.config.switch.grid
    nodeRenameSwitch: boolean = App.config.switch['node-rename']
    liveRedrawSwitch: boolean = App.config.switch['live-redraw']
-   currentRelation: RelationConfig // = this.relations[0]
+   currentRelation: RelationConfig
    currentSubset: SubsetConfig
-   selected_relation_index = 0
 
-   current_head_connector_location!: Location
-   previous_tail_connector_location!: Location
+   currentHeadConnectorLocation!: Location
 
    bgColor = App.config.graph["bg-color"]
    gridColor = App.config.graph["grid-color"]
@@ -107,8 +113,15 @@ export default class HelloWorld extends Vue {
                 this.liveRedrawSwitch = event.value
                 break;
         }
-        // console.log(this.testSwitch)
-        // console.log(value)
+    }
+
+    updateSliderValue(event) {
+        switch (event.purpose) {
+            case 'connector size':
+                this.connectorSize = event.value
+                this.graphs.forEach(graph => graph.connectors.forEach(connector => connector.size = event.value))
+                break;
+        }
     }
 
    setCurrentRelation(value: RelationConfig) {
@@ -123,11 +136,8 @@ export default class HelloWorld extends Vue {
        const content = this.graphs[0].triples.subsets.map(subset =>
             ([subset.config.name, ''].concat(subset.items.map(triple => triple.description))).join('<br/>')
        ).join('<br/>')
-       // const train_triples = this.graphs[0].triples.train.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
-       // const test_triples = this.graphs[0].triples.test.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
-       // const valid_triples = this.graphs[0].triples.valid.map(triple => triple.description).join('<br/>') // TODO: Add support for multiple graphs
 
-       document.getElementsByClassName('exported-graph')[0].innerHTML = content // `head\trelation\ttail<br/>${train_triples}<br/><br/>${test_triples}<br/><br/>${valid_triples}`
+       document.getElementsByClassName('exported-graph')[0].innerHTML = content
    }
 
    mounted() {
@@ -162,11 +172,11 @@ export default class HelloWorld extends Vue {
                    // ctx.lineWidth = this.relation_line_thickness;
 
                    if (this.connectorAutoAlignmentSwitch) {
-                       this.current_head_connector_location = drawAnchoredConnectorAndAdjacentLineSegment(
-                           graph, ctx, event, this.connector_size, this.n_anchor_points_per_edge, this.straightLinesSwitch
+                       this.currentHeadConnectorLocation = drawAnchoredConnectorAndAdjacentLineSegment(
+                           graph, ctx, event, this.connectorSize, this.n_anchor_points_per_edge, this.straightLinesSwitch
                        )
                    } else {
-                       this.current_head_connector_location = drawConnector(graph, ctx, event, this.connector_size, this.straightLinesSwitch)
+                       this.currentHeadConnectorLocation = drawConnector(graph, ctx, event, this.connectorSize, this.straightLinesSwitch)
                    }
 
                    graph.drawingRelation = true
@@ -189,9 +199,9 @@ export default class HelloWorld extends Vue {
                    ctx.fillStyle = this.currentRelation.color
 
                    if (this.connectorAutoAlignmentSwitch) {
-                       drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connector_size, this.n_anchor_points_per_edge, this.straightLinesSwitch)
+                       drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connectorSize, this.n_anchor_points_per_edge, this.straightLinesSwitch)
                    } else {
-                       drawTerminalConnector(graph, ctx, event, this.connector_size, this.straightLinesSwitch)
+                       drawTerminalConnector(graph, ctx, event, this.connectorSize, this.straightLinesSwitch)
                    }
                }
            }
@@ -229,21 +239,6 @@ export default class HelloWorld extends Vue {
         }
    }
 
-   // createRelation() {
-   //    // <n-space vertical v-for="(relation, i) in this.relations" :key="i" size="large">
-   //    //   <n-space><n-input round type="text" size="small" v-model:value="relation.name" style="width: 300px"/> <n-radio :key="i" :value="i" /> </n-space>
-   //    //   <n-color-picker :modes="['hex']" v-model:value="relation.color"/>
-   //    // </n-space>
-   //    // let SpaceInit = VueBase.extend(NSpace)
-   //    // let InputInit = VueBase.extend(NInput)
-   //    // let ColorPickerInit = VueBase.extend(NColorPicker)
-   //  
-   //    let relationConfig = new RelationConfig("dummy", "#ffffff")
-   //    let relationIndex = this.relations.length
-   //    this.relations.push(relationConfig)
-   //    // console.log("creating a new relation...")
-   // }
-
    find_target_graph(event) {
        let target_graph: Graph
 
@@ -263,11 +258,6 @@ export default class HelloWorld extends Vue {
             })
        })
    }
-
-   // @Watch('selected_relation_index')
-   // update_current_relation(value: number) {
-   //      this.current_relation = this.relations[value]
-   // }
 
    @Watch('gridSwitch')
    toggleGrid(value: boolean) {
@@ -383,22 +373,10 @@ export default class HelloWorld extends Vue {
      this.redrawGraph()
    }
 
-   // @Watch("relations", { deep: true })
    redrawGraph() { // value: RelationConfig[], previous_value: RelationConfig[]
-        // let hasColorChanged = false
-        // for (let i = 0; i < value.length; i++) {
-        //     console.log(value[i].color, previous_value[i].color)
-        //     console.log(value[i].name, previous_value[i].name)
-        //     if (value[i].color != previous_value[i].color) {
-        //         hasColorChanged = true
-        //         break
-        //     }
-        // }
-        // if (hasColorChanged) {
         if (this.liveRedrawSwitch) {
             this.redrawAllGraphs()
         }
-        // }
    }
 
     redrawAllGraphs() {
@@ -406,13 +384,6 @@ export default class HelloWorld extends Vue {
             graph.redraw()
         })
     }
-
-   // @Watch('current_relation_subset')
-   // change_current_relation_subset(value: string) {
-   //     this.graphs.forEach((graph) => {
-   //         graph.changeCurrentRelationSubset(value)
-   //     })
-   // }
 }
 </script>
 

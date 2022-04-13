@@ -39,3 +39,8 @@ graph:
     grid-color: white
 node:
     size: 100
+connector:
+    size: 20
+    min: 10
+    max: 100
+    step: 10
