@@ -9,30 +9,25 @@ class Node {
     permanentlyLocked = false
 
     // constructor(node: HTMLElement) {
-    constructor(graph: Graph, x: number, y: number, size: number, enableRenameMode: boolean) {
+    constructor(dataAttributeName: string, x: number, y: number, size: number, enableRenameMode: boolean, id: string) {
         const node = document.createElement('div')
+        node.id = id
         node.style['width'] = `${size}px`
         node.style['height'] = `${size}px`
         const nodeName = document.createElement('p')
 
         node.className = 'node unlocked'
-        node.setAttribute(graph.data_attribute_name, '')
+        node.setAttribute(dataAttributeName, '')
         // node.innerHTML = `<input placeholder = "{node.id}" style = "width: 80px; margin-top: 40px"/>`
         // node.appendChild(nodeName)
         
         this.element = node
-        graph.appendNode(this)
         nodeName.innerHTML = node.id
         nodeName.style['margin-top'] = `${size * 0.4}px`
         nodeName.style['color'] = 'white'
         nodeName.style['font-weight'] = 'bold'
         node.appendChild(nodeName)
 
-        const nodeStyle = node.style as NodeElementCSSStyleDeclaration
-
-        nodeStyle.x = (x - node.getBoundingClientRect().width / 2).toString()
-        nodeStyle.y = (y - node.getBoundingClientRect().height / 2).toString()
-        nodeStyle.transform = `translate(${nodeStyle.x}px, ${nodeStyle.y}px)`
 
         this.toggleNameChangeability(enableRenameMode)
     }

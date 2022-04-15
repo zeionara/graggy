@@ -1,11 +1,12 @@
 import { getClosestEntityAnchorPoint, drawFilledSquare, getIntersectedEntities } from '@/geometry'
-import { Graph } from '@/Graph'
+// import { Graph } from '@/Graph'
+import Graph from '@/components/Graph.vue'
 import { Location } from '@/Location'
 import { Connector } from '@/Connector'
 import { UserDefinedPathRelation } from '@/relation/UserDefinedPathRelation'
 import { LinearRelation } from '@/relation/LinearRelation'
 
-function drawAnchoredConnectorAndAdjacentLineSegment(graph: Graph, ctx: CanvasRenderingContext2D, event, connector_size, n_anchor_points_per_edge, enable_straight_lines_drawing: boolean) {
+function drawAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasRenderingContext2D, event, connector_size, n_anchor_points_per_edge, enable_straight_lines_drawing: boolean) {
     const anchor_point = getClosestEntityAnchorPoint(graph.nodes, event.offsetX, event.offsetY, n_anchor_points_per_edge)
     const connector = new Connector(anchor_point.x, anchor_point.y, connector_size, graph.currentRelation)
     graph.push_connector(connector)
@@ -17,8 +18,8 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph: Graph, ctx: CanvasRe
     ctx.moveTo(anchor_point.x, anchor_point.y);
 
     ctx.strokeStyle = graph.currentRelation.color
-    ctx.lineWidth = graph.currentRelationLineThickness
-    ctx.setLineDash(graph.currentRelationSubset.lineDash)
+    ctx.lineWidth = graph.relationLineThickness
+    ctx.setLineDash(graph.currentSubset.lineDash)
 
     let current_head_connector_location: Location
 
@@ -26,13 +27,13 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph: Graph, ctx: CanvasRe
         current_head_connector_location = new Location(event.offsetX, event.offsetY)
         graph.push_relation(
             new LinearRelation(
-                new Location(anchor_point.x, anchor_point.y), connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentRelationSubset
+                new Location(anchor_point.x, anchor_point.y), connector, graph.currentRelation, graph.relationLineThickness, graph.currentSubset
             )
         )
     } else {
         graph.push_relation(
             new UserDefinedPathRelation(
-                new Location(anchor_point.x, anchor_point.y), connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentRelationSubset
+                new Location(anchor_point.x, anchor_point.y), connector, graph.currentRelation, graph.relationLineThickness, graph.currentSubset
             )
         )
         graph.push_relation_segment(new Location(event.offsetX, event.offsetY))
@@ -46,7 +47,7 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph: Graph, ctx: CanvasRe
     return current_head_connector_location
 }
 
-function drawConnector(graph: Graph, ctx: CanvasRenderingContext2D, event, connector_size, enable_straight_lines_drawing: boolean) {
+function drawConnector(graph, ctx: CanvasRenderingContext2D, event, connector_size, enable_straight_lines_drawing: boolean) {
     const connector = new Connector(event.offsetX, event.offsetY, connector_size, graph.currentRelation)
     graph.push_connector(connector)
 
@@ -57,8 +58,8 @@ function drawConnector(graph: Graph, ctx: CanvasRenderingContext2D, event, conne
     ctx.moveTo(event.offsetX, event.offsetY);
 
     ctx.strokeStyle = graph.currentRelation.color
-    ctx.lineWidth = graph.currentRelationLineThickness
-    ctx.setLineDash(graph.currentRelationSubset.lineDash)
+    ctx.lineWidth = graph.relationLineThickness
+    ctx.setLineDash(graph.currentSubset.lineDash)
 
     let current_head_connector_location: Location
 
@@ -66,13 +67,13 @@ function drawConnector(graph: Graph, ctx: CanvasRenderingContext2D, event, conne
         current_head_connector_location = new Location(event.offsetX, event.offsetY)
         graph.push_relation(
             new LinearRelation(
-                current_head_connector_location, connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentRelationSubset
+                current_head_connector_location, connector, graph.currentRelation, graph.relationLineThickness, graph.currentSubset
             )
         )
     } else {
         graph.push_relation(
             new UserDefinedPathRelation(
-                new Location(event.offsetX, event.offsetY), connector, graph.currentRelation, graph.currentRelationLineThickness, graph.currentRelationSubset
+                new Location(event.offsetX, event.offsetY), connector, graph.currentRelation, graph.relationLineThickness, graph.currentSubset
             )
         )
     }
@@ -82,7 +83,7 @@ function drawConnector(graph: Graph, ctx: CanvasRenderingContext2D, event, conne
     return current_head_connector_location
 }
 
-function drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph: Graph, ctx: CanvasRenderingContext2D, event, connector_size, n_anchor_points_per_edge, enable_straight_lines_drawing: boolean) {
+function drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasRenderingContext2D, event, connector_size, n_anchor_points_per_edge, enable_straight_lines_drawing: boolean) {
     if (graph.currentRelation) {
         const anchor_point = getClosestEntityAnchorPoint(graph.nodes, event.offsetX, event.offsetY, n_anchor_points_per_edge)
         const connector = new Connector(anchor_point.x, anchor_point.y, connector_size, graph.currentRelation)
@@ -114,7 +115,7 @@ function drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph: Graph, ctx: 
     }
 }
 
-function drawTerminalConnector(graph: Graph, ctx: CanvasRenderingContext2D, event, connector_size: number, enable_straight_lines_drawing: boolean) {
+function drawTerminalConnector(graph, ctx: CanvasRenderingContext2D, event, connector_size: number, enable_straight_lines_drawing: boolean) {
     if (graph.currentRelation) {
         const connector = new Connector(event.offsetX, event.offsetY, connector_size, graph.currentRelation)
         graph.push_connector(connector)

@@ -1,8 +1,14 @@
 <template>
     <n-space justify="center">
-        <div class = "graph" :style="`background-color:${this.bgColor};`">
+        <!--<div class = "graph" :style="`background-color:${this.bgColor};`">
             <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
-        </div>
+        </div>!-->
+        <Graph
+            v-bind:nodeSize = "nodeSize" v-bind:nAnchorPointsPerEdge = "nAnchorPointsPerEdge" v-bind:enableGrid = "gridSwitch" v-bind:gridColor = "gridColor"
+            v-bind:currentSubset = "currentSubset" v-bind:currentRelation = "currentRelation" v-bind:relationLineThickness = "relationLineThickness"
+            v-bind:enableConnectorAutoAlignment = "connectorAutoAlignmentSwitch" v-bind:connectorSize = "connectorSize" v-bind:enableStraightLines = "straightLinesSwitch"
+            v-bind:enableNodeRenameMode = "nodeRenameSwitch" v-bind:bgColor = "bgColor"
+        />
         <n-space vertical>
             <n-divider title-placement = "left">
                 Graph properties
@@ -50,7 +56,7 @@ import { AddOutline as PlusIcon } from '@vicons/ionicons5'
 import interact from 'interactjs';
 import { Options, Vue } from 'vue-class-component';
 import { Node } from '@/Node'
-import { Graph } from '@/Graph'
+import { Graph as GraphC } from '@/Graph'
 import { Location } from '@/Location'
 import { NodeAnchorPoint } from '@/NodeAnchorPoint'
 import { drawLineSegment } from '@/drawing/relationLine'
@@ -64,11 +70,12 @@ import RelationsPane from '@/components/RelationsPane.vue'
 import SubsetsPane from '@/components/SubsetsPane.vue'
 import Switch from '@/components/Switch.vue'
 import Slider from '@/components/Slider.vue'
+import Graph from '@/components/Graph.vue'
 
 @Options({
   components: {
     NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, App,
-    RelationsPane, SubsetsPane, Switch, Slider
+    RelationsPane, SubsetsPane, Switch, Slider, Graph
   }
 })
 export default class HelloWorld extends Vue {
@@ -105,7 +112,7 @@ export default class HelloWorld extends Vue {
    gridColor = App.config.graph["grid-color"]
    nodeSize = App.config.node.size
 
-   graphs: Graph[] = []
+   graphs: GraphC[] = []
 
     updateSwitchValue(event) {
         switch (event.purpose) {
@@ -166,7 +173,7 @@ export default class HelloWorld extends Vue {
        const gridStep = this.nodeSize / (this.nAnchorPointsPerEdge + 1)
 
        Array.prototype.forEach.call(document.getElementsByClassName('graph'), (graph) => {
-           this.graphs.push(new Graph(graph, this.gridSwitch, gridStep, this.gridColor))
+           this.graphs.push(new GraphC(graph, this.gridSwitch, gridStep, this.gridColor))
        })
 
         if (this.gridSwitch) {
@@ -198,7 +205,7 @@ export default class HelloWorld extends Vue {
                    graph.drawingRelation = true
                } else {
                    if (!(event.target as HTMLElement).classList.contains('node') && !((event.target as HTMLElement).parentNode as HTMLElement).classList.contains('node')) {
-                       new Node(this.findTargetGraph(event), event.offsetX, event.offsetY, this.nodeSize, this.nodeRenameSwitch)
+                       new Node(this.findTargetGraph(event).data_attribute_name, event.offsetX, event.offsetY, this.nodeSize, this.nodeRenameSwitch, 'nothing')
                    }
                }
            }
@@ -256,7 +263,7 @@ export default class HelloWorld extends Vue {
    }
 
    findTargetGraph(event) {
-       let targetGraph: Graph
+       let targetGraph: GraphC
 
        this.graphs.forEach((graph) => {
            if (graph.canvas == event.target) {

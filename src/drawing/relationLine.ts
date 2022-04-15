@@ -1,9 +1,10 @@
-import { Graph } from '@/Graph'
+// import { Graph } from '@/Graph'
+import Graph from '@/components/Graph.vue'
 import { Location } from '@/Location'
 import { LinearRelation } from '@/relation/LinearRelation'
 
 
-function drawLineSegment(graph: Graph, event, enable_straight_lines_drawing) {
+function drawLineSegment(graph, event, enable_straight_lines_drawing) {
     const canvas = graph.canvas
 
     if (graph.drawingRelation && event.target == graph.canvas) {
