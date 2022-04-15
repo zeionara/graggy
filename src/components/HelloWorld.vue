@@ -1,14 +1,13 @@
 <template>
     <n-space justify="center">
-        <!--<div class = "graph" :style="`background-color:${this.bgColor};`">
-            <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
-        </div>!-->
-        <Graph
-            v-bind:nodeSize = "nodeSize" v-bind:nAnchorPointsPerEdge = "nAnchorPointsPerEdge" v-bind:enableGrid = "gridSwitch" v-bind:gridColor = "gridColor"
-            v-bind:currentSubset = "currentSubset" v-bind:currentRelation = "currentRelation" v-bind:relationLineThickness = "relationLineThickness"
-            v-bind:enableConnectorAutoAlignment = "connectorAutoAlignmentSwitch" v-bind:connectorSize = "connectorSize" v-bind:enableStraightLines = "straightLinesSwitch"
-            v-bind:enableNodeRenameMode = "nodeRenameSwitch" v-bind:bgColor = "bgColor"
-        />
+        <n-space vertical>
+            <Graph v-for = "i in 2" ref = "graphs" v-bind:key = "i"
+                v-bind:nodeSize = "nodeSize" v-bind:nAnchorPointsPerEdge = "nAnchorPointsPerEdge" v-bind:enableGrid = "gridSwitch" v-bind:gridColor = "gridColor"
+                v-bind:currentSubset = "currentSubset" v-bind:currentRelation = "currentRelation" v-bind:relationLineThickness = "relationLineThickness"
+                v-bind:enableConnectorAutoAlignment = "connectorAutoAlignmentSwitch" v-bind:connectorSize = "connectorSize" v-bind:enableStraightLines = "straightLinesSwitch"
+                v-bind:enableNodeRenameMode = "nodeRenameSwitch" v-bind:enableLiveRedraw = "liveRedrawSwitch" v-bind:bgColor = "bgColor" v-bind:index = "i - 1"
+            />
+        </n-space>
         <n-space vertical>
             <n-divider title-placement = "left">
                 Graph properties
@@ -16,10 +15,10 @@
             <Switch purpose="relation connector automatic alignment" v-bind:defaultValue = "connectorAutoAlignmentSwitch" @update-value = "updateSwitchValue" />
             <Switch purpose="straight lines drawing" v-bind:defaultValue = "straightLinesSwitch" @update-value = "updateSwitchValue" />
             <Switch purpose="grid" v-bind:defaultValue = "gridSwitch" @update-value = "updateSwitchValue" />
-            <Switch purpose="node rename mode" v-bind:defaultValue = "nodeRenameSwitch" @update-value = "updateSwitchValue($event); toggleNodeRenameMode($event.value)" />
+            <Switch purpose="node rename mode" v-bind:defaultValue = "nodeRenameSwitch" @update-value = "updateSwitchValue($event); forEachGraph(graph => graph.toggleNodeRenameMode($event))" />
             <Switch purpose="live redraw" v-bind:defaultValue = "liveRedrawSwitch" @update-value = "updateSwitchValue" />
             <Slider
-                purpose="connector size" v-bind:defaultValue = "connectorSize" @update-value = "updateSliderValue($event); redrawGraph();"
+                purpose="connector size" v-bind:defaultValue = "connectorSize" @update-value = "updateSliderValue($event); forEachGraph(graph => {graph.setConnectorSize($event); graph.liveRedraw()})"
                 v-bind:min = "connectorSizeMin" v-bind:max = "connectorSizeMax" v-bind:step = "connectorSizeStep"
             />
             <Slider
@@ -32,7 +31,7 @@
             />
             <n-space>
                 <n-button type="primary" @click="this.export()">export</n-button>
-                <n-button type="info" @click="this.redrawAllGraphs()" :disabled="liveRedrawSwitch">redraw</n-button>
+                <n-button type="info" @click="forEachGraph(graph => graph.redraw())" :disabled="liveRedrawSwitch">redraw</n-button>
                 <n-button type="error" disabled>clear</n-button>
             </n-space>
             <n-divider title-placement = "left">
@@ -103,8 +102,8 @@ export default class HelloWorld extends Vue {
    gridSwitch: boolean = App.config.switch.grid
    nodeRenameSwitch: boolean = App.config.switch['node-rename']
    liveRedrawSwitch: boolean = App.config.switch['live-redraw']
-   currentRelation: RelationConfig
-   currentSubset: SubsetConfig
+   currentRelation: RelationConfig = null
+   currentSubset: SubsetConfig = null
 
    currentHeadConnectorLocation!: Location
 
@@ -152,10 +151,12 @@ export default class HelloWorld extends Vue {
     }
 
    setCurrentRelation(value: RelationConfig) {
+        console.log(value)
         this.currentRelation = value
    }
 
    setCurrentSubset(value: SubsetConfig) {
+        console.log(value)
         this.currentSubset = value
    }
 
@@ -168,98 +169,98 @@ export default class HelloWorld extends Vue {
    }
 
    mounted() {
-       // Wrap all graphs on the page into typescript objects
+       // // Wrap all graphs on the page into typescript objects
 
-       const gridStep = this.nodeSize / (this.nAnchorPointsPerEdge + 1)
+       // const gridStep = this.nodeSize / (this.nAnchorPointsPerEdge + 1)
 
-       Array.prototype.forEach.call(document.getElementsByClassName('graph'), (graph) => {
-           this.graphs.push(new GraphC(graph, this.gridSwitch, gridStep, this.gridColor))
-       })
+       // Array.prototype.forEach.call(document.getElementsByClassName('graph'), (graph) => {
+       //     this.graphs.push(new GraphC(graph, this.gridSwitch, gridStep, this.gridColor))
+       // })
 
-        if (this.gridSwitch) {
-            this.toggleGrid(this.gridSwitch)
-        }
+       //  if (this.gridSwitch) {
+       //      this.toggleGrid(this.gridSwitch)
+       //  }
 
-       this.graphs.forEach((graph) => {
-           graph.element.onmousedown = (event) => {
-               if (event.ctrlKey) {
-                   const graph = this.findTargetGraph(event)
+       // this.graphs.forEach((graph) => {
+       //     graph.element.onmousedown = (event) => {
+       //         if (event.ctrlKey) {
+       //             const graph = this.findTargetGraph(event)
 
-                   graph.currentRelation = this.currentRelation
-                   graph.changeCurrentRelationSubset(this.currentSubset)
-                   graph.currentRelationLineThickness = this.relationLineThickness
+       //             graph.currentRelation = this.currentRelation
+       //             graph.changeCurrentRelationSubset(this.currentSubset)
+       //             graph.currentRelationLineThickness = this.relationLineThickness
 
-                   const canvas = graph.canvas
-                   const ctx = canvas.getContext('2d');
+       //             const canvas = graph.canvas
+       //             const ctx = canvas.getContext('2d');
 
-                   // set line stroke and line width
+       //             // set line stroke and line width
 
-                   if (this.connectorAutoAlignmentSwitch) {
-                       this.currentHeadConnectorLocation = drawAnchoredConnectorAndAdjacentLineSegment(
-                           graph, ctx, event, this.connectorSize, this.nAnchorPointsPerEdge, this.straightLinesSwitch
-                       )
-                   } else {
-                       this.currentHeadConnectorLocation = drawConnector(graph, ctx, event, this.connectorSize, this.straightLinesSwitch)
-                   }
+       //             if (this.connectorAutoAlignmentSwitch) {
+       //                 this.currentHeadConnectorLocation = drawAnchoredConnectorAndAdjacentLineSegment(
+       //                     graph, ctx, event, this.connectorSize, this.nAnchorPointsPerEdge, this.straightLinesSwitch
+       //                 )
+       //             } else {
+       //                 this.currentHeadConnectorLocation = drawConnector(graph, ctx, event, this.connectorSize, this.straightLinesSwitch)
+       //             }
 
-                   graph.drawingRelation = true
-               } else {
-                   if (!(event.target as HTMLElement).classList.contains('node') && !((event.target as HTMLElement).parentNode as HTMLElement).classList.contains('node')) {
-                       new Node(this.findTargetGraph(event).data_attribute_name, event.offsetX, event.offsetY, this.nodeSize, this.nodeRenameSwitch, 'nothing')
-                   }
-               }
-           }
+       //             graph.drawingRelation = true
+       //         } else {
+       //             if (!(event.target as HTMLElement).classList.contains('node') && !((event.target as HTMLElement).parentNode as HTMLElement).classList.contains('node')) {
+       //                 new Node(this.findTargetGraph(event).data_attribute_name, event.offsetX, event.offsetY, this.nodeSize, this.nodeRenameSwitch, 'nothing')
+       //             }
+       //         }
+       //     }
 
-           graph.element.onmousemove = (event) => {
-               drawLineSegment(graph, event, this.straightLinesSwitch)
-           }
+       //     graph.element.onmousemove = (event) => {
+       //         drawLineSegment(graph, event, this.straightLinesSwitch)
+       //     }
 
-           graph.element.onmouseup = (event) => {
-               if (event.target == graph.canvas) {
-                   const canvas = graph.canvas
-                   graph.drawingRelation = false
-                   const ctx = canvas.getContext('2d');
-                   ctx.fillStyle = this.currentRelation.color
+       //     graph.element.onmouseup = (event) => {
+       //         if (event.target == graph.canvas) {
+       //             const canvas = graph.canvas
+       //             graph.drawingRelation = false
+       //             const ctx = canvas.getContext('2d');
+       //             ctx.fillStyle = this.currentRelation.color
 
-                   if (this.connectorAutoAlignmentSwitch) {
-                       drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connectorSize, this.nAnchorPointsPerEdge, this.straightLinesSwitch)
-                   } else {
-                       drawTerminalConnector(graph, ctx, event, this.connectorSize, this.straightLinesSwitch)
-                   }
-               }
-           }
-       })
-        
-        if (!this.gridSwitch) {
-           interact('.node.unlocked').draggable(
-               {
-                   inertia: true,
-                   modifiers: [
-                       interact.modifiers.restrictRect(
-                           {
-                               restriction: 'parent',
-                               endOnly: true
-                           }
-                       )
-                   ],
-                   listeners: {
-                       move(event) {
-                           if (!event.target.style.x) {
-                               event.target.style.x = event.delta.x
-                               event.target.style.y = event.delta.y
-                           } else {
-                               var nextX = parseFloat(event.target.style.x) + parseFloat(event.delta.x)
-                               var nextY = parseFloat(event.target.style.y) + parseFloat(event.delta.y)
-                               event.target.style.x = nextX
-                               event.target.style.y = nextY
-                           }
+       //             if (this.connectorAutoAlignmentSwitch) {
+       //                 drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx, event, this.connectorSize, this.nAnchorPointsPerEdge, this.straightLinesSwitch)
+       //             } else {
+       //                 drawTerminalConnector(graph, ctx, event, this.connectorSize, this.straightLinesSwitch)
+       //             }
+       //         }
+       //     }
+       // })
+       //  
+       //  if (!this.gridSwitch) {
+       //     interact('.node.unlocked').draggable(
+       //         {
+       //             inertia: true,
+       //             modifiers: [
+       //                 interact.modifiers.restrictRect(
+       //                     {
+       //                         restriction: 'parent',
+       //                         endOnly: true
+       //                     }
+       //                 )
+       //             ],
+       //             listeners: {
+       //                 move(event) {
+       //                     if (!event.target.style.x) {
+       //                         event.target.style.x = event.delta.x
+       //                         event.target.style.y = event.delta.y
+       //                     } else {
+       //                         var nextX = parseFloat(event.target.style.x) + parseFloat(event.delta.x)
+       //                         var nextY = parseFloat(event.target.style.y) + parseFloat(event.delta.y)
+       //                         event.target.style.x = nextX
+       //                         event.target.style.y = nextY
+       //                     }
 
-                           event.target.style.transform = `translate(${event.target.style.x}px, ${event.target.style.y}px)`
-                       }
-                   }
-               }
-           )
-        }
+       //                     event.target.style.transform = `translate(${event.target.style.x}px, ${event.target.style.y}px)`
+       //                 }
+       //             }
+       //         }
+       //     )
+       //  }
    }
 
    findTargetGraph(event) {
@@ -391,8 +392,19 @@ export default class HelloWorld extends Vue {
    }
 
    redrawGraph() {
-        if (this.liveRedrawSwitch) {
-            this.redrawAllGraphs()
+        // console.log('wtd')
+        // console.log(this.$refs.graph && this.$refs.graph.completedInitialization)
+        // if (this.$refs.graph && this.$refs.graph.completedInitialization) { 
+        //     const graph = this.$refs.graph
+        //     console.log('redrawing graph from parent')
+        //     const res = graph.redraw()
+        //     console.log(res)
+        // }
+        // if (this.liveRedrawSwitch) {
+        //     this.redrawAllGraphs()
+        // }
+        if (this.$refs.graphs) {
+            (this.$refs.graphs as Graph[]).forEach(graph => graph.liveRedraw())
         }
    }
 
@@ -400,6 +412,12 @@ export default class HelloWorld extends Vue {
         this.graphs.forEach((graph) => {
             graph.redraw()
         })
+    }
+
+    forEachGraph(callback: (graph: Graph) => undefined) {
+        if (this.$refs.graphs) {
+            (this.$refs.graphs as Graph[]).forEach(callback)
+        }
     }
 }
 </script>

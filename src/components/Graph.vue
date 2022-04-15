@@ -1,5 +1,10 @@
 <template>
-    <div class = "graph" :style="`background-color:${this.bgColor};`" @mousedown.ctrl="startDrawingRelationLine($event)" @mousedown.exact="addNode($event)">
+    <div class = "graph" :style="`background-color:${this.bgColor};`"
+        @mousedown.ctrl="startDrawingRelationLine($event)"
+        @mouseup.ctrl="stopDrawingRelationLine($event)"
+        @mousedown.exact="addNode($event)"
+        @mousemove="drawLineSegment($event)"
+    >
         <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
     </div>
 </template>
@@ -30,7 +35,8 @@ import { NodeElementCSSStyleDeclaration } from '@/NodeElementCSSStyleDeclaration
     },
     props: {
         nodeSize: Number, nAnchorPointsPerEdge: Number, enableGrid: Boolean, gridColor: String, currentSubset: SubsetConfig, currentRelation: RelationConfig,
-        relationLineThickness: Number, enableConnectorAutoAlignment: Boolean, connectorSize: Number, enableStraightLines!: Boolean, enableNodeRenameMode: Boolean, bgColor: String
+        relationLineThickness: Number, enableConnectorAutoAlignment: Boolean, connectorSize: Number, enableStraightLines!: Boolean, enableNodeRenameMode: Boolean, bgColor: String,
+        enableLiveRedraw: Boolean, index: Number
     }
 })
 export default class Graph extends Vue {
@@ -49,11 +55,14 @@ export default class Graph extends Vue {
     connectorSize!: number
     enableStraightLines!: boolean
     enableNodeRenameMode!: boolean
+    enableLiveRedraw!: boolean
+    index!: number
 
     element: Element
     drawingRelation = false
     nEntities = 0
     nodes: Node[] = []
+    completedInitialization = false
 
     triples = new TripleSet()
     connectors: Connector[] = []
@@ -88,6 +97,8 @@ export default class Graph extends Vue {
     // }
 
     startDrawingRelationLine(event: Event) {
+        console.log('current subset in graph')
+        console.log(this.currentSubset)
         const canvas = this.canvas
         const ctx = canvas.getContext('2d');
 
@@ -100,6 +111,8 @@ export default class Graph extends Vue {
         }
 
         this.drawingRelation = true
+        console.log(';;;')
+        console.log(this.currentSubset)
     }
     
     drawLineSegment(event: Event) {
@@ -109,7 +122,6 @@ export default class Graph extends Vue {
     stopDrawingRelationLine(event: Event) {
         if (event.target == this.canvas) {
             const canvas = this.canvas
-            this.drawingRelation = false
             const ctx = canvas.getContext('2d');
 
             ctx.fillStyle = this.currentRelation.color
@@ -119,6 +131,8 @@ export default class Graph extends Vue {
             } else {
                 drawTerminalConnector(this, ctx, event, this.connectorSize, this.enableStraightLines)
             }
+
+            this.drawingRelation = false
         }
     }
 
@@ -137,7 +151,9 @@ export default class Graph extends Vue {
     }
 
     mounted() {
-        this.element = document.getElementsByClassName('graph')[0]
+        this.element = document.getElementsByClassName('graph')[this.index]
+
+        console.log(`Mounting ${this.index} graph`)
 
         if (this.enableGrid) {
             this.toggleGrid(this.enableGrid)
@@ -171,13 +187,15 @@ export default class Graph extends Vue {
                 }
             )
         }
+
+        this.completedInitialization = true
     }
 
    @Watch('enableGrid')
    toggleGrid(value: boolean, redraw = true) {
        if (value) {
            // this.enableGrid = true
-           const targets = this.redraw(redraw)
+           const targets = this.redraw()
 
            interact('.node.unlocked').draggable(
                {
@@ -192,49 +210,41 @@ export default class Graph extends Vue {
                    ],
                    listeners: {
                        move(event) {
-                           if (event.target.parentElement == this.element) {
-                               let nextX: number
-                               let nextY: number
+                           let nextX: number
+                           let nextY: number
 
-                               if (!event.target.style.virtualX) {
-                                   if (event.target.style.x) {
-                                       nextX = parseFloat(event.target.style.x)
-                                       nextY = parseFloat(event.target.style.y)
-                                   } else {
-                                       nextX = event.delta.x
-                                       nextY = event.delta.y
-                                   }
+                           if (!event.target.style.virtualX) {
+                               if (event.target.style.x) {
+                                   nextX = parseFloat(event.target.style.x)
+                                   nextY = parseFloat(event.target.style.y)
                                } else {
-                                   nextX = parseFloat(event.target.style.virtualX) + parseFloat(event.delta.x)
-                                   nextY = parseFloat(event.target.style.virtualY) + parseFloat(event.delta.y)
+                                   nextX = event.delta.x
+                                   nextY = event.delta.y
                                }
-
-                               event.target.style.virtualX = nextX
-                               event.target.style.virtualY = nextY
-
-                               const closestTarget = targets.map(
-                                   target => [target, target.measureDistance(nextX, nextY)]
-                               ).sort(
-                                   (lhs, rhs) => (lhs[1] as number) - (rhs[1] as number)
-                               )[0][0] as NodeAnchorPoint
-
-                               event.target.style.x = closestTarget.x
-                               event.target.style.y = closestTarget.y
-
-                               event.target.style.transform = `translate(${closestTarget.x}px, ${closestTarget.y}px)`
+                           } else {
+                               nextX = parseFloat(event.target.style.virtualX) + parseFloat(event.delta.x)
+                               nextY = parseFloat(event.target.style.virtualY) + parseFloat(event.delta.y)
                            }
+
+                           event.target.style.virtualX = nextX
+                           event.target.style.virtualY = nextY
+
+                           const closestTarget = targets.map(
+                               target => [target, target.measureDistance(nextX, nextY)]
+                           ).sort(
+                               (lhs, rhs) => (lhs[1] as number) - (rhs[1] as number)
+                           )[0][0] as NodeAnchorPoint
+
+                           event.target.style.x = closestTarget.x
+                           event.target.style.y = closestTarget.y
+
+                           event.target.style.transform = `translate(${closestTarget.x}px, ${closestTarget.y}px)`
                        }
                    }
                }
            )
        } else {
-           this.graphs.forEach((graph) => {
-               graph.enableGrid = false
-               graph.redraw(redraw)
-               // const ctx = graph.canvas.getContext('2d')
-               // ctx.clearRect(0, 0, graph.width, graph.height)
-               // graph.draw()
-           })
+           this.redraw()
 
            interact('.node.unlocked').draggable(
                {
@@ -311,7 +321,15 @@ export default class Graph extends Vue {
         this.relations.forEach(relation => relation.draw(ctx))
     }
 
+    liveRedraw() {
+        if (this.enableLiveRedraw) {
+            this.redraw()
+        }
+    }
+
     redraw(drawingEnabled = true) {
+        console.log('redrawing')
+
         const ctx = this.canvas.getContext('2d')
         let targets: NodeAnchorPoint[]
 
@@ -328,6 +346,14 @@ export default class Graph extends Vue {
         }
 
         return targets
+    }
+
+    setConnectorSize(event) {
+        this.connectors.forEach(connector => connector.size = event.value)
+    }
+
+    toggleNodeRenameMode(event) {
+        this.nodes.forEach(node => node.toggleNameChangeability(event.value))
     }
 }
 </script> 

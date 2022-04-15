@@ -17,6 +17,8 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasRendering
     ctx.beginPath();
     ctx.moveTo(anchor_point.x, anchor_point.y);
 
+    console.log('---')
+    console.log(graph.currentSubset)
     ctx.strokeStyle = graph.currentRelation.color
     ctx.lineWidth = graph.relationLineThickness
     ctx.setLineDash(graph.currentSubset.lineDash)
@@ -57,6 +59,9 @@ function drawConnector(graph, ctx: CanvasRenderingContext2D, event, connector_si
     ctx.beginPath();
     ctx.moveTo(event.offsetX, event.offsetY);
 
+    console.log('--+')
+    console.log(graph.currentSubset)
+    console.log(graph.currentRelation)
     ctx.strokeStyle = graph.currentRelation.color
     ctx.lineWidth = graph.relationLineThickness
     ctx.setLineDash(graph.currentSubset.lineDash)
@@ -84,7 +89,7 @@ function drawConnector(graph, ctx: CanvasRenderingContext2D, event, connector_si
 }
 
 function drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasRenderingContext2D, event, connector_size, n_anchor_points_per_edge, enable_straight_lines_drawing: boolean) {
-    if (graph.currentRelation) {
+    if (graph.drawingRelation) {
         const anchor_point = getClosestEntityAnchorPoint(graph.nodes, event.offsetX, event.offsetY, n_anchor_points_per_edge)
         const connector = new Connector(anchor_point.x, anchor_point.y, connector_size, graph.currentRelation)
         graph.push_connector(connector)
@@ -111,12 +116,11 @@ function drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasR
         connector.draw(ctx)
         
         graph.push_triples(getIntersectedEntities(graph.nodes, anchor_point.x, anchor_point.y, connector_size))
-        graph.currentRelation = undefined
     }
 }
 
 function drawTerminalConnector(graph, ctx: CanvasRenderingContext2D, event, connector_size: number, enable_straight_lines_drawing: boolean) {
-    if (graph.currentRelation) {
+    if (graph.drawingRelation) {
         const connector = new Connector(event.offsetX, event.offsetY, connector_size, graph.currentRelation)
         graph.push_connector(connector)
 
@@ -142,7 +146,6 @@ function drawTerminalConnector(graph, ctx: CanvasRenderingContext2D, event, conn
         }
         
         graph.push_triples(getIntersectedEntities(graph.nodes, event.offsetX, event.offsetY, connector_size))
-        graph.currentRelation = undefined
     }
 }
 

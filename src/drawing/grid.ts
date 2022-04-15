@@ -1,7 +1,8 @@
-import { Graph } from '@/Graph'
+// import { Graph } from '@/Graph'
+// import Graph from '@/components/Graph.vue'
 import { NodeAnchorPoint } from '@/NodeAnchorPoint'
 
-function drawGrid(graph: Graph, distance: number, color = "grey", line_thickness = 1, drawingEnabled = true) {
+function drawGrid(graph, distance: number, color = "grey", line_thickness = 1, drawingEnabled = true) {
     const width = graph.width
     const height = graph.height
 
