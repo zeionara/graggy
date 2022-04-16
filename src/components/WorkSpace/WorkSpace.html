@@ -1,0 +1,61 @@
+<n-space justify="center">
+    <n-space vertical>
+        <Graph v-for = "i in 2" ref = "graphs" v-bind:key = "i"
+            v-bind:nodeSize = "nodeSize" v-bind:nAnchorPointsPerEdge = "nAnchorPointsPerEdge" v-bind:enableGrid = "gridSwitch" v-bind:gridColor = "gridColor"
+            v-bind:currentSubset = "currentSubset" v-bind:currentRelation = "currentRelation" v-bind:relationLineThickness = "relationLineThickness"
+            v-bind:enableConnectorAutoAlignment = "connectorAutoAlignmentSwitch" v-bind:connectorSize = "connectorSize" v-bind:enableStraightLines = "straightLinesSwitch"
+            v-bind:enableNodeRenameMode = "nodeRenameSwitch" v-bind:enableLiveRedraw = "liveRedrawSwitch" v-bind:bgColor = "bgColor" v-bind:index = "i - 1"
+        />
+    </n-space>
+    <n-space vertical>
+        <n-divider title-placement = "left">
+            Graph properties
+        </n-divider>
+        <Switch 
+            purpose="relation connector automatic alignment" v-bind:defaultValue = "connectorAutoAlignmentSwitch" @update-value = "this.connectorAutoAlignmentSwitch = $event.value"
+        />
+        <Switch
+            purpose="straight lines drawing" v-bind:defaultValue = "straightLinesSwitch" @update-value = "this.straightLinesSwitch = $event.value"
+        />
+        <Switch
+            purpose="grid" v-bind:defaultValue = "gridSwitch" @update-value = "this.gridSwitch = $event.value"
+        />
+        <Switch
+            purpose="node rename mode" v-bind:defaultValue = "nodeRenameSwitch" @update-value = "this.nodeRenameSwitch = $event.value; forEachGraph(graph => graph.toggleNodeRenameMode($event))"
+        />
+        <Switch
+            purpose="live redraw" v-bind:defaultValue = "liveRedrawSwitch" @update-value = "this.liveRedrawSwitch = $event.value"
+        />
+        <Slider
+            purpose="connector size" v-bind:defaultValue = "connectorSize"
+            @update-value = "this.connectorSize = $event.value; forEachGraph(graph => {graph.setConnectorSize($event); graph.liveRedraw()})"
+            v-bind:min = "connectorSizeMin" v-bind:max = "connectorSizeMax" v-bind:step = "connectorSizeStep"
+        />
+        <Slider
+            purpose="line thickness" v-bind:defaultValue = "relationLineThickness"
+            @update-value = "this.relationLineThickness = $event.value; forEachGraph(graph => {graph.setLineThickness($event); graph.liveRedraw()})"
+            v-bind:min = "relationLineThicknessMin" v-bind:max = "relationLineThicknessMax" v-bind:step = "relationLineThicknessStep"
+        />
+        <Slider
+            purpose="grid density" v-bind:defaultValue = "nAnchorPointsPerEdge"
+            @update-value = "this.nAnchorPointsPerEdge = $event.value; forEachGraph(graph => graph.toggleGrid(gridSwitch))"
+            v-bind:min = "nAnchorPointsPerEdgeMin" v-bind:max = "nAnchorPointsPerEdgeMax" v-bind:step = "nAnchorPointsPerEdgeStep"
+        />
+        <n-space>
+            <n-button type="primary" @click="this.export()">export</n-button>
+            <n-button type="info" @click="forEachGraph(graph => graph.redraw())" :disabled="liveRedrawSwitch">redraw</n-button>
+            <n-button type="error" disabled>clear</n-button>
+        </n-space>
+        <n-divider title-placement = "left">
+            Relation properties
+        </n-divider>
+        <RelationsPane @current-relation-change = "this.currentRelation = $event" @redraw-graph = "forEachGraph(graph => graph.liveRedraw())"/>
+        <n-divider title-placement = "left">
+            Subset properties
+        </n-divider>
+        <SubsetsPane @current-subset-change = "this.currentSubset = $event" @redraw-graph = "forEachGraph(graph => graph.liveRedraw())"/>
+        <n-space>
+            <p class = "exported-graph" style = "text-align: left">Draw graph and then click export button</p>
+        </n-space>
+    </n-space>
+</n-space>
