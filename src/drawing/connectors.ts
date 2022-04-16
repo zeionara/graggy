@@ -17,8 +17,6 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasRendering
     ctx.beginPath();
     ctx.moveTo(anchor_point.x, anchor_point.y);
 
-    console.log('---')
-    console.log(graph.currentSubset)
     ctx.strokeStyle = graph.currentRelation.color
     ctx.lineWidth = graph.relationLineThickness
     ctx.setLineDash(graph.currentSubset.lineDash)
@@ -59,9 +57,6 @@ function drawConnector(graph, ctx: CanvasRenderingContext2D, event, connector_si
     ctx.beginPath();
     ctx.moveTo(event.offsetX, event.offsetY);
 
-    console.log('--+')
-    console.log(graph.currentSubset)
-    console.log(graph.currentRelation)
     ctx.strokeStyle = graph.currentRelation.color
     ctx.lineWidth = graph.relationLineThickness
     ctx.setLineDash(graph.currentSubset.lineDash)

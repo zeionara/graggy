@@ -103,7 +103,7 @@ class Graph {
         }
 
         if (this.enableGrid) {
-            targets = drawGrid(this, this.gridStep, this.gridColor, 1, drawingEnabled)
+            targets = drawGrid(this, this.gridStep, this.gridColor, 1)
         }
 
         if (drawingEnabled) {

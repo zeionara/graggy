@@ -9,7 +9,7 @@ import RelationsPane from '@/components/RelationsPane.vue'
 import SubsetsPane from '@/components/SubsetsPane.vue'
 import Switch from '@/components/Switch.vue'
 import Slider from '@/components/Slider.vue'
-import Graph from '@/components/Graph.vue'
+import Graph from '@/components/Graph/Graph.vue'
 
 @Options({
   components: {
@@ -63,9 +63,9 @@ export default class WorkSpace extends Vue {
         document.getElementsByClassName('exported-graph')[0].innerHTML = 'content'
     }
 
-    forEachGraph(callback: (graph: Graph) => undefined) {
+    forEachGraph(callback: (graph) => undefined) {
         if (this.$refs.graphs) {
-            (this.$refs.graphs as Graph[]).forEach(callback)
+            (this.$refs.graphs as (typeof Graph[])).forEach(callback)
         }
     }
 }

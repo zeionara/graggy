@@ -1,16 +1,16 @@
 // import { Graph } from '@/Graph'
-import Graph from '@/components/Graph.vue'
+// import Graph from '@/components/Graph.vue'
 import { Location } from '@/Location'
 import { LinearRelation } from '@/relation/LinearRelation'
 
 
-function drawLineSegment(graph, event, enable_straight_lines_drawing) {
+function drawLineSegment(graph, event) {
     const canvas = graph.canvas
 
     if (graph.drawingRelation && event.target == graph.canvas) {
         const ctx = canvas.getContext('2d')
 
-        if (enable_straight_lines_drawing) {
+        if (graph.enableStraightLines) {
             graph.redraw()
 
             const beginning = (graph.relations[graph.relations.length - 1] as LinearRelation).beginning
