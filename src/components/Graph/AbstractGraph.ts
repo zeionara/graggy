@@ -11,12 +11,18 @@ import { RelationConfig } from '@/relation/RelationConfig'
 
 class AbstractGraph extends Vue {
 
+    // Index of current graph which allows to differentiate it from other graphs
+
+    index!: number
+
     // Vales set by external selectors
 
     currentRelation!: RelationConfig
     currentSubset!: SubsetConfig
 
     // Local values used for internal rendering and tracking state
+
+    nodes: Node[] = []
 
     connectors: Connector[] = []
     relations: Relation[] = []
