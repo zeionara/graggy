@@ -352,13 +352,17 @@ export default class Graph extends Vue {
         this.connectors.forEach(connector => connector.size = event.value)
     }
 
+    setLineThickness(event) {
+        this.relations.forEach(relation => relation.thickness = event.value)
+    }
+
     toggleNodeRenameMode(event) {
         this.nodes.forEach(node => node.toggleNameChangeability(event.value))
     }
 }
 </script> 
 
-<style scoped lang="scss">
+<style lang="scss">
 .graph {
     width: 1024px;
     height: 640px;
