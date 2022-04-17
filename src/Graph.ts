@@ -1,4 +1,3 @@
-// import { Node } from '@/Node'
 import { Triple } from '@/Triple'
 import { Connector } from '@/Connector'
 import { Relation } from '@/relation/Relation'

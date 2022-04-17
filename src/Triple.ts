@@ -1,5 +1,4 @@
 import { RelationConfig } from '@/relation/RelationConfig'
-// import { Node } from '@/Node'
 
 class Triple {
     head

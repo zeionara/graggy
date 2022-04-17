@@ -28,7 +28,6 @@ class AbstractGraph extends Vue {
 
     nNodes = 0
     nodeInitialLocations: Location[] = []
-    // nodes = [] // : VNode[] = []
 
     connectors: Connector[] = []
     relations: Relation[] = []

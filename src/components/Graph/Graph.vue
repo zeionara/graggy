@@ -2,8 +2,6 @@
     <div class = "graph" :style="`background-color:${this.bgColor};`" ref = "element"
         @mousedown.ctrl="startDrawingRelationLine" @mousemove="drawLineSegment" @mouseup.ctrl="stopDrawingRelationLine"
     >
-        <!--<Node :size = "nodeSize" :initialX = "100" :initialY = "100" :enableRenameMode = "enableNodeRenameMode" id = "entity-foo" ref = "node" />!-->
-        <!--<component :is = "tmpNode" />!-->
         <Node 
             v-for = "i in nNodes" v-bind:key = "i - 1" ref = "nodes"
             :size = "nodeSize" :enableRenameMode = "enableNodeRenameMode" :id = "`entity-${i - 1}`" 
@@ -106,9 +104,5 @@ export default class Graph extends ShapedGraph {
 .graph {
     width: 1024px;
     height: 640px;
-}
-.node {
-    background-color: red;
-    position: absolute;
 }
 </style>

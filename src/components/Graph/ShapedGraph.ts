@@ -1,10 +1,5 @@
-import { h, createApp } from 'vue';
-import { Vue } from 'vue-class-component';
-
 import { AbstractGraph } from '@/components/Graph/AbstractGraph'
-import Node from '@/components/Node/Node.vue'
 import { Location } from '@/Location'
-import { NodeElementCSSStyleDeclaration } from '@/NodeElementCSSStyleDeclaration'
 
 class ShapedGraph extends AbstractGraph {
 
@@ -32,20 +27,6 @@ class ShapedGraph extends AbstractGraph {
 
     drawingRelation = false
     currentHeadConnectorLocation!: Location
-
-    // tmpNode = h(
-    //             Node,
-    //             {
-    //                 // propsData: {
-    //                     size: this.nodeSize,
-    //                     initialX: 100,
-    //                     initialY: 100,
-    //                     enableRenameMode: this.enableNodeRenameMode,
-    //                     id: `entity-${this.nodes.length}`,
-    //                 // }
-    //             }
-    //         )
-
 
     // Computed properties
 
@@ -78,22 +59,8 @@ class ShapedGraph extends AbstractGraph {
     // New node creation implementation
 
     addNode(event) {
-        this.nNodes += 1
         this.nodeInitialLocations.push(new Location(event.offsetX - this.nodeSize / 2, event.offsetY - this.nodeSize / 2))
-        // this.nodes.push(
-        //     h(
-        //         Node,
-        //         {
-        //             // propsData: {
-        //                 size: this.nodeSize,
-        //                 initialX: event.offsetX - this.nodeSize / 2,
-        //                 initialY: event.offsetY - this.nodeSize / 2,
-        //                 enableRenameMode: this.enableNodeRenameMode,
-        //                 id: `entity-${this.nodes.length}`,
-        //             // }
-        //         }
-        //     )
-        // )
+        this.nNodes += 1
     }
 
     // Methods for setting parameters of graph elements from parent component
@@ -104,11 +71,6 @@ class ShapedGraph extends AbstractGraph {
 
     setLineThickness(event) {
         this.relations.forEach(relation => relation.thickness = event.value)
-    }
-
-    toggleNodeRenameMode(event) {
-        console.log(typeof this.$refs.node)
-        // this.nodes.forEach(node => node.toggleNameChangeability(event.value))
     }
 }
 
