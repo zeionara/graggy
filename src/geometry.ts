@@ -42,7 +42,7 @@ function getIntersectedEntities(nodes, x: number, y: number, length: number) {
             rect_right_x <= node_right_x && rect_right_x >= node_left_x && rect_top_y <= node_bot_y && rect_top_y >= node_top_y ||
             rect_right_x <= node_right_x && rect_right_x >= node_left_x && rect_bot_y <= node_bot_y && rect_bot_y >= node_top_y
        ) {
-            node.lock(true)
+            node.lock()
             intersected_entities.push(node);
        }
     })

@@ -21,7 +21,7 @@
             purpose="grid" v-bind:defaultValue = "gridSwitch" @update-value = "this.gridSwitch = $event.value; forEachGraph(graph => graph.toggleGrid($event.value))"
         />
         <Switch
-            purpose="node rename mode" v-bind:defaultValue = "nodeRenameSwitch" @update-value = "this.nodeRenameSwitch = $event.value; forEachGraph(graph => graph.toggleNodeRenameMode($event))"
+            purpose="node rename mode" v-bind:defaultValue = "nodeRenameSwitch" @update-value = "this.nodeRenameSwitch = $event.value"
         />
         <Switch
             purpose="live redraw" v-bind:defaultValue = "liveRedrawSwitch" @update-value = "this.liveRedrawSwitch = $event.value"

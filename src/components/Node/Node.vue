@@ -1,10 +1,10 @@
 <template>
     <div
         :style = "`width: ${size}px; height: ${size}px; x: ${initialX}; y: ${initialY}; transform: translate(${initialX}px, ${initialY}px)`"
-        :class = "`node${!locked && !permanentlyLocked ? ' unlocked' : ''}`" :id = "id" ref = "element"
+        :class = "`node${!locked && !enableRenameMode ? ' unlocked' : ''}`" :id = "id" ref = "element"
     >
         <p :class = "enableRenameMode ? 'hidden' : ''" :style = "`margin-top: ${size * 0.4}px; color: white; font-weight: bold`" :disabled = "enableRenameMode">{{ name }}</p>
-        <input :class = "enableRenameMode ? '' : 'hidden'" :style = "`margin-top: ${size * 0.4}px; width: ${size * 0.8}px`" :disabled = "!enableRenameMode" v-model = "name" />
+        <input :class = "enableRenameMode ? '' : 'hidden'" :style = "`margin-top: ${size * 0.4}px; width: ${size * 0.9}px`" :disabled = "!enableRenameMode" v-model = "name" />
     </div>
 </template>
 
@@ -28,20 +28,16 @@ export default class Node extends ShapedNode {
 
     locked = false
     modifiableName = false
-    permanentlyLocked = false
     name: string
 
     created() {
         this.name = this.id
     }
 
-    lock(permanently = false) {
+    lock() {
         if (!this.locked) {
             this.element.classList.remove('unlocked')
             this.locked = true
-        }
-        if (permanently && !this.permanentlyLocked) {
-            this.permanentlyLocked = true
         }
     }
 
