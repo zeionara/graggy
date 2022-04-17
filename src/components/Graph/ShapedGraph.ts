@@ -1,7 +1,9 @@
 import { h, createApp } from 'vue';
+import { Vue } from 'vue-class-component';
 
 import { AbstractGraph } from '@/components/Graph/AbstractGraph'
 import Node from '@/components/Node/Node.vue'
+import { Location } from '@/Location'
 import { NodeElementCSSStyleDeclaration } from '@/NodeElementCSSStyleDeclaration'
 
 class ShapedGraph extends AbstractGraph {
@@ -31,18 +33,18 @@ class ShapedGraph extends AbstractGraph {
     drawingRelation = false
     currentHeadConnectorLocation!: Location
 
-    tmpNode = h(
-                Node,
-                {
-                    // propsData: {
-                        size: this.nodeSize,
-                        initialX: 100,
-                        initialY: 100,
-                        enableRenameMode: this.enableNodeRenameMode,
-                        id: `entity-${this.nodes.length}`,
-                    // }
-                }
-            )
+    // tmpNode = h(
+    //             Node,
+    //             {
+    //                 // propsData: {
+    //                     size: this.nodeSize,
+    //                     initialX: 100,
+    //                     initialY: 100,
+    //                     enableRenameMode: this.enableNodeRenameMode,
+    //                     id: `entity-${this.nodes.length}`,
+    //                 // }
+    //             }
+    //         )
 
 
     // Computed properties
@@ -76,34 +78,22 @@ class ShapedGraph extends AbstractGraph {
     // New node creation implementation
 
     addNode(event) {
-        // const node = new Node(this.data_attribute_name, event.offsetX, event.offsetY, this.nodeSize, this.enableNodeRenameMode, `entity-${this.nodes.length}`)
+        this.nNodes += 1
+        this.nodeInitialLocations.push(new Location(event.offsetX - this.nodeSize / 2, event.offsetY - this.nodeSize / 2))
         // this.nodes.push(
-        console.log(this.$refs.node)
-        const node = h(
-                Node,
-                {
-                    // propsData: {
-                        size: this.nodeSize,
-                        initialX: event.offsetX - this.nodeSize / 2,
-                        initialY: event.offsetY - this.nodeSize / 2,
-                        enableRenameMode: this.enableNodeRenameMode,
-                        id: `entity-${this.nodes.length}`,
-                    // }
-                }
-            )
-
-        // this.element.appendChild(node)
-        this.nodes.push(node)
-        console.log(node)
+        //     h(
+        //         Node,
+        //         {
+        //             // propsData: {
+        //                 size: this.nodeSize,
+        //                 initialX: event.offsetX - this.nodeSize / 2,
+        //                 initialY: event.offsetY - this.nodeSize / 2,
+        //                 enableRenameMode: this.enableNodeRenameMode,
+        //                 id: `entity-${this.nodes.length}`,
+        //             // }
+        //         }
+        //     )
         // )
-        // this.element.insertBefore(node.element, this.element.firstChild)
-        // this.nodes.push(node)
-
-        // const nodeStyle = node.element.style as NodeElementCSSStyleDeclaration
-
-        // nodeStyle.x = (event.offsetX - node.element.getBoundingClientRect().width / 2).toString()
-        // nodeStyle.y = (event.offsetY - node.element.getBoundingClientRect().height / 2).toString()
-        // nodeStyle.transform = `translate(${nodeStyle.x}px, ${nodeStyle.y}px)`
     }
 
     // Methods for setting parameters of graph elements from parent component
@@ -117,7 +107,7 @@ class ShapedGraph extends AbstractGraph {
     }
 
     toggleNodeRenameMode(event) {
-        console.log("toggling node rename mode...")
+        console.log(typeof this.$refs.node)
         // this.nodes.forEach(node => node.toggleNameChangeability(event.value))
     }
 }

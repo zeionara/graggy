@@ -4,7 +4,11 @@
     >
         <!--<Node :size = "nodeSize" :initialX = "100" :initialY = "100" :enableRenameMode = "enableNodeRenameMode" id = "entity-foo" ref = "node" />!-->
         <!--<component :is = "tmpNode" />!-->
-        <component v-for = "(node, i) in nodes" v-bind:key = "i" :is = "node" />
+        <Node 
+            v-for = "i in nNodes" v-bind:key = "i - 1" ref = "nodes"
+            :size = "nodeSize" :enableRenameMode = "enableNodeRenameMode" :id = "`entity-${i - 1}`" 
+            :initialX = "nodeInitialLocations[i - 1].x" :initialY = "nodeInitialLocations[i - 1].y"
+        />
         <canvas class = "graph-canvas" width = "1024" height = "640" @mousedown.exact="addNode"></canvas>
     </div>
 </template>

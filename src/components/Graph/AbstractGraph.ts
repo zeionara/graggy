@@ -11,6 +11,10 @@ import { RelationConfig } from '@/relation/RelationConfig'
 
 class AbstractGraph extends Vue {
 
+    get nodes() {
+        return this.$refs.nodes
+    }
+
     // Index of current graph which allows to differentiate it from other graphs
 
     index!: number
@@ -22,7 +26,9 @@ class AbstractGraph extends Vue {
 
     // Local values used for internal rendering and tracking state
 
-    nodes = [] // : VNode[] = []
+    nNodes = 0
+    nodeInitialLocations: Location[] = []
+    // nodes = [] // : VNode[] = []
 
     connectors: Connector[] = []
     relations: Relation[] = []

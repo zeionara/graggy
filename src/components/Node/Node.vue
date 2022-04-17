@@ -1,10 +1,10 @@
 <template>
     <div
-        :style = "`width: ${size}px; height: ${size}px; x: ${x}; y: ${y}; transform: translate(${this.x}px, ${this.y}px)`"
+        :style = "`width: ${size}px; height: ${size}px; x: ${initialX}; y: ${initialY}; transform: translate(${initialX}px, ${initialY}px)`"
         :class = "`node${!locked && !permanentlyLocked ? ' unlocked' : ''}`" :id = "id" ref = "element"
     >
-        <p :style = "`margin-top: ${size * 0.4}px; color: white; font-weight: bold`" :disabled = "enableRenameMode">{{ name }}</p>
-        <input :style = "`margin-top: ${size * 0.4}px; width: ${size * 0.8}px`" :disabled = "!enableRenameMode" v-model = "name" />
+        <p :class = "enableRenameMode ? 'hidden' : ''" :style = "`margin-top: ${size * 0.4}px; color: white; font-weight: bold`" :disabled = "enableRenameMode">{{ name }}</p>
+        <input :class = "enableRenameMode ? '' : 'hidden'" :style = "`margin-top: ${size * 0.4}px; width: ${size * 0.8}px`" :disabled = "!enableRenameMode" v-model = "name" />
     </div>
 </template>
 
@@ -33,8 +33,8 @@ export default class Node extends Vue {
     modifiableName = false
     permanentlyLocked = false
     name: string
-    x: number
-    y: number
+    // x: number
+    // y: number
 
     get element(): HTMLElement {
         return this.$refs.element as HTMLElement
@@ -42,7 +42,6 @@ export default class Node extends Vue {
 
     // constructor(node: HTMLElement) {
     created() {
-        console.log('mounting')
         // const node = document.createElement('div')
         // node.id = id
         // node.style['width'] = `${size}px`
@@ -58,8 +57,8 @@ export default class Node extends Vue {
         // nodeName.innerHTML = node.id
         this.name = this.id
 
-        this.x = this.initialX
-        this.y = this.initialY
+        // this.x = this.initialX
+        // this.y = this.initialY
 
         // nodeStyle.x = (this.initialX - node.element.getBoundingClientRect().width / 2).toString()
         // nodeStyle.y = (event.offsetY - node.element.getBoundingClientRect().height / 2).toString()
@@ -76,13 +75,13 @@ export default class Node extends Vue {
     //     nodeStyle.transform = `translate(${this.x}px, ${this.y}px)`
     // }
 
-    // get x(): number {
-    //     return parseFloat((this.element.style as NodeElementCSSStyleDeclaration).x)
-    // }
+    get x(): number {
+        return parseFloat((this.element.style as NodeElementCSSStyleDeclaration).x)
+    }
 
-    // get y(): number {
-    //     return parseFloat((this.element.style as NodeElementCSSStyleDeclaration).y)
-    // }
+    get y(): number {
+        return parseFloat((this.element.style as NodeElementCSSStyleDeclaration).y)
+    }
     
     // get id(): string {
     //     return this.element.id
@@ -104,6 +103,9 @@ export default class Node extends Vue {
     //     return this.element.id
     // }
 
+    toggleNameChangeability(value: boolean) {
+        this.enableRenameMode = value
+    }
     // toggleNameChangeability(value: boolean) {
     //     if (this.modifiableName && !value) {
     //         const nodeName = document.createElement('p')
@@ -203,5 +205,8 @@ export default class Node extends Vue {
 .node {
     background-color: red;
     position: absolute;
+}
+.hidden {
+    display: none
 }
 </style>
