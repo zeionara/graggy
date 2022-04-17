@@ -47,6 +47,11 @@ export default class Node extends ShapedNode {
             this.locked = false
         }
     }
+
+    rename(value: string) {
+        this.name = value
+        this.$forceUpdate()
+    }
 }
 </script>
 

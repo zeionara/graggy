@@ -59,8 +59,12 @@ class ShapedGraph extends AbstractGraph {
     // New node creation implementation
 
     addNode(event) {
+        // if (this.nNodes == 3) {
+        //     this.$refs.nodes[1].rename("enee")
+        // } else {
         this.nodeInitialLocations.push(new Location(event.offsetX - this.nodeSize / 2, event.offsetY - this.nodeSize / 2))
         this.nNodes += 1
+        // }
     }
 
     // Methods for setting parameters of graph elements from parent component
