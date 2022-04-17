@@ -5,7 +5,7 @@ import { UserDefinedPathRelation } from '@/relation/UserDefinedPathRelation'
 import { TripleSet } from '@/TripleSet'
 import { Triple } from '@/Triple'
 import { Location } from '@/Location'
-import { Node } from '@/Node'
+import Node from '@/components/Node/Node.vue'
 import { SubsetConfig } from '@/subset/SubsetConfig'
 import { RelationConfig } from '@/relation/RelationConfig'
 
@@ -22,7 +22,7 @@ class AbstractGraph extends Vue {
 
     // Local values used for internal rendering and tracking state
 
-    nodes: Node[] = []
+    nodes = [] // : VNode[] = []
 
     connectors: Connector[] = []
     relations: Relation[] = []

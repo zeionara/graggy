@@ -1,5 +1,5 @@
 import { NodeAnchorPoint } from '@/NodeAnchorPoint'
-import { Node } from '@/Node'
+// import Node from '@/components/Node/Node.vue'
 
 function drawFilledSquare(ctx: CanvasRenderingContext2D, x: number, y: number, length: number, color: string) {
     const region = new Path2D();
@@ -18,7 +18,7 @@ function drawFilledSquare(ctx: CanvasRenderingContext2D, x: number, y: number, l
     ctx.fillStyle = previous_fill_style
 }
 
-function getIntersectedEntities(nodes: Node[], x: number, y: number, length: number) {
+function getIntersectedEntities(nodes, x: number, y: number, length: number) {
     const intersected_entities: Node[] = []
 
     const rect_left_x = x - length / 2
@@ -50,7 +50,7 @@ function getIntersectedEntities(nodes: Node[], x: number, y: number, length: num
     return intersected_entities
 }
 
-function getClosestEntityAnchorPoint(nodes: Node[], x: number, y: number, n_anchor_points_per_entity_edge: number) {
+function getClosestEntityAnchorPoint(nodes, x: number, y: number, n_anchor_points_per_entity_edge: number) {
     let anchor_points_with_distances: (number | NodeAnchorPoint)[][] = []
 
     // Array.prototype.forEach.call(document.getElementsByClassName('node'), (node) => {

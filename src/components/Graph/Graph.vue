@@ -1,8 +1,11 @@
 <template>
     <div class = "graph" :style="`background-color:${this.bgColor};`" ref = "element"
-        @mousedown.ctrl="startDrawingRelationLine" @mousedown.exact="addNode" @mousemove="drawLineSegment" @mouseup.ctrl="stopDrawingRelationLine"
+        @mousedown.ctrl="startDrawingRelationLine" @mousemove="drawLineSegment" @mouseup.ctrl="stopDrawingRelationLine"
     >
-        <canvas class = "graph-canvas" width = "1024" height = "640"></canvas>
+        <!--<Node :size = "nodeSize" :initialX = "100" :initialY = "100" :enableRenameMode = "enableNodeRenameMode" id = "entity-foo" ref = "node" />!-->
+        <!--<component :is = "tmpNode" />!-->
+        <component v-for = "(node, i) in nodes" v-bind:key = "i" :is = "node" />
+        <canvas class = "graph-canvas" width = "1024" height = "640" @mousedown.exact="addNode"></canvas>
     </div>
 </template>
 
@@ -17,9 +20,11 @@ import { drawGrid } from '@/drawing/grid'
 import { startDrawingRelationLine, stopDrawingRelationLine } from '@/components/Graph/rendering'
 import { makeUnlockedNodesDraggable, makeUnlockedNodesDraggableWithinGrid } from '@/components/Graph/nodeInteractions'
 import { ShapedGraph } from '@/components/Graph/ShapedGraph'
+import Node from '@/components/Node/Node.vue'
 
 @Options({
-    components: {
+    components: { 
+        Node
     },
     props: {
         nodeSize: Number, nAnchorPointsPerEdge: Number, enableGrid: Boolean, gridColor: String, currentSubset: SubsetConfig, currentRelation: RelationConfig,

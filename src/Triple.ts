@@ -1,10 +1,10 @@
 import { RelationConfig } from '@/relation/RelationConfig'
-import { Node } from '@/Node'
+// import { Node } from '@/Node'
 
 class Triple {
-    head!: Node
+    head
     relation!: RelationConfig
-    tail!: Node
+    tail
 
     constructor(head: Node, relation: RelationConfig, tail: Node) {
         this.head = head

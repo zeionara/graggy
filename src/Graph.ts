@@ -1,4 +1,4 @@
-import { Node } from '@/Node'
+// import { Node } from '@/Node'
 import { Triple } from '@/Triple'
 import { Connector } from '@/Connector'
 import { Relation } from '@/relation/Relation'
@@ -34,7 +34,7 @@ class Graph {
         this.gridColor = gridColor
     }
 
-    appendNode(node: Node) {
+    appendNode(node) {
         node.id = `entity-${this.nEntities++}`
         // this.element.appendChild(node.element)
         this.element.insertBefore(node.element, this.element.firstChild)
