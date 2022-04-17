@@ -18,7 +18,7 @@ import { NodeAnchorPoint } from '@/NodeAnchorPoint'
     components: {
     },
     props: {
-        size: Number, initialX: Number, initialY: Number, enableRenameMode: Boolean, id: String
+        size: Number, initialX: Number, initialY: Number, enableRenameMode: Boolean, id: String, name: String
     }
 })
 export default class Node extends Vue {
@@ -42,7 +42,8 @@ export default class Node extends Vue {
 
     // constructor(node: HTMLElement) {
     created() {
-        console.log('mounting')
+        // console.log('mounting')
+        // console.log(this.enableRenameMode)
         // const node = document.createElement('div')
         // node.id = id
         // node.style['width'] = `${size}px`
@@ -56,7 +57,7 @@ export default class Node extends Vue {
         
         // this.element = node
         // nodeName.innerHTML = node.id
-        this.name = this.id
+        // this.name = this.id
 
         this.x = this.initialX
         this.y = this.initialY
@@ -104,6 +105,9 @@ export default class Node extends Vue {
     //     return this.element.id
     // }
 
+    toggleNameChangeability(value: boolean) {
+        this.enableRenameMode = value
+    }
     // toggleNameChangeability(value: boolean) {
     //     if (this.modifiableName && !value) {
     //         const nodeName = document.createElement('p')
