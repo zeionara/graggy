@@ -4,6 +4,9 @@
             <n-space vertical v-for="(relation, i) in this.relations" :key="i" size="large">
                 <n-space>
                     <n-input round type="text" size="small" v-model:value="relation.name" style="width: 300px"/>
+                    <n-button tertiary circle style = "width: 25px; height: 25px" type="error" :disabled = "!relation.disposable" @click="deleteRelation(i)">
+                        <n-icon><minus-icon /></n-icon>
+                    </n-button>
                     <n-radio :key="i" :value="i" />
                 </n-space>
                 <n-color-picker :modes="['hex']" v-model:value="relation.color"/>
@@ -17,7 +20,7 @@
 
 <script lang="ts">
 import { NButton, NSpace, NInput, NColorPicker, NRadioGroup, NRadio, NIcon } from 'naive-ui'
-import { AddOutline as PlusIcon } from '@vicons/ionicons5'
+import { AddOutline as PlusIcon, RemoveOutline as MinusIcon } from '@vicons/ionicons5'
 import { Options, Vue } from 'vue-class-component';
 import { Watch } from 'vue-property-decorator'
 import App from '@/App.vue'
@@ -26,7 +29,7 @@ import { RelationConfig } from '@/relation/RelationConfig'
 
 @Options({
   components: {
-    NButton, NSpace, NInput, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, App
+    NButton, NSpace, NInput, NColorPicker, NRadioGroup, NRadio, PlusIcon, MinusIcon, NIcon, App
   }
 })
 export default class RelationsPane extends Vue {
@@ -42,6 +45,16 @@ export default class RelationsPane extends Vue {
 
     createRelation() {
         this.relations.push(new RelationConfig(this.defaultRelationName, this.defaultRelationColor))
+    }
+
+    deleteRelation(i: number) {
+        console.log("deleting relation")
+        this.relations.splice(i, 1)
+        const newRelationIndex = Math.min(this.selectedRelationIndex, this.relations.length - 1)
+        if (newRelationIndex != this.selectedRelationIndex) {
+            this.selectedRelationIndex = newRelationIndex
+            this.updateCurrentRelation(this.selectedRelationIndex)
+        }
     }
 
     // @Watch('selectedRelationIndex')

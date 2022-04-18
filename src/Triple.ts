@@ -5,7 +5,7 @@ class Triple {
     relation!: RelationConfig
     tail
 
-    constructor(head: Node, relation: RelationConfig, tail: Node) {
+    constructor(head, relation: RelationConfig, tail) {
         this.head = head
         this.relation = relation
         this.tail = tail

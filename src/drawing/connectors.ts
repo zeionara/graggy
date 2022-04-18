@@ -21,6 +21,8 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasRendering
     ctx.lineWidth = graph.relationLineThickness
     ctx.setLineDash(graph.currentSubset.lineDash)
 
+    graph.currentRelation.makeUndisposable()
+
     let current_head_connector_location: Location
 
     if (enable_straight_lines_drawing) {
