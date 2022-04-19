@@ -48,7 +48,6 @@ export default class RelationsPane extends Vue {
     }
 
     deleteRelation(i: number) {
-        console.log("deleting relation")
         this.relations.splice(i, 1)
         const newRelationIndex = Math.min(this.selectedRelationIndex, this.relations.length - 1)
         if (newRelationIndex != this.selectedRelationIndex) {

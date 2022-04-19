@@ -11,6 +11,8 @@ import { RelationConfig } from '@/relation/RelationConfig'
 
 class AbstractGraph extends Vue {
 
+    name: string
+
     get nodes() {
         return this.$refs.nodes
     }
@@ -34,20 +36,20 @@ class AbstractGraph extends Vue {
     triples = new TripleSet()
     currentHeads: Node[] = []
 
-    push_connector(connector: Connector) {
+    pushConnector(connector: Connector) {
         this.connectors.push(connector)
     }
 
-    push_relation(relation: Relation) {
+    pushRelation(relation: Relation) {
         this.relations.push(relation)
     }
 
-    push_relation_segment(segment: Location) {
-        const last_relation = this.relations[this.relations.length - 1] as UserDefinedPathRelation
-        last_relation.segments.push(segment)
+    pushRelationSegment(segment: Location) {
+        const lastRelation = this.relations[this.relations.length - 1] as UserDefinedPathRelation
+        lastRelation.segments.push(segment)
     }
 
-    push_triples(tails: Node[]) {
+    pushTriples(tails: Node[]) {
         const triples: Triple[] = []
 
         tails.forEach((tail) => {
@@ -57,6 +59,18 @@ class AbstractGraph extends Vue {
         })
 
         this.triples.push(triples, this.currentSubset)
+    }
+
+    deleteGraph() {
+        console.log(`Deleting graph ${this.name}`)
+    }
+
+    moveUp() {
+        console.log(`Moving graph ${this.name} up`)
+    }
+
+    moveDown() {
+        console.log(`Moving graph ${this.name} down`)
     }
 }
 

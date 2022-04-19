@@ -1,4 +1,16 @@
 <template>
+    <n-space>
+        <n-input type="text" size = "large" v-model:value="name" style = "width: 500px; text-align: left;" placeholder = "Graph name" />
+        <n-button tertiary circle type="error" @click="deleteGraph()">
+            <n-icon><minus-icon /></n-icon>
+        </n-button>
+        <n-button tertiary circle type="info" @click="moveUp()">
+            <n-icon><arrow-up-icon /></n-icon>
+        </n-button>
+        <n-button tertiary circle type="info" @click="moveDown()">
+            <n-icon><arrow-down-icon /></n-icon>
+        </n-button>
+    </n-space>
     <div class = "graph" :style="`background-color:${this.bgColor};`" ref = "element"
         @mousedown.ctrl="startDrawingRelationLine" @mousemove="drawLineSegment" @mouseup.ctrl="stopDrawingRelationLine"
     >
@@ -13,6 +25,8 @@
 
 <script lang='ts'>
 import { Options } from 'vue-class-component';
+import { NInput, NIcon, NButton, NSpace } from 'naive-ui'
+import { RemoveOutline as MinusIcon, ArrowDownOutline as ArrowDownIcon, ArrowUpOutline as ArrowUpIcon } from '@vicons/ionicons5'
 
 import { drawLineSegment } from '@/drawing/relationLine'
 import { SubsetConfig } from '@/subset/SubsetConfig'
@@ -26,7 +40,7 @@ import Node from '@/components/Node/Node.vue'
 
 @Options({
     components: { 
-        Node
+        NInput, NIcon, NButton, NSpace, Node, MinusIcon, ArrowDownIcon, ArrowUpIcon
     },
     props: {
         nodeSize: Number, nAnchorPointsPerEdge: Number, enableGrid: Boolean, gridColor: String, currentSubset: SubsetConfig, currentRelation: RelationConfig,

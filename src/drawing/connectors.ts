@@ -9,7 +9,7 @@ import { LinearRelation } from '@/relation/LinearRelation'
 function drawAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasRenderingContext2D, event, connector_size, n_anchor_points_per_edge, enable_straight_lines_drawing: boolean) {
     const anchor_point = getClosestEntityAnchorPoint(graph.nodes, event.offsetX, event.offsetY, n_anchor_points_per_edge)
     const connector = new Connector(anchor_point.x, anchor_point.y, connector_size, graph.currentRelation)
-    graph.push_connector(connector)
+    graph.pushConnector(connector)
 
     // drawFilledSquare(ctx, anchor_point.x, anchor_point.y, connector_size, graph.currentRelation)
     connector.draw(ctx)
@@ -28,18 +28,18 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasRendering
 
     if (enable_straight_lines_drawing) {
         current_head_connector_location = new Location(event.offsetX, event.offsetY)
-        graph.push_relation(
+        graph.pushRelation(
             new LinearRelation(
                 new Location(anchor_point.x, anchor_point.y), connector, graph.currentRelation, graph.relationLineThickness, graph.currentSubset
             )
         )
     } else {
-        graph.push_relation(
+        graph.pushRelation(
             new UserDefinedPathRelation(
                 new Location(anchor_point.x, anchor_point.y), connector, graph.currentRelation, graph.relationLineThickness, graph.currentSubset
             )
         )
-        graph.push_relation_segment(new Location(event.offsetX, event.offsetY))
+        graph.pushRelation_segment(new Location(event.offsetX, event.offsetY))
 
         ctx.lineTo(event.offsetX, event.offsetY);
         ctx.stroke();
@@ -52,7 +52,7 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasRendering
 
 function drawConnector(graph, ctx: CanvasRenderingContext2D, event, connector_size, enable_straight_lines_drawing: boolean) {
     const connector = new Connector(event.offsetX, event.offsetY, connector_size, graph.currentRelation)
-    graph.push_connector(connector)
+    graph.pushConnector(connector)
 
     // drawFilledSquare(ctx, event.offsetX, event.offsetY, connector_size, graph.currentRelation)
     connector.draw(ctx)
@@ -68,13 +68,13 @@ function drawConnector(graph, ctx: CanvasRenderingContext2D, event, connector_si
 
     if (enable_straight_lines_drawing) {
         current_head_connector_location = new Location(event.offsetX, event.offsetY)
-        graph.push_relation(
+        graph.pushRelation(
             new LinearRelation(
                 current_head_connector_location, connector, graph.currentRelation, graph.relationLineThickness, graph.currentSubset
             )
         )
     } else {
-        graph.push_relation(
+        graph.pushRelation(
             new UserDefinedPathRelation(
                 new Location(event.offsetX, event.offsetY), connector, graph.currentRelation, graph.relationLineThickness, graph.currentSubset
             )
@@ -90,7 +90,7 @@ function drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasR
     if (graph.drawingRelation) {
         const anchor_point = getClosestEntityAnchorPoint(graph.nodes, event.offsetX, event.offsetY, n_anchor_points_per_edge)
         const connector = new Connector(anchor_point.x, anchor_point.y, connector_size, graph.currentRelation)
-        graph.push_connector(connector)
+        graph.pushConnector(connector)
 
         if (enable_straight_lines_drawing) {
             graph.redraw()
@@ -105,7 +105,7 @@ function drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasR
             last_relation.ending = new Location(anchor_point.x, anchor_point.y)
         } else {
             graph.relations[graph.relations.length - 1].dst = connector
-            graph.push_relation_segment(new Location(anchor_point.x, anchor_point.y))
+            graph.pushRelation_segment(new Location(anchor_point.x, anchor_point.y))
         }
 
         ctx.lineTo(anchor_point.x, anchor_point.y);
@@ -113,14 +113,14 @@ function drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasR
         // drawFilledSquare(ctx, anchor_point.x, anchor_point.y, connector_size, graph.currentRelation)
         connector.draw(ctx)
         
-        graph.push_triples(getIntersectedEntities(graph.nodes, anchor_point.x, anchor_point.y, connector_size))
+        graph.pushTriples(getIntersectedEntities(graph.nodes, anchor_point.x, anchor_point.y, connector_size))
     }
 }
 
 function drawTerminalConnector(graph, ctx: CanvasRenderingContext2D, event, connector_size: number, enable_straight_lines_drawing: boolean) {
     if (graph.drawingRelation) {
         const connector = new Connector(event.offsetX, event.offsetY, connector_size, graph.currentRelation)
-        graph.push_connector(connector)
+        graph.pushConnector(connector)
 
         // drawFilledSquare(ctx, event.offsetX, event.offsetY, connector_size, graph.currentRelation)
         connector.draw(ctx)
@@ -143,7 +143,7 @@ function drawTerminalConnector(graph, ctx: CanvasRenderingContext2D, event, conn
             graph.relations[graph.relations.length - 1].dst = connector
         }
         
-        graph.push_triples(getIntersectedEntities(graph.nodes, event.offsetX, event.offsetY, connector_size))
+        graph.pushTriples(getIntersectedEntities(graph.nodes, event.offsetX, event.offsetY, connector_size))
     }
 }
 

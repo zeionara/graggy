@@ -21,7 +21,7 @@ function drawLineSegment(graph, event) {
             ctx.lineTo(event.offsetX, event.offsetY)
             ctx.stroke()
         } else {
-            graph.push_relation_segment(new Location(event.offsetX, event.offsetY))
+            graph.pushRelationSegment(new Location(event.offsetX, event.offsetY))
 
             ctx.lineTo(event.offsetX, event.offsetY)
             ctx.stroke()
