@@ -22,6 +22,7 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasRendering
     ctx.setLineDash(graph.currentSubset.lineDash)
 
     graph.currentRelation.makeUndisposable()
+    graph.currentSubset.makeUndisposable()
 
     let current_head_connector_location: Location
 

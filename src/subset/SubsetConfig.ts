@@ -1,10 +1,18 @@
 class SubsetConfig {
     pattern: string
     name: string
+    disposable: boolean
 
-    constructor(name: string, pattern: string) {
+    constructor(name: string, pattern: string, disposable = true) {
         this.name = name
         this.pattern = pattern
+        this.disposable = disposable
+    }
+
+    makeUndisposable() {
+        if (this.disposable) {
+            this.disposable = false
+        }
     }
 
     get lineDash() {

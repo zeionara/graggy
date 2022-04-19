@@ -4,6 +4,9 @@
             <n-space vertical v-for="(subset, i) in this.subsets" :key="i" size="large" style="margin-top: 10px">
                 <n-space>
                     <n-input round type="text" size="small" v-model:value="subset.name" style="width: 300px"/>
+                    <n-button tertiary circle style = "width: 25px; height: 25px" type="error" :disabled = "!subset.disposable || subsets.length < 2" @click="deleteSubset(i)">
+                        <n-icon><minus-icon /></n-icon>
+                    </n-button>
                     <n-radio :key="i" :value="i" />
                 </n-space>
                 <n-select v-model:value="subset.pattern" :options="patterns" :render-label="renderLabel"/>
@@ -18,7 +21,7 @@
 <script lang="ts">
 import { h, VNodeChild } from 'vue'
 import { NButton, NSpace, NSelect, NInput, NRadioGroup, NRadio, NIcon, SelectOption } from 'naive-ui'
-import { AddOutline as PlusIcon } from '@vicons/ionicons5'
+import { AddOutline as PlusIcon, RemoveOutline as MinusIcon } from '@vicons/ionicons5'
 import { Options, Vue } from 'vue-class-component';
 import { Watch } from 'vue-property-decorator'
 import App from '@/App.vue'
@@ -27,7 +30,7 @@ import { SubsetConfig } from '@/subset/SubsetConfig'
 
 @Options({
   components: {
-    NButton, NSpace, NSelect, NInput, NRadioGroup, NRadio, PlusIcon, NIcon, App
+    NButton, NSpace, NSelect, NInput, NRadioGroup, NRadio, PlusIcon, MinusIcon, NIcon, App
   }
 })
 export default class SubsetsPane extends Vue {
@@ -52,12 +55,6 @@ export default class SubsetsPane extends Vue {
                         float: 'left',
                         'margin-top': '24px'
                     }
-                    // style: {
-                    //     // 'background-image': `url("${option.path}")`
-                    //     'background-image': 'url("solid.png")',
-                    //     width: '100px',
-                    //     height: '20px'
-                    // }
                 }
             ),
             h(
@@ -75,6 +72,15 @@ export default class SubsetsPane extends Vue {
 
     createSubset() {
         this.subsets.push(new SubsetConfig(this.defaultSubsetName, this.defaultSubsetPattern))
+    }
+
+    deleteSubset(i: number) {
+        this.subsets.splice(i, 1)
+        const newSubsetIndex = Math.min(this.selectedSubsetIndex, this.subsets.length - 1)
+        if (newSubsetIndex != this.selectedSubsetIndex) {
+            this.selectedSubsetIndex = newSubsetIndex
+            this.updateCurrentSubset(this.selectedSubsetIndex)
+        }
     }
 
     updateCurrentSubset(value: number) {
