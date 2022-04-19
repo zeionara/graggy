@@ -4,7 +4,7 @@
             <n-space vertical v-for="(relation, i) in this.relations" :key="i" size="large">
                 <n-space>
                     <n-input round type="text" size="small" v-model:value="relation.name" style="width: 300px"/>
-                    <n-button tertiary circle style = "width: 25px; height: 25px" type="error" :disabled = "!relation.disposable" @click="deleteRelation(i)">
+                    <n-button tertiary circle style = "width: 25px; height: 25px" type="error" :disabled = "!relation.disposable || relations.length < 2" @click="deleteRelation(i)">
                         <n-icon><minus-icon /></n-icon>
                     </n-button>
                     <n-radio :key="i" :value="i" />
