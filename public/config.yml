@@ -37,6 +37,7 @@ subset:
 graph:
     bg-color: "#F5F5F5FF"
     grid-color: white
+    count: 1
 node:
     size: 100
 connector:

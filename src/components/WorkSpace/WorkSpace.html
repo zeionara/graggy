@@ -1,11 +1,14 @@
 <n-space justify="center">
     <n-space vertical>
-        <Graph v-for = "i in 2" ref = "graphs" v-bind:key = "i"
+        <Graph v-for = "i in nGraphs" ref = "graphs" v-bind:key = "i"
             v-bind:nodeSize = "nodeSize" v-bind:nAnchorPointsPerEdge = "nAnchorPointsPerEdge" v-bind:enableGrid = "gridSwitch" v-bind:gridColor = "gridColor"
             v-bind:currentSubset = "currentSubset" v-bind:currentRelation = "currentRelation" v-bind:relationLineThickness = "relationLineThickness"
             v-bind:enableConnectorAutoAlignment = "connectorAutoAlignmentSwitch" v-bind:connectorSize = "connectorSize" v-bind:enableStraightLines = "straightLinesSwitch"
             v-bind:enableNodeRenameMode = "nodeRenameSwitch" v-bind:enableLiveRedraw = "liveRedrawSwitch" v-bind:bgColor = "bgColor" v-bind:index = "i - 1"
         />
+        <n-button tertiary circle type="info" @click="createGraph">
+            <n-icon><plus-icon /></n-icon>
+        </n-button>
     </n-space>
     <n-space vertical>
         <n-divider title-placement = "left">

@@ -19,6 +19,10 @@ import Graph from '@/components/Graph/Graph.vue'
 })
 export default class WorkSpace extends Vue {
 
+    // Global variables
+
+    nGraphs: number = App.config.graph.count
+
     // Connector size slider parameters
 
     connectorSize: number = App.config.connector.size
@@ -67,5 +71,9 @@ export default class WorkSpace extends Vue {
         if (this.$refs.graphs) {
             (this.$refs.graphs as (typeof Graph[])).forEach(callback)
         }
+    }
+
+    createGraph(event: Event) {
+        this.nGraphs += 1
     }
 }
