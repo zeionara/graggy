@@ -76,4 +76,16 @@ export default class WorkSpace extends Vue {
     createGraph(event: Event) {
         this.nGraphs += 1
     }
+
+    deleteGraph(index: number) {
+        for (let i = index; i < this.nGraphs - 1; i++) {
+            const sourceIndex = i + 1
+            const destinationIndex = i
+
+            this.$refs.graphs[destinationIndex].assume(this.$refs.graphs[sourceIndex])
+
+            console.log(`Moved graph ${sourceIndex} to ${destinationIndex}`)
+        }
+        this.nGraphs -= 1
+    }
 }

@@ -5,6 +5,8 @@
             v-bind:currentSubset = "currentSubset" v-bind:currentRelation = "currentRelation" v-bind:relationLineThickness = "relationLineThickness"
             v-bind:enableConnectorAutoAlignment = "connectorAutoAlignmentSwitch" v-bind:connectorSize = "connectorSize" v-bind:enableStraightLines = "straightLinesSwitch"
             v-bind:enableNodeRenameMode = "nodeRenameSwitch" v-bind:enableLiveRedraw = "liveRedrawSwitch" v-bind:bgColor = "bgColor" v-bind:index = "i - 1"
+            :nGraphs = "nGraphs"
+            @delete-graph = "deleteGraph"
         />
         <n-button tertiary circle type="info" @click="createGraph">
             <n-icon><plus-icon /></n-icon>

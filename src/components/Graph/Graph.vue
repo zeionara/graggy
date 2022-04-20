@@ -1,7 +1,7 @@
 <template>
     <n-space>
-        <n-input type="text" size = "large" v-model:value="name" style = "width: 500px; text-align: left;" placeholder = "Graph name" />
-        <n-button tertiary circle type="error" @click="deleteGraph()">
+        <n-input type="text" size = "large" v-model:value="name" style = "width: 500px; text-align: left;" placeholder = "Graph name" ref = "nameInput" />
+        <n-button tertiary circle type="error" :disabled = "nGraphs < 2" @click="deleteGraph()">
             <n-icon><minus-icon /></n-icon>
         </n-button>
         <n-button tertiary circle type="info" @click="moveUp()">
@@ -37,15 +37,19 @@ import { startDrawingRelationLine, stopDrawingRelationLine } from '@/components/
 import { makeUnlockedNodesDraggable, makeUnlockedNodesDraggableWithinGrid } from '@/components/Graph/nodeInteractions'
 import { ShapedGraph } from '@/components/Graph/ShapedGraph'
 import Node from '@/components/Node/Node.vue'
+import { sleep } from '@/utils'
 
 @Options({
     components: { 
         NInput, NIcon, NButton, NSpace, Node, MinusIcon, ArrowDownIcon, ArrowUpIcon
     },
+    emits: [
+        "deleteGraph"
+    ],
     props: {
         nodeSize: Number, nAnchorPointsPerEdge: Number, enableGrid: Boolean, gridColor: String, currentSubset: SubsetConfig, currentRelation: RelationConfig,
         relationLineThickness: Number, enableConnectorAutoAlignment: Boolean, connectorSize: Number, enableStraightLines!: Boolean, enableNodeRenameMode: Boolean, bgColor: String,
-        enableLiveRedraw: Boolean, index: Number
+        enableLiveRedraw: Boolean, index: Number, nGraphs: Number
     }
 })
 export default class Graph extends ShapedGraph {
@@ -110,6 +114,39 @@ export default class Graph extends ShapedGraph {
         } else {
             makeUnlockedNodesDraggable()
         }
+    }
+
+    assume(graph) {
+
+        // From abstract graph
+
+        this.name = graph.name
+        this.connectors = graph.connectors
+        this.relations = graph.relations
+
+        this.nNodes = graph.nNodes
+        this.nodeInitialLocations = graph.nodeInitialLocations
+        this.triples = graph.triples
+        this.currentHeads = graph.currentHeads
+
+        // From shaped graph
+
+        this.drawingRelation = graph.drawingRelation
+        this.currentHeadConnectorLocation = graph.currentHeadConnectorLocation
+
+        // Reproduce nodes state
+
+        if (graph.$refs.nodes) {
+            const nodes = graph.$refs.nodes.map(
+                node => {
+                    const style = node.element.style
+                    return {locked: node.locked, name: node.name, virtualX: style.virtualX, virtualY: style.virtualY, x: style.x, y: style.y, transform: style.transform}
+                }
+            )  // TODO: Create class for keeping node properties during assumption process
+            sleep(100).then(() => this.$refs.nodes.forEach((node, i) => node.assume(nodes[i])))  // TODO: Move timeout value to config
+        }
+
+        this.redraw()
     }
 }
 </script>

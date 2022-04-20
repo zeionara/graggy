@@ -11,7 +11,9 @@ import { RelationConfig } from '@/relation/RelationConfig'
 
 class AbstractGraph extends Vue {
 
-    name: string
+    name = ''
+
+    nGraphs!: number
 
     get nodes() {
         return this.$refs.nodes
@@ -62,7 +64,7 @@ class AbstractGraph extends Vue {
     }
 
     deleteGraph() {
-        console.log(`Deleting graph ${this.name}`)
+        this.$emit('deleteGraph', this.index)
     }
 
     moveUp() {

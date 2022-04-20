@@ -27,7 +27,7 @@ export default class Node extends ShapedNode {
     id!: string
 
     locked = false
-    modifiableName = false
+    // modifiableName = false
     name: string
 
     created() {
@@ -51,6 +51,22 @@ export default class Node extends ShapedNode {
     rename(value: string) {
         this.name = value
         this.$forceUpdate()
+    }
+
+    assume(node) {
+        if (node.locked && !this.locked) {
+            this.lock()
+        }
+        if (!node.locked && this.locked) {
+            this.unlock()
+        }
+        this.name = node.name
+
+        this.element.style.virtualX = node.virtualX
+        this.element.style.virtualY = node.virtualY
+        this.element.style.x = node.x
+        this.element.style.y = node.y
+        this.element.style.transform = node.transform
     }
 }
 </script>
