@@ -68,11 +68,11 @@ class AbstractGraph extends Vue {
     }
 
     moveUp() {
-        console.log(`Moving graph ${this.name} up`)
+        this.$emit('swapGraphs', {lhs: this.index - 1, rhs: this.index})
     }
 
     moveDown() {
-        console.log(`Moving graph ${this.name} down`)
+        this.$emit('swapGraphs', {lhs: this.index, rhs: this.index + 1})
     }
 }
 

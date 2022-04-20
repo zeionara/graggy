@@ -10,6 +10,7 @@ import SubsetsPane from '@/components/SubsetsPane.vue'
 import Switch from '@/components/Switch.vue'
 import Slider from '@/components/Slider.vue'
 import Graph from '@/components/Graph/Graph.vue'
+import { sleep } from '@/utils'
 
 @Options({
   components: {
@@ -83,9 +84,25 @@ export default class WorkSpace extends Vue {
             const destinationIndex = i
 
             this.$refs.graphs[destinationIndex].assume(this.$refs.graphs[sourceIndex])
-
-            console.log(`Moved graph ${sourceIndex} to ${destinationIndex}`)
         }
         this.nGraphs -= 1
+    }
+
+    swapGraphs(indices) {
+        this.nGraphs += 1
+
+        sleep(100).then(() => {
+            this.$refs.graphs[this.nGraphs - 1].assume(this.$refs.graphs[indices.lhs])
+
+            sleep(100).then(() => {
+                this.$refs.graphs[indices.lhs].assume(this.$refs.graphs[indices.rhs])
+
+                sleep(100).then(() => {
+                    this.$refs.graphs[indices.rhs].assume(this.$refs.graphs[this.nGraphs - 1])
+
+                    sleep(100).then(() => this.nGraphs -= 1)
+                })
+            })
+        })
     }
 }

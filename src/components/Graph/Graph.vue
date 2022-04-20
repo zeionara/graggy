@@ -4,10 +4,10 @@
         <n-button tertiary circle type="error" :disabled = "nGraphs < 2" @click="deleteGraph()">
             <n-icon><minus-icon /></n-icon>
         </n-button>
-        <n-button tertiary circle type="info" @click="moveUp()">
+        <n-button tertiary circle type="info" :disabled = "index == 0" @click="moveUp()">
             <n-icon><arrow-up-icon /></n-icon>
         </n-button>
-        <n-button tertiary circle type="info" @click="moveDown()">
+        <n-button tertiary circle type="info" :disabled = "index == nGraphs - 1" @click="moveDown()">
             <n-icon><arrow-down-icon /></n-icon>
         </n-button>
     </n-space>
@@ -44,7 +44,7 @@ import { sleep } from '@/utils'
         NInput, NIcon, NButton, NSpace, Node, MinusIcon, ArrowDownIcon, ArrowUpIcon
     },
     emits: [
-        "deleteGraph"
+        "deleteGraph", "swapGraphs"
     ],
     props: {
         nodeSize: Number, nAnchorPointsPerEdge: Number, enableGrid: Boolean, gridColor: String, currentSubset: SubsetConfig, currentRelation: RelationConfig,
