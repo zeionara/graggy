@@ -37,7 +37,7 @@ import { startDrawingRelationLine, stopDrawingRelationLine } from '@/components/
 import { makeUnlockedNodesDraggable, makeUnlockedNodesDraggableWithinGrid } from '@/components/Graph/nodeInteractions'
 import { ShapedGraph } from '@/components/Graph/ShapedGraph'
 import Node from '@/components/Node/Node.vue'
-import { sleep } from '@/utils'
+import { TripleSet } from '@/TripleSet'
 
 @Options({
     components: { 
@@ -146,6 +146,18 @@ export default class Graph extends ShapedGraph {
                 }
             })
         }
+
+        this.redraw()
+    }
+
+    clear() {
+        this.connectors = []
+        this.relations = []
+        this.nNodes = 0
+        this.nodeInitialLocations = []
+        this.triples = new TripleSet()
+        this.currentHeads = []
+        this.drawingRelation = false
 
         this.redraw()
     }

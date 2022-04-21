@@ -49,7 +49,7 @@
         <n-space>
             <n-button type="primary" @click="this.export()">export</n-button>
             <n-button type="info" @click="forEachGraph(graph => graph.redraw())" :disabled="liveRedrawSwitch">redraw</n-button>
-            <n-button type="error" disabled>clear</n-button>
+            <n-button type="error" @click = "clear">clear</n-button>
         </n-space>
         <n-divider title-placement = "left">
             Relation properties

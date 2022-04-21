@@ -1,4 +1,4 @@
-import { NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, NIcon } from 'naive-ui'
+import { NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, NIcon, useDialog, useMessage } from 'naive-ui'
 import { AddOutline as PlusIcon } from '@vicons/ionicons5'
 import { Options, Vue } from 'vue-class-component';
 import { RelationConfig } from '@/relation/RelationConfig'
@@ -10,15 +10,18 @@ import SubsetsPane from '@/components/SubsetsPane.vue'
 import Switch from '@/components/Switch.vue'
 import Slider from '@/components/Slider.vue'
 import Graph from '@/components/Graph/Graph.vue'
-import { sleep } from '@/utils'
 
 @Options({
   components: {
-    NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, App,
+    NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, useDialog, useMessage,
+    App,
     RelationsPane, SubsetsPane, Switch, Slider, Graph
   }
 })
 export default class WorkSpace extends Vue {
+
+    dialog = useDialog()
+    message = useMessage()
 
     // Global variables
 
@@ -72,6 +75,22 @@ export default class WorkSpace extends Vue {
         if (this.$refs.graphs) {
             (this.$refs.graphs as (typeof Graph[])).forEach(callback)
         }
+    }
+
+    clear() {
+        this.dialog.warning({
+            title: `Heads up!`,
+            content: `Are you sure to clear all the content of ${this.nGraphs} graphs?`,
+            positiveText: 'Yes',
+            negativeText: 'No',
+            onPositiveClick: () => {
+                this.forEachGraph(graph => graph.clear())
+                this.message.success('All content on graphs was erased')
+            },
+            onNegativeClick: () => {
+                this.message.info('Cleanup was cancelled')
+            }
+       })
     }
 
     createGraph(event: Event) {
