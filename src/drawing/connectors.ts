@@ -39,7 +39,7 @@ function drawAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasRendering
                 new Location(anchor_point.x, anchor_point.y), connector, graph.currentRelation, graph.relationLineThickness, graph.currentSubset
             )
         )
-        graph.pushRelation_segment(new Location(event.offsetX, event.offsetY))
+        graph.pushRelationSegment(new Location(event.offsetX, event.offsetY))
 
         ctx.lineTo(event.offsetX, event.offsetY);
         ctx.stroke();
@@ -105,7 +105,7 @@ function drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasR
             last_relation.ending = new Location(anchor_point.x, anchor_point.y)
         } else {
             graph.relations[graph.relations.length - 1].dst = connector
-            graph.pushRelation_segment(new Location(anchor_point.x, anchor_point.y))
+            graph.pushRelationSegment(new Location(anchor_point.x, anchor_point.y))
         }
 
         ctx.lineTo(anchor_point.x, anchor_point.y);
