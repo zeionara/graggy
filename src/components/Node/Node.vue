@@ -11,6 +11,8 @@
 <script lang = "ts">
 import { Options } from 'vue-class-component';
 import { ShapedNode } from '@/components/Node/ShapedNode';
+import { NodeElementCSSStyleDeclaration } from '@/NodeElementCSSStyleDeclaration'
+import { NodeState } from '@/components/Node/NodeState'
 
 @Options({
     components: {
@@ -53,7 +55,7 @@ export default class Node extends ShapedNode {
         this.$forceUpdate()
     }
 
-    assume(node) {
+    assume(node: NodeState) {
         if (node.locked && !this.locked) {
             this.lock()
         }
@@ -62,11 +64,18 @@ export default class Node extends ShapedNode {
         }
         this.name = node.name
 
-        this.element.style.virtualX = node.virtualX
-        this.element.style.virtualY = node.virtualY
-        this.element.style.x = node.x
-        this.element.style.y = node.y
-        this.element.style.transform = node.transform
+        const style = this.element.style as NodeElementCSSStyleDeclaration
+
+        style.virtualX = node.virtualX
+        style.virtualY = node.virtualY
+        style.x = node.x
+        style.y = node.y
+        style.transform = node.transform
+    }
+
+    get_state() {
+        const style = this.element.style as NodeElementCSSStyleDeclaration
+        return new NodeState(this.locked, this.name, style.virtualX, style.virtualY, style.x, style.y, style.transform)
     }
 }
 </script>

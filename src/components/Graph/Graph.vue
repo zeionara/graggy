@@ -137,13 +137,14 @@ export default class Graph extends ShapedGraph {
         // Reproduce nodes state
 
         if (graph.$refs.nodes) {
-            const nodes = graph.$refs.nodes.map(
-                node => {
-                    const style = node.element.style
-                    return {locked: node.locked, name: node.name, virtualX: style.virtualX, virtualY: style.virtualY, x: style.x, y: style.y, transform: style.transform}
+            const nodes = graph.$refs.nodes.map(node => node.get_state())
+            this.$nextTick(() => {
+                try {
+                    (this.$refs.nodes as Array<Node>).forEach((node, i) => node.assume(nodes[i]))
+                } catch (e: TypeError) {
+                    console.log("There was a type error because of vue list rendering delay. Never mind, it doesn't seem to impact anything.")
                 }
-            )  // TODO: Create class for keeping node properties during assumption process
-            sleep(100).then(() => this.$refs.nodes.forEach((node, i) => node.assume(nodes[i])))  // TODO: Move timeout value to config
+            })
         }
 
         this.redraw()

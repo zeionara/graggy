@@ -91,16 +91,16 @@ export default class WorkSpace extends Vue {
     swapGraphs(indices) {
         this.nGraphs += 1
 
-        sleep(100).then(() => {
+        this.$nextTick(() => {
             this.$refs.graphs[this.nGraphs - 1].assume(this.$refs.graphs[indices.lhs])
 
-            sleep(100).then(() => {
+            this.$nextTick(() => {
                 this.$refs.graphs[indices.lhs].assume(this.$refs.graphs[indices.rhs])
 
-                sleep(100).then(() => {
+                this.$nextTick(() => {
                     this.$refs.graphs[indices.rhs].assume(this.$refs.graphs[this.nGraphs - 1])
 
-                    sleep(100).then(() => this.nGraphs -= 1)
+                    this.$nextTick(() => this.nGraphs -= 1)
                 })
             })
         })
