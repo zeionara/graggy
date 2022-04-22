@@ -141,7 +141,7 @@ export default class Graph extends ShapedGraph {
             this.$nextTick(() => {
                 try {
                     (this.$refs.nodes as Array<Node>).forEach((node, i) => node.assume(nodes[i]))
-                } catch (e: TypeError) {
+                } catch (e) {
                     console.log("There was a type error because of vue list rendering delay. Never mind, it doesn't seem to impact anything.")
                 }
             })
