@@ -84,7 +84,10 @@ export default class SubsetsPane extends Vue {
     }
 
     updateCurrentSubset(value: number) {
-        this.$emit('currentSubsetChange', this.subsets[value])
+        const subset = this.subsets[value]
+        if (subset) {
+            this.$emit('currentSubsetChange', subset)
+        }
     }
 
     @Watch('subsets', { deep: true })

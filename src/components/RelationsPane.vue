@@ -58,7 +58,10 @@ export default class RelationsPane extends Vue {
 
     // @Watch('selectedRelationIndex')
     updateCurrentRelation(value: number) {
-        this.$emit('currentRelationChange', this.relations[value])
+        const relation = this.relations[value]
+        if (relation) {
+            this.$emit('currentRelationChange', relation)
+        }
     }
 
     @Watch('relations', { deep: true })
