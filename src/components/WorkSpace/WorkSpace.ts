@@ -3,6 +3,7 @@ import { AddOutline as PlusIcon } from '@vicons/ionicons5'
 import { Options, Vue } from 'vue-class-component';
 import { RelationConfig } from '@/relation/RelationConfig'
 import { SubsetConfig } from '@/subset/SubsetConfig'
+import { exportTriplesToFile } from '@/export'
 import App from '@/App.vue'
 
 import RelationsPane from '@/components/RelationsPane.vue'
@@ -67,8 +68,10 @@ export default class WorkSpace extends Vue {
     gridColor = App.config.graph["grid-color"]
     nodeSize = App.config.node.size
 
-    export() {
-        document.getElementsByClassName('exported-graph')[0].innerHTML = 'content'
+    exportTriples() {
+        exportTriplesToFile()
+        // console.log('foo')
+        // document.getElementsByClassName('exported-graph')[0].innerHTML = 'content'
     }
 
     forEachGraph(callback: (graph) => undefined) {

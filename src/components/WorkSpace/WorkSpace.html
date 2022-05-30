@@ -47,7 +47,7 @@
             v-bind:min = "nAnchorPointsPerEdgeMin" v-bind:max = "nAnchorPointsPerEdgeMax" v-bind:step = "nAnchorPointsPerEdgeStep"
         />
         <n-space>
-            <n-button type="primary" @click="this.export()">export</n-button>
+            <n-button type="primary" @click="exportTriples">export</n-button>
             <n-button type="info" @click="forEachGraph(graph => graph.redraw())" :disabled="liveRedrawSwitch">redraw</n-button>
             <n-button type="error" @click = "clear">clear</n-button>
         </n-space>
