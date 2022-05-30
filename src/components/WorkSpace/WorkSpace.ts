@@ -68,6 +68,9 @@ export default class WorkSpace extends Vue {
     gridColor = App.config.graph["grid-color"]
     nodeSize = App.config.node.size
 
+    myUrl = 'foo'
+    myFilename = 'bar'
+
     exportTriples() {
         exportTriplesToFile()
         // console.log('foo')
@@ -126,5 +129,11 @@ export default class WorkSpace extends Vue {
                 })
             })
         })
+    }
+
+    download() {
+      const jsonData = encodeURIComponent('{"is_valid": true}')
+      this.myUrl = `data:text/plain;charset=utf-8,${jsonData}`
+      this.myFilename = 'example.json'
     }
 }
