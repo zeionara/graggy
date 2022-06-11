@@ -99,7 +99,7 @@ export default class WorkSpace extends Vue {
        })
     }
 
-    createGraph(event: Event) {
+    createGraph() {
         this.nGraphs += 1
     }
 

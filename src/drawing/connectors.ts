@@ -1,6 +1,5 @@
-import { getClosestEntityAnchorPoint, drawFilledSquare, getIntersectedEntities } from '@/geometry'
+import { getClosestEntityAnchorPoint, getIntersectedEntities } from '@/geometry'
 // import { Graph } from '@/Graph'
-import Graph from '@/components/Graph.vue'
 import { Location } from '@/Location'
 import { Connector } from '@/Connector'
 import { UserDefinedPathRelation } from '@/relation/UserDefinedPathRelation'
