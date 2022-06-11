@@ -62,6 +62,6 @@
         <n-space>
             <p class = "exported-graph" style = "text-align: left">Draw graph and then click export button</p>
         </n-space>
-        <a v-on:click="download()" :href="myUrl" :download="myFilename">DOWNLOAD</a>
+        <a :href="myUrl" :download="myFilename" ref="fileDownloader">DOWNLOAD</a>
     </n-space>
 </n-space>

@@ -3,7 +3,8 @@ import { AddOutline as PlusIcon } from '@vicons/ionicons5'
 import { Options, Vue } from 'vue-class-component';
 import { RelationConfig } from '@/relation/RelationConfig'
 import { SubsetConfig } from '@/subset/SubsetConfig'
-import { exportTriplesToFile } from '@/export'
+// import { exportTriplesToFile } from '@/export'
+import { graphsToString, graphsToFilename } from '@/export'
 import App from '@/App.vue'
 
 import RelationsPane from '@/components/RelationsPane.vue'
@@ -68,13 +69,17 @@ export default class WorkSpace extends Vue {
     gridColor = App.config.graph["grid-color"]
     nodeSize = App.config.node.size
 
-    myUrl = 'foo'
-    myFilename = 'bar'
+    // myUrl = 'foo'
+    // myFilename = 'bar'
 
     exportTriples() {
-        exportTriplesToFile()
+        (this.$refs.fileDownloader as HTMLElement).click()
         // console.log('foo')
-        // document.getElementsByClassName('exported-graph')[0].innerHTML = 'content'
+        // const jsonData = encodeURIComponent('{"is_valid": true}')
+        // this.myUrl = `data:text/plain;charset=utf-8,${jsonData}`
+        // this.myFilename = 'example.json'
+        // // exportTriplesToFile(this)
+        // console.log('bar')
     }
 
     forEachGraph(callback: (graph) => undefined) {
@@ -131,9 +136,17 @@ export default class WorkSpace extends Vue {
         })
     }
 
-    download() {
-      const jsonData = encodeURIComponent('{"is_valid": true}')
-      this.myUrl = `data:text/plain;charset=utf-8,${jsonData}`
-      this.myFilename = 'example.json'
+    get myUrl() {
+        return graphsToString(this.$refs.graphs as typeof Graph[])
     }
+
+    get myFilename() {
+        return graphsToFilename(this.$refs.graphs as typeof Graph[])
+    }
+
+    // download() {
+    //   const jsonData = encodeURIComponent('{"is_valid": true}')
+    //   this.myUrl = `data:text/plain;charset=utf-8,${jsonData}`
+    //   this.myFilename = 'example.json'
+    // }
 }
