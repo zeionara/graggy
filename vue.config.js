@@ -17,6 +17,9 @@ module.exports = defineConfig({
                   'stream': require.resolve('stream-browserify'),
                   'buffer': require.resolve('buffer')
               }
+          },
+          'experiments': {
+              'topLevelAwait': true
           }
       }
       // return {'node': {'fs': 'empty'}}

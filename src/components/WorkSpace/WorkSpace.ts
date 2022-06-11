@@ -3,7 +3,7 @@ import { AddOutline as PlusIcon } from '@vicons/ionicons5'
 import { Options, Vue } from 'vue-class-component';
 import { RelationConfig } from '@/relation/RelationConfig'
 import { SubsetConfig } from '@/subset/SubsetConfig'
-import { graphsToString, graphsToFilename } from '@/export'
+import { exportAsArchive } from '@/export'
 import App from '@/App.vue'
 
 import RelationsPane from '@/components/RelationsPane.vue'
@@ -11,6 +11,9 @@ import SubsetsPane from '@/components/SubsetsPane.vue'
 import Switch from '@/components/Switch.vue'
 import Slider from '@/components/Slider.vue'
 import Graph from '@/components/Graph/Graph.vue'
+// import dateFormat from '@/vendor/dateFormat.min'
+// import dateFormat from '@/vendor/dateFormat.min.js'
+const format = await import('../../vendor/dateFormat.min.js')
 
 @Options({
   components: {
@@ -69,12 +72,7 @@ export default class WorkSpace extends Vue {
     nodeSize = App.config.node.size
 
     exportTriples() {
-        const downloader = (this.$refs.fileDownloader as HTMLElement) 
-
-        downloader.setAttribute('href', graphsToString(this.$refs.graphs as typeof Graph[]));
-        downloader.setAttribute('download', graphsToFilename(this.$refs.graphs as typeof Graph[]));
-
-        downloader.click()
+        exportAsArchive(this.$refs.graphs, `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`)
     }
 
     forEachGraph(callback: (graph) => undefined) {
