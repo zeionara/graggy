@@ -1,21 +1,40 @@
 import Tar from 'memory-tar-create'
+import { Triple, TripleWithGraph } from '@/Triple'
+
+function generateAdditionalTriples(triples: TripleWithGraph) {
+    return triples
+}
 
 function exportAsArchive(graphs, filename = 'graph.tar.gz') {
     const files = new Tar()
+    const triples = new Array<TripleWithGraph>()
 
-    graphs.forEach(graph => 
+    graphs.forEach(graph =>
         graph.triples.subsets.forEach(subset => {
                 const filename = `${graph.name ? graph.name : graph.index}/${subset.config.name}.tsv`
 
                 files.add(
                     {
                         [filename]: {
-                            contents: subset.items.map(triple => triple.description).join('\n')
+                            contents: subset.items.map(triple => {
+                                triples.push(new TripleWithGraph(triple, graph))
+                                return triple.description
+                            }).join('\n')
                         }
                     }
                 )
             }
         )
+    )
+
+    files.add(
+        {
+            'dataset.tsv': {
+                contents: triples.map(triple => {
+                    return triple.description
+                }).join('\n')
+            }
+        }
     )
 
     files.gz().download(filename)
