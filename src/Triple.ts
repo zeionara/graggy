@@ -46,14 +46,6 @@ class TripleWithGraph {
         this.index = index
     }
 
-    // describe(index: number = undefined) {
-    //     return this.triple.describe(this.graph.name ? this.graph.name : this.graph.index, index) 
-    // }
-
-    // get description() {
-    //     return this.describe()
-    // }
-
     setIndex(index: number) {
         this.index = index
     }
