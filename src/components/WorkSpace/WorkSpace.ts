@@ -33,6 +33,13 @@ export default class WorkSpace extends Vue {
 
     // Connector size slider parameters
 
+    nRepetitions: number = App.config.export.repetitions.number
+    nRepetitionsStep: number = App.config.export.repetitions.step
+    nRepetitionsMin: number = App.config.export.repetitions.min
+    nRepetitionsMax: number = App.config.export.repetitions.max
+
+    // Connector size slider parameters
+
     connectorSize: number = App.config.connector.size
     connectorSizeStep: number = App.config.connector.step
     connectorSizeMin: number = App.config.connector.min
@@ -72,7 +79,7 @@ export default class WorkSpace extends Vue {
     nodeSize = App.config.node.size
 
     exportTriples() {
-        exportAsArchive(this.$refs.graphs, `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`)
+        exportAsArchive(this.$refs.graphs, `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`, this.nRepetitions)
     }
 
     forEachGraph(callback: (graph) => undefined) {

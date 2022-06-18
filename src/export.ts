@@ -5,9 +5,11 @@ function generateAdditionalTriples(triples: TripleWithGraph[]) {
     return triples
 }
 
-function exportAsArchive(graphs, filename = 'graph.tar.gz') {
+function exportAsArchive(graphs, filename = 'graph.tar.gz', nRepetitions = 1) {
     const files = new Tar()
     const triples = {}
+
+    console.log(nRepetitions)
 
     graphs.forEach(graph =>
         graph.triples.subsets.forEach(subset => {
@@ -18,10 +20,26 @@ function exportAsArchive(graphs, filename = 'graph.tar.gz') {
                     {
                         [filepath]: {
                             contents: subset.items.map(triple => {
-                                if (filename in triples) { 
-                                    triples[filename].push(new TripleWithGraph(triple, graph))
+                                if (filename in triples) {
+                                    if (nRepetitions < 2) {
+                                        triples[filename].push(new TripleWithGraph(triple, graph))
+                                    } else {
+                                        for (let i = 0; i < nRepetitions; i += 1) {
+                                            triples[filename].push(new TripleWithGraph(triple, graph, i))
+                                        }
+                                    }
                                 } else {
-                                    triples[filename] = [new TripleWithGraph(triple, graph)]
+                                    if (nRepetitions < 2) {
+                                        triples[filename] = [new TripleWithGraph(triple, graph)]
+                                    } else {
+                                        const currentTriples: TripleWithGraph[] = []
+
+                                        for (let i = 0; i < nRepetitions; i += 1) {
+                                            currentTriples.push(new TripleWithGraph(triple, graph, i))
+                                        }
+
+                                        triples[filename] = currentTriples
+                                    }
                                 }
                                 return triple.description
                             }).join('\n')
