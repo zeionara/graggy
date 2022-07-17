@@ -1,8 +1,10 @@
-# graggy
-
 <p align="center">
     <img src="public/logo.png"/>
 </p>
+
+# graggy
+
+Graph generation tool, which allows to visually design a graph dataset for testing knowledge embedding models and graph algorithms, and then automatically augment it.
 
 ## Project setup
 ```
