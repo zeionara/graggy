@@ -1,6 +1,8 @@
 # graggy
 
-![logo](public/logo.jpg)
+<p aligh="center">
+    <img src="public/logo.png"/>
+</p>
 
 ## Project setup
 ```
