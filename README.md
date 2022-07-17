@@ -1,6 +1,6 @@
 # graggy
 
-<p aligh="center">
+<p align="center">
     <img src="public/logo.png"/>
 </p>
 
