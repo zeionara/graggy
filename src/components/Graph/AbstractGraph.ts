@@ -44,7 +44,6 @@ class AbstractGraph extends Vue {
 
     pushRelation(relation: Relation) {
         this.relations.push(relation)
-        this.$emit('addRelation', this.relations.length)
     }
 
     pushRelationSegment(segment: Location) {
