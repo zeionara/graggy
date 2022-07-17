@@ -41,7 +41,7 @@ function exportAsArchive(graphs, filename = 'graph.tar.gz', nRepetitions = 1) {
                                         triples[filename] = currentTriples
                                     }
                                 }
-                                return triple.description
+                                return triple.description  // Repetitions are not written to files corresponding to separate graphs
                             }).join('\n')
                         }
                     }

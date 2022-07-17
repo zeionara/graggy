@@ -113,6 +113,7 @@ function drawTerminalAnchoredConnectorAndAdjacentLineSegment(graph, ctx: CanvasR
         connector.draw(ctx)
         
         graph.pushTriples(getIntersectedEntities(graph.nodes, anchor_point.x, anchor_point.y, connector_size))
+        graph.$emit('addRelation', graph.relations.length)
     }
 }
 
@@ -143,6 +144,7 @@ function drawTerminalConnector(graph, ctx: CanvasRenderingContext2D, event, conn
         }
         
         graph.pushTriples(getIntersectedEntities(graph.nodes, event.offsetX, event.offsetY, connector_size))
+        graph.$emit('addRelation', graph.relations.length)
     }
 }
 

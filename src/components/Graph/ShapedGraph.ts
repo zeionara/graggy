@@ -64,6 +64,7 @@ class ShapedGraph extends AbstractGraph {
         // } else {
         this.nodeInitialLocations.push(new Location(event.offsetX - this.nodeSize / 2, event.offsetY - this.nodeSize / 2))
         this.nNodes += 1
+        this.$emit("addNode", this.nNodes)
         // }
     }
 

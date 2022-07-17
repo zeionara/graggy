@@ -15,9 +15,9 @@ class Triple {
         return this.describe()
     }
 
-    describe(graph: string | number = undefined, index: number = undefined) {
-        let head = this.head.name
-        let tail = this.tail.name
+    describe(graph: string | number = undefined, index: number = undefined, usingIds = false) {
+        let head = usingIds ? this.head.id : this.head.name 
+        let tail = usingIds ? this.tail.id : this.tail.name
         let relation = this.relation.name
 
         if (!(graph === undefined)) {

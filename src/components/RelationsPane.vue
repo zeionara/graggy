@@ -30,7 +30,10 @@ import { RelationConfig } from '@/relation/RelationConfig'
 @Options({
   components: {
     NButton, NSpace, NInput, NColorPicker, NRadioGroup, NRadio, PlusIcon, MinusIcon, NIcon, App
-  }
+  },
+  emits: [
+    "currentRelationChange", "addRelation", "deleteRelation", "redrawGraph"
+  ]
 })
 export default class RelationsPane extends Vue {
     relations = App.config.relation.items.map(relation => new RelationConfig(relation['name'], relation['color']))
@@ -45,6 +48,7 @@ export default class RelationsPane extends Vue {
 
     createRelation() {
         this.relations.push(new RelationConfig(this.defaultRelationName, this.defaultRelationColor))
+        this.$emit("addRelation", this.relations.length)
     }
 
     deleteRelation(i: number) {
@@ -54,6 +58,7 @@ export default class RelationsPane extends Vue {
             this.selectedRelationIndex = newRelationIndex
             this.updateCurrentRelation(this.selectedRelationIndex)
         }
+        this.$emit("deleteRelation", this.relations.length)
     }
 
     // @Watch('selectedRelationIndex')

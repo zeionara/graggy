@@ -44,6 +44,7 @@ class AbstractGraph extends Vue {
 
     pushRelation(relation: Relation) {
         this.relations.push(relation)
+        this.$emit('addRelation', this.relations.length)
     }
 
     pushRelationSegment(segment: Location) {
@@ -64,15 +65,15 @@ class AbstractGraph extends Vue {
     }
 
     deleteGraph() {
-        this.$emit('deleteGraph', this.index)
+        this.$emit("deleteGraph", this.index)
     }
 
     moveUp() {
-        this.$emit('swapGraphs', {lhs: this.index - 1, rhs: this.index})
+        this.$emit("swapGraphs", {lhs: this.index - 1, rhs: this.index})
     }
 
     moveDown() {
-        this.$emit('swapGraphs', {lhs: this.index, rhs: this.index + 1})
+        this.$emit("swapGraphs", {lhs: this.index, rhs: this.index + 1})
     }
 }
 
