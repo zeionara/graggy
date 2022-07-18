@@ -17,6 +17,10 @@ class RelationConfig {
             this.disposable = false
         }
     }
+
+    get id() {
+        return this.name
+    }
 }
 
 export { RelationConfig }

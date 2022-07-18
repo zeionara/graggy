@@ -87,7 +87,10 @@ export default class WorkSpace extends Vue {
     nodeSize = App.config.node.size
 
     exportTriples() {
-        exportAsArchive(this.$refs.graphs, `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`, this.nRepetitions)
+        exportAsArchive(
+            this.$refs.graphs, (this.$refs.relations as RelationsPane).relations, (this.$refs.subsets as SubsetsPane).subsets,
+            `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`, this.nRepetitions, this.nRelationsToSample
+        )
     }
 
     forEachGraph(callback: (graph) => any) {
@@ -150,7 +153,9 @@ export default class WorkSpace extends Vue {
             })
 
             if (currentNnodes > 1) {
-                nRelationsToSampleMax = getFactorial(currentNnodes) / (2 * getFactorial(currentNnodes - 2)) * nRelations * nSubsets - currentNgraphRelations
+                // nRelationsToSampleMax = getFactorial(currentNnodes) / (2 * getFactorial(currentNnodes - 2)) * nRelations * nSubsets - currentNgraphRelations
+                nRelationsToSampleMax = currentNnodes * (currentNnodes - 1) * nRelations * nSubsets - currentNgraphRelations
+                console.log(nRelationsToSampleMax)
             } else {
                 nRelationsToSampleMax = 0
             }
