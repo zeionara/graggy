@@ -12,8 +12,47 @@ class Triple {
     }
 
     get description() {
-        return `${this.head.name}\t${this.relation.name}\t${this.tail.name}`
+        return this.describe()
+    }
+
+    describe(graph: string | number = undefined, index: number = undefined, usingIds = false) {
+        let head = usingIds ? this.head.id : this.head.name 
+        let tail = usingIds ? this.tail.id : this.tail.name
+        let relation = this.relation.name
+
+        if (!(graph === undefined)) {
+            head = `${graph}.${head}`
+            tail = `${graph}.${tail}`
+            relation = `${graph}.${relation}`
+        }
+
+        if (!(index === undefined)) {
+            head = `${head}.${index}`
+            tail = `${tail}.${index}`
+        }
+
+        return `${head}\t${relation}\t${tail}`
     }
 }
 
-export { Triple }
+class TripleWithGraph {
+    triple
+    graph
+    index: number
+
+    constructor(triple, graph, index: number = undefined) {
+        this.triple = triple
+        this.graph = graph
+        this.index = index
+    }
+
+    setIndex(index: number) {
+        this.index = index
+    }
+
+    get description() {
+        return this.triple.describe(this.graph.name ? this.graph.name : this.graph.index, this.index) 
+    }
+}
+
+export { Triple, TripleWithGraph }

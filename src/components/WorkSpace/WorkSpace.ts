@@ -4,6 +4,7 @@ import { Options, Vue } from 'vue-class-component';
 import { RelationConfig } from '@/relation/RelationConfig'
 import { SubsetConfig } from '@/subset/SubsetConfig'
 import { exportAsArchive } from '@/export'
+import { getFactorial } from '@/math'
 import App from '@/App.vue'
 
 import RelationsPane from '@/components/RelationsPane.vue'
@@ -27,9 +28,25 @@ export default class WorkSpace extends Vue {
     dialog = useDialog()
     message = useMessage()
 
+    forbidSameTripleInMultipleSubsetsSwitch = App.config.switch['forbid-same-triple-in-multiple-subsets']
+
     // Global variables
 
     nGraphs: number = App.config.graph.count
+
+    // Number of repetitions parameters
+
+    nRepetitions: number = App.config.export.repetitions.number
+    nRepetitionsStep: number = App.config.export.repetitions.step
+    nRepetitionsMin: number = App.config.export.repetitions.min
+    nRepetitionsMax: number = App.config.export.repetitions.max
+
+    // Number of relations to sample
+
+    nRelationsToSample: number = App.config.export['sampled-relations'].number
+    nRelationsToSampleStep: number = App.config.export['sampled-relations'].step
+    nRelationsToSampleMin: number = App.config.export['sampled-relations'].min
+    nRelationsToSampleMax: number = App.config.export['sampled-relations'].max
 
     // Connector size slider parameters
 
@@ -72,10 +89,15 @@ export default class WorkSpace extends Vue {
     nodeSize = App.config.node.size
 
     exportTriples() {
-        exportAsArchive(this.$refs.graphs, `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`)
+        // console.log(this.forbidSameTripleInMultipleSubsetsSwitch)
+        exportAsArchive(
+            this.$refs.graphs, (this.$refs.relations as RelationsPane).relations, (this.$refs.subsets as SubsetsPane).subsets,
+            `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`, this.nRepetitions, this.nRelationsToSample,
+            this.forbidSameTripleInMultipleSubsetsSwitch
+        )
     }
 
-    forEachGraph(callback: (graph) => undefined) {
+    forEachGraph(callback: (graph) => any) {
         if (this.$refs.graphs) {
             (this.$refs.graphs as (typeof Graph[])).forEach(callback)
         }
@@ -109,6 +131,68 @@ export default class WorkSpace extends Vue {
             this.$refs.graphs[destinationIndex].assume(this.$refs.graphs[sourceIndex])
         }
         this.nGraphs -= 1
+    }
+
+    updateRelationsToSampleSlider(nNodes: number = undefined, nRelations: number = undefined, nSubsets: number = undefined, nGraphRelations: number = undefined) {
+        // let maxNnodes = undefined
+
+        if (nRelations === undefined) {
+            nRelations = (this.$refs.relations as RelationsPane).relations.length
+        }
+
+        if (this.forbidSameTripleInMultipleSubsetsSwitch) {
+            nSubsets = 1
+        } else {
+            if (nSubsets === undefined) {
+                nSubsets = (this.$refs.subsets as SubsetsPane).subsets.length
+            }
+        }
+
+        let nRelationsToSampleMaxMax = undefined
+
+        this.forEachGraph(graph => {
+            const currentNnodes = graph.nNodes
+            let currentNgraphRelations = 0  // graph.relations.length  // Relations can repeat, hence it's not possible to just count the number of relation objects to obtain number of "free slots"
+            let nRelationsToSampleMax: number
+
+            if (this.forbidSameTripleInMultipleSubsetsSwitch) {
+                const tripleDescriptions = new Set()
+
+                graph.triples.subsets.forEach(subset => {
+                    subset.items.forEach(triple => tripleDescriptions.add(triple.describe(undefined, undefined, true)))
+                })
+
+                currentNgraphRelations = tripleDescriptions.size
+            } else {
+                graph.triples.subsets.forEach(subset => {
+                    const tripleDescriptions = new Set(subset.items.map(triple => triple.describe(undefined, undefined, true)))
+                    currentNgraphRelations += [...tripleDescriptions].length
+                })
+            }
+
+            if (currentNnodes > 1) {
+                // nRelationsToSampleMax = getFactorial(currentNnodes) / (2 * getFactorial(currentNnodes - 2)) * nRelations * nSubsets - currentNgraphRelations
+                nRelationsToSampleMax = currentNnodes * (currentNnodes - 1) * nRelations * nSubsets - currentNgraphRelations
+                // console.log(nRelationsToSampleMax)
+            } else {
+                nRelationsToSampleMax = 0
+            }
+
+            if (nRelationsToSampleMaxMax === undefined || nRelationsToSampleMax > nRelationsToSampleMaxMax) {
+                nRelationsToSampleMaxMax = nRelationsToSampleMax
+            }
+        })
+
+        this.nRelationsToSampleMax = nRelationsToSampleMaxMax
+
+        // console.log(maxNnodes, nRelations, nSubsets)
+        // for (let i = 0; i < this.nGraphs - 1; i++) {
+        //     const sourceIndex = i + 1
+        //     const destinationIndex = i
+
+        //     this.$refs.graphs[destinationIndex].assume(this.$refs.graphs[sourceIndex])
+        // }
+        // this.nGraphs -= 1
     }
 
     swapGraphs(indices) {

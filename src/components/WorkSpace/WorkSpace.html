@@ -6,7 +6,8 @@
             v-bind:enableConnectorAutoAlignment = "connectorAutoAlignmentSwitch" v-bind:connectorSize = "connectorSize" v-bind:enableStraightLines = "straightLinesSwitch"
             v-bind:enableNodeRenameMode = "nodeRenameSwitch" v-bind:enableLiveRedraw = "liveRedrawSwitch" v-bind:bgColor = "bgColor" v-bind:index = "i - 1"
             :nGraphs = "nGraphs"
-            @delete-graph = "deleteGraph" @swap-graphs = "swapGraphs"
+            @delete-graph = "deleteGraph" @swap-graphs = "swapGraphs"  @add-node = "updateRelationsToSampleSlider"
+            @add-relation = "updateRelationsToSampleSlider(undefined, undefined, undefined, event)"
         />
         <n-button tertiary circle type="info" @click="createGraph">
             <n-icon><plus-icon /></n-icon>
@@ -52,13 +53,35 @@
             <n-button type="error" @click = "clear">clear</n-button>
         </n-space>
         <n-divider title-placement = "left">
+            Export properties
+        </n-divider>
+        <Slider
+            purpose="number of repetitions" v-bind:defaultValue = "nRepetitions"
+            @update-value = "this.nRepetitions = $event.value"
+            v-bind:min = "nRepetitionsMin" v-bind:max = "nRepetitionsMax" v-bind:step = "nRepetitionsStep"
+        />
+        <Switch
+            purpose="forbid same triple to appear in multiple subsets" v-bind:defaultValue = "forbidSameTripleInMultipleSubsetsSwitch" @update-value = "this.forbidSameTripleInMultipleSubsetsSwitch = $event.value; updateRelationsToSampleSlider()"
+        />
+        <Slider
+            purpose="number of relations to sample" v-bind:defaultValue = "nRelationsToSample"
+            @update-value = "this.nRelationsToSample = $event.value"
+            v-bind:min = "nRelationsToSampleMin" v-bind:max = "nRelationsToSampleMax" v-bind:step = "nRelationsToSampleStep"
+        />
+        <n-divider title-placement = "left">
             Relation properties
         </n-divider>
-        <RelationsPane @current-relation-change = "this.currentRelation = $event" @redraw-graph = "forEachGraph(graph => graph.liveRedraw())"/>
+        <RelationsPane
+            ref = "relations" @current-relation-change = "this.currentRelation = $event" @redraw-graph = "forEachGraph(graph => graph.liveRedraw())"
+            @add-relation = "updateRelationsToSampleSlider(undefined, event)" @delete-relation = "updateRelationsToSampleSlider(undefined, event)"
+        />
         <n-divider title-placement = "left">
             Subset properties
         </n-divider>
-        <SubsetsPane @current-subset-change = "this.currentSubset = $event" @redraw-graph = "forEachGraph(graph => graph.liveRedraw())"/>
+        <SubsetsPane 
+            ref = "subsets" @current-subset-change = "this.currentSubset = $event" @redraw-graph = "forEachGraph(graph => graph.liveRedraw())"
+            @add-subset = "updateRelationsToSampleSlider(undefined, undefined, event)" @delete-subset = "updateRelationsToSampleSlider(undefined, undefined, event)"
+        />
         <n-space>
             <p class = "exported-graph" style = "text-align: left">Draw graph and then click export button</p>
         </n-space>

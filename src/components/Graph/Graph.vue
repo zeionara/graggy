@@ -44,7 +44,7 @@ import { TripleSet } from '@/TripleSet'
         NInput, NIcon, NButton, NSpace, Node, MinusIcon, ArrowDownIcon, ArrowUpIcon
     },
     emits: [
-        "deleteGraph", "swapGraphs"
+        "deleteGraph", "swapGraphs", "addNode", "addRelation"
     ],
     props: {
         nodeSize: Number, nAnchorPointsPerEdge: Number, enableGrid: Boolean, gridColor: String, currentSubset: SubsetConfig, currentRelation: RelationConfig,

@@ -31,7 +31,10 @@ import { SubsetConfig } from '@/subset/SubsetConfig'
 @Options({
   components: {
     NButton, NSpace, NSelect, NInput, NRadioGroup, NRadio, PlusIcon, MinusIcon, NIcon, App
-  }
+  },
+  emits: [
+    "currentSubsetChange", "redrawGraph", "addSubset", "deleteSubset"
+  ]
 })
 export default class SubsetsPane extends Vue {
     subsets = App.config.subset.items.map(subset => new SubsetConfig(subset.name, subset.pattern))
@@ -72,6 +75,7 @@ export default class SubsetsPane extends Vue {
 
     createSubset() {
         this.subsets.push(new SubsetConfig(this.defaultSubsetName, this.defaultSubsetPattern))
+        this.$emit("addSubset", this.subsets.length)
     }
 
     deleteSubset(i: number) {
@@ -81,18 +85,19 @@ export default class SubsetsPane extends Vue {
             this.selectedSubsetIndex = newSubsetIndex
             this.updateCurrentSubset(this.selectedSubsetIndex)
         }
+        this.$emit("deleteSubset", this.subsets.length)
     }
 
     updateCurrentSubset(value: number) {
         const subset = this.subsets[value]
         if (subset) {
-            this.$emit('currentSubsetChange', subset)
+            this.$emit("currentSubsetChange", subset)
         }
     }
 
     @Watch('subsets', { deep: true })
     redrawGraph() {
-        this.$emit('redrawGraph')
+        this.$emit("redrawGraph")
     }
 }
 </script>
