@@ -28,6 +28,8 @@ export default class WorkSpace extends Vue {
     dialog = useDialog()
     message = useMessage()
 
+    forbidSameTripleInMultipleSubsetsSwitch = App.config.switch['forbid-same-triple-in-multiple-subsets']
+
     // Global variables
 
     nGraphs: number = App.config.graph.count
@@ -87,9 +89,11 @@ export default class WorkSpace extends Vue {
     nodeSize = App.config.node.size
 
     exportTriples() {
+        // console.log(this.forbidSameTripleInMultipleSubsetsSwitch)
         exportAsArchive(
             this.$refs.graphs, (this.$refs.relations as RelationsPane).relations, (this.$refs.subsets as SubsetsPane).subsets,
-            `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`, this.nRepetitions, this.nRelationsToSample
+            `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`, this.nRepetitions, this.nRelationsToSample,
+            this.forbidSameTripleInMultipleSubsetsSwitch
         )
     }
 
@@ -136,8 +140,12 @@ export default class WorkSpace extends Vue {
             nRelations = (this.$refs.relations as RelationsPane).relations.length
         }
 
-        if (nSubsets === undefined) {
-            nSubsets = (this.$refs.subsets as SubsetsPane).subsets.length
+        if (this.forbidSameTripleInMultipleSubsetsSwitch) {
+            nSubsets = 1
+        } else {
+            if (nSubsets === undefined) {
+                nSubsets = (this.$refs.subsets as SubsetsPane).subsets.length
+            }
         }
 
         let nRelationsToSampleMaxMax = undefined
@@ -147,10 +155,20 @@ export default class WorkSpace extends Vue {
             let currentNgraphRelations = 0  // graph.relations.length  // Relations can repeat, hence it's not possible to just count the number of relation objects to obtain number of "free slots"
             let nRelationsToSampleMax: number
 
-            graph.triples.subsets.forEach(subset => {
-                const tripleDescriptions = new Set(subset.items.map(triple => triple.describe(undefined, undefined, true)))
-                currentNgraphRelations += [...tripleDescriptions].length
-            })
+            if (this.forbidSameTripleInMultipleSubsetsSwitch) {
+                const tripleDescriptions = new Set()
+
+                graph.triples.subsets.forEach(subset => {
+                    subset.items.forEach(triple => tripleDescriptions.add(triple.describe(undefined, undefined, true)))
+                })
+
+                currentNgraphRelations = tripleDescriptions.size
+            } else {
+                graph.triples.subsets.forEach(subset => {
+                    const tripleDescriptions = new Set(subset.items.map(triple => triple.describe(undefined, undefined, true)))
+                    currentNgraphRelations += [...tripleDescriptions].length
+                })
+            }
 
             if (currentNnodes > 1) {
                 // nRelationsToSampleMax = getFactorial(currentNnodes) / (2 * getFactorial(currentNnodes - 2)) * nRelations * nSubsets - currentNgraphRelations

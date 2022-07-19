@@ -33,3 +33,13 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+## Possible problems and solutions
+
+Use the following command
+
+```
+sudo sysctl -w fs.inotify.max_user_watches=100000
+```
+
+To eliminate the error `System limit for number of file watchers reached`

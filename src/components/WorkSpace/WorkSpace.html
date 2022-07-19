@@ -60,6 +60,9 @@
             @update-value = "this.nRepetitions = $event.value"
             v-bind:min = "nRepetitionsMin" v-bind:max = "nRepetitionsMax" v-bind:step = "nRepetitionsStep"
         />
+        <Switch
+            purpose="forbid same triple to appear in multiple subsets" v-bind:defaultValue = "forbidSameTripleInMultipleSubsetsSwitch" @update-value = "this.forbidSameTripleInMultipleSubsetsSwitch = $event.value; updateRelationsToSampleSlider()"
+        />
         <Slider
             purpose="number of relations to sample" v-bind:defaultValue = "nRelationsToSample"
             @update-value = "this.nRelationsToSample = $event.value"

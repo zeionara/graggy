@@ -17,6 +17,7 @@ switch:
     connector-auto-alignment: true
     node-rename: false
     live-redraw: false
+    forbid-same-triple-in-multiple-subsets: true
 subset:
     items:
         - name: train
