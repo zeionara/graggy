@@ -83,6 +83,9 @@ function exportAsArchive(graphs, relations, subsets, filename = 'graph.tar.gz', 
                 }
             )
 
+            nRelationInstances = alignProbabilities(nRelationInstances)
+            nNodePairInstances = alignProbabilities(nNodePairInstances)
+
             let tripleWeights = {};
             const tripleFromString = {};
 
@@ -94,7 +97,7 @@ function exportAsArchive(graphs, relations, subsets, filename = 'graph.tar.gz', 
                                 const tripleAsString = tripleToString(lhs.id, relation.id, rhs.id, subset.name)
                                 tripleWeights[tripleAsString] = nRelationInstances[relation.id] + nNodePairInstances[nodePairToString(lhs.id, rhs.id)]
                                 tripleFromString[tripleAsString] = {
-                                    triple: new TripleWithGraph(new Triple(lhs, relation, rhs), graph, nRepetitions < 2 ? undefined : 0),
+                                    makeTriple: (i) => new TripleWithGraph(new Triple(lhs, relation, rhs), graph, i),
                                     subset: subsetNameToFilename(subset.name)
                                 }
                             })
@@ -102,7 +105,9 @@ function exportAsArchive(graphs, relations, subsets, filename = 'graph.tar.gz', 
                     }
                 })
             })
-            
+
+            tripleWeights = alignProbabilities(tripleWeights)
+
             const possibleTriples = Object.keys(tripleWeights)
 
             let i = 0
@@ -117,29 +122,34 @@ function exportAsArchive(graphs, relations, subsets, filename = 'graph.tar.gz', 
                         j += 1
                     }
                     sampledTriple = possibleTriples[j]
-                    console.log(j)
                 }
                 seenTriples.add(sampledTriple)
+
                 const restoredTriple = tripleFromString[sampledTriple]
+
                 if (restoredTriple.subset in triples) {
-                    triples[restoredTriple.subset].push(restoredTriple.triple)
+                    if (nRepetitions < 2) {
+                        triples[restoredTriple.subset].push(restoredTriple.makeTriple(undefined))
+                    } else {
+                        for (let j = 0; j < nRepetitions; j += 1) {
+                             triples[restoredTriple.subset].push(restoredTriple.makeTriple(j))
+                        }
+                    }
                 } else {
-                    triples[restoredTriple.subset] = [restoredTriple.triple]
+                    if (nRepetitions < 2) {
+                        triples[restoredTriple.subset] = [restoredTriple.makeTriple(undefined)]
+                    } else {
+                        const currentTriples: TripleWithGraph[] = []
+
+                        for (let j = 0; j < nRepetitions; j += 1) {
+                            currentTriples.push(restoredTriple.makeTriple(j))
+                        }
+
+                        triples[restoredTriple.subset] = currentTriples
+                    }
                 }
                 i += 1
             }
-
-            console.log(triples)
-
-            nRelationInstances = alignProbabilities(nRelationInstances)
-            nNodePairInstances = alignProbabilities(nNodePairInstances)
-            tripleWeights = alignProbabilities(tripleWeights)
-
-            // const sampledRelation = sample(nRelationInstances)
-
-            // console.log(nRelationInstances)
-            // console.log(nNodePairInstances)
-            // console.log(tripleWeights)
         }
     )
 

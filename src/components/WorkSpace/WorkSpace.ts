@@ -155,7 +155,7 @@ export default class WorkSpace extends Vue {
             if (currentNnodes > 1) {
                 // nRelationsToSampleMax = getFactorial(currentNnodes) / (2 * getFactorial(currentNnodes - 2)) * nRelations * nSubsets - currentNgraphRelations
                 nRelationsToSampleMax = currentNnodes * (currentNnodes - 1) * nRelations * nSubsets - currentNgraphRelations
-                console.log(nRelationsToSampleMax)
+                // console.log(nRelationsToSampleMax)
             } else {
                 nRelationsToSampleMax = 0
             }
