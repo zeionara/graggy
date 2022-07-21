@@ -1,6 +1,6 @@
 import { SubsetConfig } from '@/subset/SubsetConfig'
 import { RelationConfig } from '@/relation/RelationConfig'
-import { alignProbabilities } from '@/random'
+import { alignProbabilities, sample } from '@/random'
 import { Triple } from '@/Triple'
 
 
@@ -17,7 +17,7 @@ export default class GraphExportWrapper {
 
     stringToNodePairMapping: Record<string, NodePair>
     stringToRelationMapping: Record<string, RelationConfig>
-    stringToWrappedTriple: Record<string, TripleExportWrapper>
+    stringToWrappedTripleMapping: Record<string, TripleExportWrapper>
 
     nNodePairInstances: Record<string, number>
     nRelationInstances: Record<string, number>
@@ -26,6 +26,8 @@ export default class GraphExportWrapper {
     seenTriples: Set<string>
 
     triples: Record<string, Array<TripleExportWrapper>>
+
+    forbidSameTripleInMultipleSubsets: boolean
 
     constructor(graph, subsets: SubsetConfig[], relations: RelationConfig[], nRepetitions: number, forbidSameTripleInMultipleSubsets: boolean) {
         this.graph = graph
@@ -56,7 +58,7 @@ export default class GraphExportWrapper {
             const wrappedSubset = new SubsetExportWrapper(subset.config)
 
             triples[wrappedSubset.getPath(this)] = subset.items.map(triple => {
-                const wrappedTriple = new TripleExportWrapper(triple, subset, this.graph, this.subsets, forbidSameTripleInMultipleSubsets)
+                const wrappedTriple = new TripleExportWrapper(triple, wrappedSubset, this.graph, this.subsets, forbidSameTripleInMultipleSubsets)
 
                 wrappedTriple.descriptions.forEach(description => seenTriples.add(description))
 
@@ -95,7 +97,7 @@ export default class GraphExportWrapper {
                 if (lhs !== rhs) {
                     relations.forEach(relation => {
                         subsets.forEach(subset => {
-                            tripleWeights[this.wrappedTripleToString(new TripleExportWrapper(new Triple(lhs, relation, rhs), subset, graph))] = 
+                            tripleWeights[this.wrappedTripleToString(new TripleExportWrapper(new Triple(lhs, relation, rhs), new SubsetExportWrapper(subset), graph))] = 
                                 nRelationInstances[this.relationToString(relation)] + nNodePairInstances[this.nodePairToString(new NodePair(lhs, rhs))]
                         })
                     })
@@ -104,6 +106,53 @@ export default class GraphExportWrapper {
         })
 
         this.tripleWeights = alignProbabilities(tripleWeights)
+        this.forbidSameTripleInMultipleSubsets = forbidSameTripleInMultipleSubsets
+    }
+
+    sample(nSamples: number) {
+        const possibleTriples = Object.keys(this.tripleWeights)
+
+        let i = 0
+
+        nSamples = Math.min(
+            (this.forbidSameTripleInMultipleSubsets ? possibleTriples.length / this.subsets.length : possibleTriples.length) - this.seenTriples.size,
+            nSamples
+        )
+
+        const seenTriples = new Set(this.seenTriples)
+
+        while (i < nSamples) {
+            let sampledTriple = sample(this.tripleWeights, triple => seenTriples.has(triple))  // Sampled triple must not be added manually
+
+            if (sampledTriple === undefined) {  // If cannot sample a random triple N times in a row, then just pick the next one which has not yet been picked
+                let j = 0
+                while (seenTriples.has(possibleTriples[j])) {
+                    j += 1
+                }
+                sampledTriple = possibleTriples[j]
+            }
+
+            const wrappedTriple = this.stringToWrappedTriple(sampledTriple)
+
+            wrappedTriple.descriptions.forEach(description => seenTriples.add(description))
+
+            if (wrappedTriple.subset.filename in this.triples) {
+                if (nSamples < 2) {
+                    this.triples[wrappedTriple.subset.filename].push(wrappedTriple.copy())
+                } else {
+                    for (let j = 0; j < nSamples; j += 1) {
+                         this.triples[wrappedTriple.subset.filename].push(wrappedTriple.copy(j))
+                    }
+                }
+            } else {
+                if (nSamples < 2) {
+                    this.triples[wrappedTriple.subset.filename] = [wrappedTriple.copy()]
+                } else {
+                    this.triples[wrappedTriple.subset.filename] = [...Array(nSamples).keys()].map(j => wrappedTriple.copy(j))
+                }
+            }
+            i += 1
+        }
     }
 
     get folder() {
@@ -121,7 +170,11 @@ export default class GraphExportWrapper {
     }
 
     wrappedTripleToString(triple: TripleExportWrapper) {
-        this.stringToWrappedTriple[triple.description] = triple
+        this.stringToWrappedTripleMapping[triple.description] = triple
         return triple.description
+    }
+
+    stringToWrappedTriple(triple: string) {
+        return this.stringToWrappedTripleMapping[triple]
     }
 }

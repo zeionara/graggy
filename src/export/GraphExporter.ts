@@ -1,8 +1,11 @@
 import Tar from 'memory-tar-create'
 import { RelationConfig } from '@/relation/RelationConfig' 
 import { SubsetConfig } from '@/subset/SubsetConfig'
+import { mergeListOfObjectsOfLists } from '@/collections'
 
 import GraphExportWrapper from './GraphExportWrapper'
+import TripleExportWrapper from './TripleExportWrapper'
+import TripleGenerationStrategy from './TripleGenerationStrategy'
 
 class GraphExporter {
     nRelationInstances: Record<string, number>
@@ -13,19 +16,33 @@ class GraphExporter {
     nRepetitions: number
     forbidSameTripleInMultipleSubsets: boolean
 
-    files: Tar
-
-    graphs: GraphExportWrapper[]
-
-    constructor(graphs, subsets: SubsetConfig[], relations: RelationConfig[], nRepetitions: number, forbidSameTripleInMultipleSubsets: boolean) {
-        this.files = new Tar()
-
+    constructor(subsets: SubsetConfig[], relations: RelationConfig[], nRepetitions: number, forbidSameTripleInMultipleSubsets: boolean) {
         this.subsets = subsets
         this.relations = relations
         this.nRepetitions = nRepetitions
         this.forbidSameTripleInMultipleSubsets
+    }
 
-        this.graphs = graphs.map(graph => new GraphExportWrapper(graph, this.subsets, this.relations, this.nRepetitions, this.forbidSameTripleInMultipleSubsets))
+    export(filename: string, graphs, tripleGenerationStrategy: TripleGenerationStrategy) {
+        const files = new Tar()
+
+        const wrappedGraphs = graphs.map(graph => new GraphExportWrapper(graph, this.subsets, this.relations, this.nRepetitions, this.forbidSameTripleInMultipleSubsets))
+
+        const mergedTripleLists = mergeListOfObjectsOfLists(wrappedGraphs.map(graph => graph.triples))
+
+        for (const [subsetFilename, subsetTriples] of Object.entries(mergedTripleLists)) {
+            files.add(
+                {
+                    [subsetFilename]: {
+                        contents: tripleGenerationStrategy.generate(subsetTriples as TripleExportWrapper[]).map(triple => {
+                            return triple.triple.triple.description
+                        }).join('\n')
+                    }
+                }
+            )
+        }
+
+        files.gz().download(filename)
     }
 }
 
