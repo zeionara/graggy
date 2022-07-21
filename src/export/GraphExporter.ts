@@ -35,7 +35,7 @@ class GraphExporter {
                 {
                     [subsetFilename]: {
                         contents: tripleGenerationStrategy.generate(subsetTriples as TripleExportWrapper[]).map(triple => {
-                            return triple.triple.triple.description
+                            return triple.triple.description
                         }).join('\n')
                     }
                 }

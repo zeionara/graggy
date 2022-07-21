@@ -35,6 +35,10 @@ export default class GraphExportWrapper {
         this.subsets = subsets
         this.nRepetitions = nRepetitions
 
+        this.stringToNodePairMapping = {}
+        this.stringToRelationMapping = {}
+        this.stringToWrappedTripleMapping = {}
+
         const triples = {}
 
         const nRelationInstances = {};
@@ -62,19 +66,19 @@ export default class GraphExportWrapper {
 
                 wrappedTriple.descriptions.forEach(description => seenTriples.add(description))
 
-                if (subset.filename in triples) {
+                if (wrappedSubset.filename in triples) {
                     if (this.nRepetitions < 2) {
-                        triples[subset.filename].push(wrappedTriple)
+                        triples[wrappedSubset.filename].push(wrappedTriple)
                     } else {
                         for (let i = 0; i < this.nRepetitions; i += 1) {
-                            triples[subset.filename].push(wrappedTriple.copy(i))
+                            triples[wrappedSubset.filename].push(wrappedTriple.copy(i))
                         }
                     }
                 } else {
                     if (this.nRepetitions < 2) {
-                        triples[subset.filename] = [wrappedTriple]
+                        triples[wrappedSubset.filename] = [wrappedTriple]
                     } else {
-                        triples[subset.filename] = [...Array(this.nRepetitions).keys()].map(i => wrappedTriple.copy(i))
+                        triples[wrappedSubset.filename] = [...Array(this.nRepetitions).keys()].map(i => wrappedTriple.copy(i))
                     }
                 }
 

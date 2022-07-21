@@ -40,6 +40,6 @@ export default class TripleExportWrapper {
     }
 
     copy(i: number = undefined) {
-        return new TripleExportWrapper(this.triple.triple, this.triple.graph, this.subset, this.subsets, this.includeSubsetInDescription, i)
+        return new TripleExportWrapper(this.triple.triple, this.subset, this.triple.graph, this.subsets, this.includeSubsetInDescription, i)
     }
 }
