@@ -6,10 +6,11 @@ import { mergeListOfObjectsOfLists } from '@/collections'
 import GraphExportWrapper from './GraphExportWrapper'
 import TripleExportWrapper from './TripleExportWrapper'
 import TripleGenerationStrategy from './TripleGenerationStrategy'
-import IntraRepetitionSamplingStrategy from './IntraRepetitionSamplingStrategy'
+import TripleStore from './TripleStore'
 
 export default class Exporter {
     nRelationInstances: Record<string, number>
+    store: TripleStore
 
     subsets: SubsetConfig[]
     relations: RelationConfig[]
@@ -22,20 +23,21 @@ export default class Exporter {
         this.relations = relations
         this.nRepetitions = nRepetitions
         this.forbidSameTripleInMultipleSubsets = forbidSameTripleInMultipleSubsets
+        this.store = new TripleStore()
     }
 
     export(filename: string, graphs, tripleGenerationStrategy: TripleGenerationStrategy, strategies) {
         const files = new Tar()
 
         const wrappedGraphs = graphs.map(graph => {
-            const wrappedGraph = new GraphExportWrapper(graph, this.subsets, this.relations, this.nRepetitions, this.forbidSameTripleInMultipleSubsets)
+            const wrappedGraph = new GraphExportWrapper(graph, this.store, this.subsets, this.relations, this.nRepetitions, this.forbidSameTripleInMultipleSubsets)
             strategies.forEach(strategy => strategy.sample(wrappedGraph))
             return wrappedGraph
         })
 
-        const mergedTripleLists = mergeListOfObjectsOfLists(wrappedGraphs.map(graph => graph.triples))
+        // const mergedTripleLists = mergeListOfObjectsOfLists(wrappedGraphs.map(graph => graph.triples))
 
-        for (const [subsetFilename, subsetTriples] of Object.entries(mergedTripleLists)) {
+        for (const [subsetFilename, subsetTriples] of Object.entries(this.store.triples)) {
             files.add(
                 {
                     [subsetFilename]: {

@@ -1,12 +1,11 @@
 import { SubsetConfig } from '@/subset/SubsetConfig'
 import { RelationConfig } from '@/relation/RelationConfig'
-import { alignProbabilities, sample } from '@/random'
-import { Triple } from '@/Triple'
-
+import { alignProbabilities } from '@/random'
 
 import NodePair from './NodePair'
 import SubsetExportWrapper from './SubsetExportWrapper'
 import TripleExportWrapper from './TripleExportWrapper'
+import TripleStore from './TripleStore'
 
 
 export default class GraphExportWrapper {
@@ -15,6 +14,7 @@ export default class GraphExportWrapper {
     subsets: SubsetConfig[]
     relations: RelationConfig[]
     nRepetitions: number
+    store: TripleStore
 
     stringToNodePairMapping: Record<string, NodePair>
     stringToRelationMapping: Record<string, RelationConfig>
@@ -26,22 +26,20 @@ export default class GraphExportWrapper {
 
     seenTriples: Set<string>
 
-    triples: Record<string, Array<TripleExportWrapper>>
 
     forbidSameTripleInMultipleSubsets: boolean
 
-    constructor(graph, subsets: SubsetConfig[], relations: RelationConfig[], nRepetitions: number, forbidSameTripleInMultipleSubsets: boolean) {
+    constructor(graph, store: TripleStore, subsets: SubsetConfig[], relations: RelationConfig[], nRepetitions: number, forbidSameTripleInMultipleSubsets: boolean) {
         this.graph = graph
         this.nNodePairInstances = {}
         this.subsets = subsets
         this.relations = relations
         this.nRepetitions = nRepetitions
+        this.store = store
 
         this.stringToNodePairMapping = {}
         this.stringToRelationMapping = {}
         this.stringToWrappedTripleMapping = {}
-
-        const triples = {}
 
         const nRelationInstances = {};
         const nNodePairInstances = {};
@@ -63,44 +61,29 @@ export default class GraphExportWrapper {
         this.graph.triples.subsets.forEach(subset => {
             const wrappedSubset = new SubsetExportWrapper(subset.config)
 
-            triples[wrappedSubset.getPath(this)] = subset.items.map(triple => {
+            store.pushMany(wrappedSubset.getPath(this), subset.items.map(triple => {
                 const wrappedTriple = new TripleExportWrapper(triple, wrappedSubset, this.graph, subsets, forbidSameTripleInMultipleSubsets)
 
                 wrappedTriple.descriptions.forEach(description => seenTriples.add(description))
                 
-                // console.log(forbidSameTripleInMultipleSubsets)
-                // console.log(wrappedTriple.descriptions)
-
-                if (wrappedSubset.filename in triples) {
-                    if (this.nRepetitions < 2) {
-                        triples[wrappedSubset.filename].push(wrappedTriple)
-                    } else {
-                        for (let i = 0; i < this.nRepetitions; i += 1) {
-                            triples[wrappedSubset.filename].push(wrappedTriple.copy(i))
-                        }
-                    }
+                if (this.nRepetitions < 2) {
+                    store.push(wrappedSubset.filename, wrappedTriple)
                 } else {
-                    if (this.nRepetitions < 2) {
-                        triples[wrappedSubset.filename] = [wrappedTriple]
-                    } else {
-                        triples[wrappedSubset.filename] = [...Array(this.nRepetitions).keys()].map(i => wrappedTriple.copy(i))
-                    }
+                    store.pushMany(wrappedSubset.filename, [...Array(nRepetitions).keys()].map(i => wrappedTriple.copy(i)))
                 }
 
                 nRelationInstances[this.relationToString(triple.relation)] += 1
                 nNodePairInstances[this.nodePairToString(new NodePair(triple.head, triple.tail))] += 1
 
                 return wrappedTriple  // Repetitions are not written to files corresponding to separate graphs
-            })
+            }))
         })
 
         this.nNodePairInstances = alignProbabilities(nNodePairInstances)
         this.nRelationInstances = alignProbabilities(nRelationInstances)
         this.seenTriples = seenTriples
-        this.triples = triples
 
         this.forbidSameTripleInMultipleSubsets = forbidSameTripleInMultipleSubsets
-        // this.subsets = subsets
     }
 
     get folder() {

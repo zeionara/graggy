@@ -67,21 +67,12 @@ export default class IntraRepetitionSamplingStrategy {
 
             wrappedTriple.descriptions.forEach(description => seenTriples.add(description))
 
-            if (wrappedTriple.subset.filename in wrappedGraph.triples) {
-                if (wrappedGraph.nRepetitions < 2) {
-                    wrappedGraph.triples[wrappedTriple.subset.filename].push(wrappedTriple)
-                } else {
-                    for (let j = 0; j < wrappedGraph.nRepetitions; j += 1) {
-                         wrappedGraph.triples[wrappedTriple.subset.filename].push(wrappedTriple.copy(j))
-                    }
-                }
+            if (wrappedGraph.nRepetitions < 2) {
+                wrappedGraph.store.push(wrappedTriple.subset.filename, wrappedTriple)
             } else {
-                if (wrappedGraph.nRepetitions < 2) {
-                    wrappedGraph.triples[wrappedTriple.subset.filename] = [wrappedTriple]
-                } else {
-                    wrappedGraph.triples[wrappedTriple.subset.filename] = [...Array(wrappedGraph.nRepetitions).keys()].map(j => wrappedTriple.copy(j))
-                }
+                wrappedGraph.store.pushMany(wrappedTriple.subset.filename, [...Array(wrappedGraph.nRepetitions).keys()].map(j => wrappedTriple.copy(j)))
             }
+
             i += 1
         }
 
