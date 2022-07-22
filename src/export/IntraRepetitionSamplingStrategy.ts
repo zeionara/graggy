@@ -8,13 +8,13 @@ import { Triple } from '@/Triple'
 
 
 export default class IntraRepetitionSamplingStrategy {
-    label: string
+    nSamples: number
 
-    constructor(label: string = undefined) {
-        this.label = label
+    constructor(nSamples: number) {
+        this.nSamples = nSamples
     }
     
-    sample(wrappedGraph: GraphExportWrapper, nSamples: number) {
+    sample(wrappedGraph: GraphExportWrapper) {
         const tripleWeights = {};
 
         wrappedGraph.graph.nodes.forEach(lhs => {
@@ -48,7 +48,7 @@ export default class IntraRepetitionSamplingStrategy {
             maximumNgenerableTriples /= wrappedGraph.subsets.length
         }
 
-        nSamples = Math.min(maximumNgenerableTriples, nSamples)
+        const nSamples = Math.min(maximumNgenerableTriples, this.nSamples)
 
         const seenTriples = new Set(wrappedGraph.seenTriples)
 

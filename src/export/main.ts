@@ -1,9 +1,12 @@
 import Exporter from './Exporter'
 import TripleGenerationStrategy from './TripleGenerationStrategy'
+import IntraRepetitionSamplingStrategy from './IntraRepetitionSamplingStrategy'
 
 function exportAsArchive(graphs, relations, subsets, filename = 'graph.tar.gz', nRepetitions = 1, nSampledRelations = 0, forbidSameTripleInMultipleSubsets = false) {
     const exporter = new Exporter(subsets, relations, nRepetitions, forbidSameTripleInMultipleSubsets)
-    exporter.export(filename, graphs, new TripleGenerationStrategy(), nSampledRelations)
+    const strategies = nSampledRelations > 0 ? [new IntraRepetitionSamplingStrategy(nSampledRelations)] : []
+
+    exporter.export(filename, graphs, new TripleGenerationStrategy(), strategies)
 }
 
 export { exportAsArchive }

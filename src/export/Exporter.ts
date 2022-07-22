@@ -24,17 +24,12 @@ export default class Exporter {
         this.forbidSameTripleInMultipleSubsets = forbidSameTripleInMultipleSubsets
     }
 
-    export(filename: string, graphs, tripleGenerationStrategy: TripleGenerationStrategy, nSamples = 0) {
+    export(filename: string, graphs, tripleGenerationStrategy: TripleGenerationStrategy, strategies) {
         const files = new Tar()
-
-        const intraRepetitionSamplingStrategy = nSamples > 0 ? new IntraRepetitionSamplingStrategy() : undefined
 
         const wrappedGraphs = graphs.map(graph => {
             const wrappedGraph = new GraphExportWrapper(graph, this.subsets, this.relations, this.nRepetitions, this.forbidSameTripleInMultipleSubsets)
-            
-            if (nSamples > 0) {
-                intraRepetitionSamplingStrategy.sample(wrappedGraph, nSamples)
-            }
+            strategies.forEach(strategy => strategy.sample(wrappedGraph))
             return wrappedGraph
         })
 
