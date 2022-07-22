@@ -20,13 +20,13 @@ class GraphExporter {
         this.subsets = subsets
         this.relations = relations
         this.nRepetitions = nRepetitions
-        this.forbidSameTripleInMultipleSubsets
+        this.forbidSameTripleInMultipleSubsets = forbidSameTripleInMultipleSubsets
     }
 
-    export(filename: string, graphs, tripleGenerationStrategy: TripleGenerationStrategy) {
+    export(filename: string, graphs, tripleGenerationStrategy: TripleGenerationStrategy, nSamples = 0) {
         const files = new Tar()
 
-        const wrappedGraphs = graphs.map(graph => new GraphExportWrapper(graph, this.subsets, this.relations, this.nRepetitions, this.forbidSameTripleInMultipleSubsets))
+        const wrappedGraphs = graphs.map(graph => new GraphExportWrapper(graph, this.subsets, this.relations, this.nRepetitions, this.forbidSameTripleInMultipleSubsets).sample(nSamples))
 
         const mergedTripleLists = mergeListOfObjectsOfLists(wrappedGraphs.map(graph => graph.triples))
 

@@ -26,7 +26,7 @@ import TripleGenerationStrategy from '@/export/TripleGenerationStrategy'
 
 function exportAsArchive(graphs, relations, subsets, filename = 'graph.tar.gz', nRepetitions = 1, nSampledRelations = 0, forbidSameTripleInMultipleSubsets = false) {
     const exporter = new GraphExporter(subsets, relations, nRepetitions, forbidSameTripleInMultipleSubsets)
-    exporter.export(filename, graphs, new TripleGenerationStrategy())
+    exporter.export(filename, graphs, new TripleGenerationStrategy(), nSampledRelations)
 
     // const files = new Tar()
     // const triples = {}

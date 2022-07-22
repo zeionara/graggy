@@ -27,7 +27,7 @@ export default class TripleExportWrapper {
 
     get description() {
         if (this.includeSubsetInDescription) {
-            return this.makeDescription()
+            return this.makeDescription(this.subset.subset)
         }
         return this.makeDescription(this.subset.subset)
     }
@@ -36,7 +36,7 @@ export default class TripleExportWrapper {
         if (this.includeSubsetInDescription) {
             return this.subsets.map(subset => this.makeDescription(subset))
         }
-        return [this.makeDescription()]
+        return [this.makeDescription(this.subset.subset)]
     }
 
     copy(i: number = undefined) {
