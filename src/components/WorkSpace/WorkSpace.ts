@@ -3,8 +3,8 @@ import { AddOutline as PlusIcon } from '@vicons/ionicons5'
 import { Options, Vue } from 'vue-class-component';
 import { RelationConfig } from '@/relation/RelationConfig'
 import { SubsetConfig } from '@/subset/SubsetConfig'
-import { exportAsArchive } from '@/export'
-import { getFactorial } from '@/math'
+import { exportAsArchive } from '@/export/main'
+// import { getFactorial } from '@/math'
 import App from '@/App.vue'
 
 import RelationsPane from '@/components/RelationsPane.vue'

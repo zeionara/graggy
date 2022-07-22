@@ -7,7 +7,7 @@ import GraphExportWrapper from './GraphExportWrapper'
 import TripleExportWrapper from './TripleExportWrapper'
 import TripleGenerationStrategy from './TripleGenerationStrategy'
 
-class GraphExporter {
+export default class Exporter {
     nRelationInstances: Record<string, number>
 
     subsets: SubsetConfig[]
@@ -45,5 +45,3 @@ class GraphExporter {
         files.gz().download(filename)
     }
 }
-
-export { GraphExporter }
