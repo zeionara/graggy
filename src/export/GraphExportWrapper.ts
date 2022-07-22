@@ -13,6 +13,7 @@ export default class GraphExportWrapper {
     graph
 
     subsets: SubsetConfig[]
+    relations: RelationConfig[]
     nRepetitions: number
 
     stringToNodePairMapping: Record<string, NodePair>
@@ -33,6 +34,7 @@ export default class GraphExportWrapper {
         this.graph = graph
         this.nNodePairInstances = {}
         this.subsets = subsets
+        this.relations = relations
         this.nRepetitions = nRepetitions
 
         this.stringToNodePairMapping = {}
@@ -97,96 +99,8 @@ export default class GraphExportWrapper {
         this.seenTriples = seenTriples
         this.triples = triples
 
-        const tripleWeights = {};
-
-        graph.nodes.forEach(lhs => {
-            graph.nodes.forEach(rhs => {
-                if (lhs !== rhs) {
-                    relations.forEach(relation => {
-                        subsets.forEach(subset => {
-                            tripleWeights[
-                                this.wrappedTripleToString(new TripleExportWrapper(new Triple(lhs, relation, rhs), new SubsetExportWrapper(subset), graph, subsets, forbidSameTripleInMultipleSubsets))
-                            ] = nRelationInstances[this.relationToString(relation)] + nNodePairInstances[this.nodePairToString(new NodePair(lhs, rhs))]
-                        })
-                    })
-                }
-            })
-        })
-
-        this.tripleWeights = alignProbabilities(tripleWeights)
         this.forbidSameTripleInMultipleSubsets = forbidSameTripleInMultipleSubsets
-        this.subsets = subsets
-    }
-
-    sample(nSamples: number) {
-        const possibleTriples = Object.keys(this.tripleWeights)
-
-        let i = 0
-
-        // console.log(`N samples (input) = ${nSamples}`)
-
-        let maximumNgenerableTriples = possibleTriples.length - this.seenTriples.size
-
-        // console.log(maximumNgenerableTriples)
-
-        if (this.forbidSameTripleInMultipleSubsets) {
-            maximumNgenerableTriples /= this.subsets.length
-        }
-
-        nSamples = Math.min(maximumNgenerableTriples, nSamples)
-
-        // console.log(`N samples (output) = ${nSamples}`)
-
-        const seenTriples = new Set(this.seenTriples)
-
-        // console.log(seenTriples)
-        // console.log(possibleTriples)
-
-        while (i < nSamples) {
-            let sampledTriple = sample(this.tripleWeights, triple => seenTriples.has(triple))  // Sampled triple must not be added manually
-
-            if (sampledTriple === undefined) {  // If cannot sample a random triple N times in a row, then just pick the next one which has not yet been picked
-                let j = 0
-                while (seenTriples.has(possibleTriples[j])) {
-                    j += 1
-                }
-                // console.log(i, nSamples)
-                // console.log('found sampled triple manually')
-                // console.log(j)
-                // console.log(seenTriples)
-                // console.log(possibleTriples)
-                // console.log(possibleTriples[j])
-                sampledTriple = possibleTriples[j]
-            }
-
-            const wrappedTriple = this.stringToWrappedTriple(sampledTriple)
-
-            // console.log(`Sampled triple ${sampledTriple}`)
-            // console.log(`Duplicated: ${seenTriples.has(sampledTriple)}`)
-            // console.log(seenTriples)
-            // console.log(sampledTriple)
-
-            wrappedTriple.descriptions.forEach(description => seenTriples.add(description))
-
-            if (wrappedTriple.subset.filename in this.triples) {
-                if (this.nRepetitions < 2) {
-                    this.triples[wrappedTriple.subset.filename].push(wrappedTriple)
-                } else {
-                    for (let j = 0; j < this.nRepetitions; j += 1) {
-                         this.triples[wrappedTriple.subset.filename].push(wrappedTriple.copy(j))
-                    }
-                }
-            } else {
-                if (this.nRepetitions < 2) {
-                    this.triples[wrappedTriple.subset.filename] = [wrappedTriple]
-                } else {
-                    this.triples[wrappedTriple.subset.filename] = [...Array(this.nRepetitions).keys()].map(j => wrappedTriple.copy(j))
-                }
-            }
-            i += 1
-        }
-
-        return this
+        // this.subsets = subsets
     }
 
     get folder() {

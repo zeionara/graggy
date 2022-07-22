@@ -6,6 +6,7 @@ import { mergeListOfObjectsOfLists } from '@/collections'
 import GraphExportWrapper from './GraphExportWrapper'
 import TripleExportWrapper from './TripleExportWrapper'
 import TripleGenerationStrategy from './TripleGenerationStrategy'
+import IntraRepetitionSamplingStrategy from './IntraRepetitionSamplingStrategy'
 
 export default class Exporter {
     nRelationInstances: Record<string, number>
@@ -26,7 +27,16 @@ export default class Exporter {
     export(filename: string, graphs, tripleGenerationStrategy: TripleGenerationStrategy, nSamples = 0) {
         const files = new Tar()
 
-        const wrappedGraphs = graphs.map(graph => new GraphExportWrapper(graph, this.subsets, this.relations, this.nRepetitions, this.forbidSameTripleInMultipleSubsets).sample(nSamples))
+        const intraRepetitionSamplingStrategy = nSamples > 0 ? new IntraRepetitionSamplingStrategy() : undefined
+
+        const wrappedGraphs = graphs.map(graph => {
+            const wrappedGraph = new GraphExportWrapper(graph, this.subsets, this.relations, this.nRepetitions, this.forbidSameTripleInMultipleSubsets)
+            
+            if (nSamples > 0) {
+                intraRepetitionSamplingStrategy.sample(wrappedGraph, nSamples)
+            }
+            return wrappedGraph
+        })
 
         const mergedTripleLists = mergeListOfObjectsOfLists(wrappedGraphs.map(graph => graph.triples))
 
