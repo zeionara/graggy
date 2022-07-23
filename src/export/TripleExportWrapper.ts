@@ -14,9 +14,14 @@ export default class TripleExportWrapper {
 
     constructor(
         triple: Triple, subset: SubsetExportWrapper, graph = undefined, subsets: SubsetConfig[] = undefined,
-        includeSubsetInDescription = true, i: number = undefined, includeGraphIdInTripleDescription = false
+        includeSubsetInDescription = true, i: number = undefined, includeGraphIdInTripleDescription = false,
+        headIndex: number = undefined, tailIndex: number = undefined
     ) {
-        this.triple = new TripleWithGraph(triple, graph, i, includeGraphIdInTripleDescription)
+        if (i !== undefined) {
+            this.triple = new TripleWithGraph(triple, graph, i, includeGraphIdInTripleDescription)
+        } else {
+            this.triple = new TripleWithGraph(triple, graph, undefined, includeGraphIdInTripleDescription, headIndex, tailIndex)
+        }
         this.subset = subset
         this.subsets = subsets
         this.includeSubsetInDescription = includeSubsetInDescription
@@ -25,15 +30,15 @@ export default class TripleExportWrapper {
 
     makeDescription(subset: SubsetConfig = undefined) {
         if (subset === undefined) {
-            return `${this.triple.triple.head.id} ${this.triple.triple.relation.id} ${this.triple.triple.tail.id}`
+            return this.triple.describe(' ', true)
         }
-        return `${this.triple.triple.head.id} ${this.triple.triple.relation.id} ${this.triple.triple.tail.id} ${subset.name}`
+        return `${this.triple.describe(' ', true)} ${subset.name}`
     }
 
     get description() {
-        if (this.includeSubsetInDescription) {
-            return this.makeDescription(this.subset.subset)
-        }
+        // if (this.includeSubsetInDescription) {
+        //     return this.makeDescription(this.subset.subset)
+        // }
         return this.makeDescription(this.subset.subset)
     }
 
@@ -44,10 +49,10 @@ export default class TripleExportWrapper {
         return [this.makeDescription(this.subset.subset)]
     }
 
-    copy(i: number = undefined, includeGraphIdInTripleDescription = true) {
+    copy(i: number = undefined, includeGraphIdInTripleDescription = true, headIndex: number = undefined, tailIndex: number = undefined) {
         return new TripleExportWrapper(
             this.triple.triple, this.subset, this.triple.graph, this.subsets, this.includeSubsetInDescription,
-            i === undefined ? this.triple.index : i, includeGraphIdInTripleDescription
+            i, includeGraphIdInTripleDescription, headIndex === undefined ? this.triple.headIndex : headIndex, tailIndex === undefined ? this.triple.tailIndex : tailIndex
         )
     }
 }

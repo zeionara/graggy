@@ -133,11 +133,19 @@ export default class WorkSpace extends Vue {
         this.nGraphs -= 1
     }
 
-    updateRelationsToSampleSlider(nNodes: number = undefined, nRelations: number = undefined, nSubsets: number = undefined, nGraphRelations: number = undefined) {
+    updateRelationsToSampleSlider(nNodes: number = undefined, nRelations: number = undefined, nSubsets: number = undefined, nGraphRelations: number = undefined, nRepetitions: number = undefined) {
         // let maxNnodes = undefined
+        
+        if (this.$refs.relations === undefined) {
+            return
+        }
 
         if (nRelations === undefined) {
             nRelations = (this.$refs.relations as RelationsPane).relations.length
+        }
+
+        if (nRepetitions === undefined) {
+            nRepetitions = this.nRepetitions
         }
 
         if (this.forbidSameTripleInMultipleSubsetsSwitch) {
@@ -172,7 +180,7 @@ export default class WorkSpace extends Vue {
 
             if (currentNnodes > 1) {
                 // nRelationsToSampleMax = getFactorial(currentNnodes) / (2 * getFactorial(currentNnodes - 2)) * nRelations * nSubsets - currentNgraphRelations
-                nRelationsToSampleMax = currentNnodes * (currentNnodes - 1) * nRelations * nSubsets - currentNgraphRelations
+                nRelationsToSampleMax = currentNnodes * (currentNnodes - 1) * nRelations * nSubsets * nRepetitions * nRepetitions - currentNgraphRelations
                 // console.log(nRelationsToSampleMax)
             } else {
                 nRelationsToSampleMax = 0

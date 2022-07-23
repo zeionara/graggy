@@ -15,7 +15,7 @@ class Triple {
         return this.describe()
     }
 
-    describe(graph: string | number = undefined, index: number = undefined, usingIds = false) {
+    describe(graph: string | number = undefined, headIndex: number = undefined, tailIndex: number = undefined, usingIds = false, separator = '\t') {
         let head = usingIds ? this.head.id : this.head.name 
         let tail = usingIds ? this.tail.id : this.tail.name
         let relation = this.relation.name
@@ -26,34 +26,52 @@ class Triple {
             relation = `${graph}.${relation}`
         }
 
-        if (!(index === undefined)) {
-            head = `${head}.${index}`
-            tail = `${tail}.${index}`
+        if (!(headIndex === undefined)) {
+            head = `${head}.${headIndex}`
         }
 
-        return `${head}\t${relation}\t${tail}`
+        if (!(tailIndex === undefined)) {
+            tail = `${tail}.${tailIndex}`
+        }
+
+        return `${head}${separator}${relation}${separator}${tail}`
     }
 }
 
 class TripleWithGraph {
     triple
     graph
-    index: number
+
+    headIndex: number
+    tailIndex: number
+
     includeGraphIdInDescription: boolean
 
-    constructor(triple, graph, index: number = undefined, includeGraphIdInDescription = true) {
+    constructor(triple, graph, index: number = undefined, includeGraphIdInDescription = true, headIndex: number = undefined, tailIndex: number = undefined) {
         this.triple = triple
         this.graph = graph
-        this.index = index
+        
+        if (index !== undefined) {
+            this.headIndex = index
+            this.tailIndex = index
+        } else {
+            this.headIndex = headIndex
+            this.tailIndex = tailIndex
+        }
         this.includeGraphIdInDescription = includeGraphIdInDescription
     }
 
     setIndex(index: number) {
-        this.index = index
+        this.headIndex = index
+        this.tailIndex = index
+    }
+
+    describe(separator: string, usingIds = false) {
+        return this.triple.describe(this.includeGraphIdInDescription ? (this.graph.name ? this.graph.name : this.graph.index) : undefined, this.headIndex, this.tailIndex, usingIds, separator) 
     }
 
     get description() {
-        return this.triple.describe(this.includeGraphIdInDescription ? (this.graph.name ? this.graph.name : this.graph.index) : undefined, this.index) 
+        return this.describe('\t')
     }
 }
 

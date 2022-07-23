@@ -57,7 +57,7 @@
         </n-divider>
         <Slider
             purpose="number of repetitions" v-bind:defaultValue = "nRepetitions"
-            @update-value = "this.nRepetitions = $event.value"
+            @update-value = "this.nRepetitions = $event.value; updateRelationsToSampleSlider(undefined, undefined, undefined, undefined, $event.value)"
             v-bind:min = "nRepetitionsMin" v-bind:max = "nRepetitionsMax" v-bind:step = "nRepetitionsStep"
         />
         <Switch

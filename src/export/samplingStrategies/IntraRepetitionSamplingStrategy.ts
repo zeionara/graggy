@@ -24,17 +24,39 @@ export default class IntraRepetitionSamplingStrategy implements SamplingStrategy
                 if (lhs !== rhs) {
                     wrappedGraph.relations.forEach(relation => {
                         wrappedGraph.subsets.forEach(subset => {
-                            tripleWeights[
-                                wrappedGraph.wrappedTripleToString(
-                                    new TripleExportWrapper(
-                                        new Triple(lhs, relation, rhs),
-                                        new SubsetExportWrapper(subset),
-                                        wrappedGraph.graph,
-                                        wrappedGraph.subsets,
-                                        wrappedGraph.forbidSameTripleInMultipleSubsets
+                            if (wrappedGraph.nRepetitions < 2) {
+                                tripleWeights[
+                                    wrappedGraph.wrappedTripleToString(
+                                        new TripleExportWrapper(
+                                            new Triple(lhs, relation, rhs),
+                                            new SubsetExportWrapper(subset),
+                                            wrappedGraph.graph,
+                                            wrappedGraph.subsets,
+                                            wrappedGraph.forbidSameTripleInMultipleSubsets
+                                        )
                                     )
-                                )
-                            ] = wrappedGraph.nRelationInstances[wrappedGraph.relationToString(relation)] + wrappedGraph.nNodePairInstances[wrappedGraph.nodePairToString(new NodePair(lhs, rhs))]
+                                ] = wrappedGraph.nRelationInstances[wrappedGraph.relationToString(relation)] + wrappedGraph.nNodePairInstances[wrappedGraph.nodePairToString(new NodePair(lhs, rhs))]
+                            } else {
+                                for (let i = 0; i < wrappedGraph.nRepetitions; i++) {
+                                    for (let j = 0; j < wrappedGraph.nRepetitions; j++) {
+                                        tripleWeights[
+                                            wrappedGraph.wrappedTripleToString(
+                                                new TripleExportWrapper(
+                                                    new Triple(lhs, relation, rhs),
+                                                    new SubsetExportWrapper(subset),
+                                                    wrappedGraph.graph,
+                                                    wrappedGraph.subsets,
+                                                    wrappedGraph.forbidSameTripleInMultipleSubsets,
+                                                    undefined, // i
+                                                    true, // includeGraphIdInTripleDescription
+                                                    i, // headIndex
+                                                    j  // tailIndex
+                                                )
+                                            )
+                                        ] = wrappedGraph.nRelationInstances[wrappedGraph.relationToString(relation)] + wrappedGraph.nNodePairInstances[wrappedGraph.nodePairToString(new NodePair(lhs, rhs))]
+                                    }
+                                }
+                            }
                         })
                     })
                 }
@@ -42,6 +64,8 @@ export default class IntraRepetitionSamplingStrategy implements SamplingStrategy
         })
 
         const possibleTriples = Object.keys(tripleWeights)
+
+        console.log(possibleTriples)
 
         let i = 0
         let maximumNgenerableTriples = possibleTriples.length - wrappedGraph.seenTriples.size
@@ -69,11 +93,13 @@ export default class IntraRepetitionSamplingStrategy implements SamplingStrategy
 
             wrappedTriple.descriptions.forEach(description => seenTriples.add(description))
 
-            if (wrappedGraph.nRepetitions < 2) {
-                wrappedGraph.store.push(wrappedTriple.subset.filename, wrappedTriple.copy())
-            } else {
-                wrappedGraph.store.pushMany(wrappedTriple.subset.filename, [...Array(wrappedGraph.nRepetitions).keys()].map(j => wrappedTriple.copy(j)))
-            }
+            wrappedGraph.store.push(wrappedTriple.subset.filename, wrappedTriple)
+
+            // if (wrappedGraph.nRepetitions < 2) {
+            //     wrappedGraph.store.push(wrappedTriple.subset.filename, wrappedTriple.copy())
+            // } else {
+            //     wrappedGraph.store.pushMany(wrappedTriple.subset.filename, [...Array(wrappedGraph.nRepetitions).keys()].map(j => wrappedTriple.copy(j)))
+            // }
 
             i += 1
         }

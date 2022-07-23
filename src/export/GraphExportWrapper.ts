@@ -64,12 +64,15 @@ export default class GraphExportWrapper {
             store.pushMany(wrappedSubset.getPath(this), subset.items.map(triple => {
                 const wrappedTriple = new TripleExportWrapper(triple, wrappedSubset, this.graph, subsets, forbidSameTripleInMultipleSubsets)
 
-                wrappedTriple.descriptions.forEach(description => seenTriples.add(description))
-                
                 if (this.nRepetitions < 2) {
                     store.push(wrappedSubset.filename, wrappedTriple.copy())
+                    wrappedTriple.descriptions.forEach(description => seenTriples.add(description))
                 } else {
-                    store.pushMany(wrappedSubset.filename, [...Array(nRepetitions).keys()].map(i => wrappedTriple.copy(i)))
+                    store.pushMany(wrappedSubset.filename, [...Array(nRepetitions).keys()].map(i => {
+                        const wrappedTripleCopy = wrappedTriple.copy(i)
+                        wrappedTripleCopy.descriptions.forEach(description => seenTriples.add(description))
+                        return wrappedTripleCopy
+                    }))
                 }
 
                 nRelationInstances[this.relationToString(triple.relation)] += 1
