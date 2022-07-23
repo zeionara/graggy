@@ -10,12 +10,17 @@ export default class TripleExportWrapper {
     subsets: SubsetConfig[]
 
     includeSubsetInDescription: boolean
+    // includeGraphIdInTripleDescription: boolean
 
-    constructor(triple: Triple, subset: SubsetExportWrapper, graph = undefined, subsets: SubsetConfig[] = undefined, includeSubsetInDescription = true, i: number = undefined) {
-        this.triple = new TripleWithGraph(triple, graph, i)
-        this.includeSubsetInDescription = includeSubsetInDescription
+    constructor(
+        triple: Triple, subset: SubsetExportWrapper, graph = undefined, subsets: SubsetConfig[] = undefined,
+        includeSubsetInDescription = true, i: number = undefined, includeGraphIdInTripleDescription = false
+    ) {
+        this.triple = new TripleWithGraph(triple, graph, i, includeGraphIdInTripleDescription)
         this.subset = subset
         this.subsets = subsets
+        this.includeSubsetInDescription = includeSubsetInDescription
+        // this.includeGraphIdInTripleDescription = includeGraphIdInTripleDescription
     }
 
     makeDescription(subset: SubsetConfig = undefined) {
@@ -39,7 +44,10 @@ export default class TripleExportWrapper {
         return [this.makeDescription(this.subset.subset)]
     }
 
-    copy(i: number = undefined) {
-        return new TripleExportWrapper(this.triple.triple, this.subset, this.triple.graph, this.subsets, this.includeSubsetInDescription, i)
+    copy(i: number = undefined, includeGraphIdInTripleDescription = true) {
+        return new TripleExportWrapper(
+            this.triple.triple, this.subset, this.triple.graph, this.subsets, this.includeSubsetInDescription,
+            i === undefined ? this.triple.index : i, includeGraphIdInTripleDescription
+        )
     }
 }

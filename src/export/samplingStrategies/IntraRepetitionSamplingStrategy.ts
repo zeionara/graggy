@@ -1,7 +1,7 @@
-import GraphExportWrapper from './GraphExportWrapper'
-import TripleExportWrapper from './TripleExportWrapper'
-import SubsetExportWrapper from './SubsetExportWrapper'
-import NodePair from './NodePair'
+import GraphExportWrapper from '../GraphExportWrapper'
+import TripleExportWrapper from '../TripleExportWrapper'
+import SubsetExportWrapper from '../SubsetExportWrapper'
+import NodePair from '../NodePair'
 
 import { sample } from '@/random'
 import { Triple } from '@/Triple'
@@ -68,7 +68,7 @@ export default class IntraRepetitionSamplingStrategy {
             wrappedTriple.descriptions.forEach(description => seenTriples.add(description))
 
             if (wrappedGraph.nRepetitions < 2) {
-                wrappedGraph.store.push(wrappedTriple.subset.filename, wrappedTriple)
+                wrappedGraph.store.push(wrappedTriple.subset.filename, wrappedTriple.copy())
             } else {
                 wrappedGraph.store.pushMany(wrappedTriple.subset.filename, [...Array(wrappedGraph.nRepetitions).keys()].map(j => wrappedTriple.copy(j)))
             }

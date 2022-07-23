@@ -39,11 +39,13 @@ class TripleWithGraph {
     triple
     graph
     index: number
+    includeGraphIdInDescription: boolean
 
-    constructor(triple, graph, index: number = undefined) {
+    constructor(triple, graph, index: number = undefined, includeGraphIdInDescription = true) {
         this.triple = triple
         this.graph = graph
         this.index = index
+        this.includeGraphIdInDescription = includeGraphIdInDescription
     }
 
     setIndex(index: number) {
@@ -51,7 +53,7 @@ class TripleWithGraph {
     }
 
     get description() {
-        return this.triple.describe(this.graph.name ? this.graph.name : this.graph.index, this.index) 
+        return this.triple.describe(this.includeGraphIdInDescription ? (this.graph.name ? this.graph.name : this.graph.index) : undefined, this.index) 
     }
 }
 

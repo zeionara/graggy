@@ -1,11 +1,9 @@
 import Tar from 'memory-tar-create'
 import { RelationConfig } from '@/relation/RelationConfig' 
 import { SubsetConfig } from '@/subset/SubsetConfig'
-import { mergeListOfObjectsOfLists } from '@/collections'
 
 import GraphExportWrapper from './GraphExportWrapper'
 import TripleExportWrapper from './TripleExportWrapper'
-import TripleGenerationStrategy from './TripleGenerationStrategy'
 import TripleStore from './TripleStore'
 
 export default class Exporter {
@@ -26,7 +24,7 @@ export default class Exporter {
         this.store = new TripleStore()
     }
 
-    export(filename: string, graphs, tripleGenerationStrategy: TripleGenerationStrategy, strategies) {
+    export(filename: string, graphs, strategies) {
         const files = new Tar()
 
         const wrappedGraphs = graphs.map(graph => {
@@ -41,9 +39,7 @@ export default class Exporter {
             files.add(
                 {
                     [subsetFilename]: {
-                        contents: tripleGenerationStrategy.generate(subsetTriples as TripleExportWrapper[]).map(triple => {
-                            return triple.triple.description
-                        }).join('\n')
+                        contents: subsetTriples.map(triple => triple.triple.description).join('\n')
                     }
                 }
             )

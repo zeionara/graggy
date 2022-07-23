@@ -67,7 +67,7 @@ export default class GraphExportWrapper {
                 wrappedTriple.descriptions.forEach(description => seenTriples.add(description))
                 
                 if (this.nRepetitions < 2) {
-                    store.push(wrappedSubset.filename, wrappedTriple)
+                    store.push(wrappedSubset.filename, wrappedTriple.copy())
                 } else {
                     store.pushMany(wrappedSubset.filename, [...Array(nRepetitions).keys()].map(i => wrappedTriple.copy(i)))
                 }
