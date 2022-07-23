@@ -3,11 +3,13 @@ import TripleExportWrapper from '../TripleExportWrapper'
 import SubsetExportWrapper from '../SubsetExportWrapper'
 import NodePair from '../NodePair'
 
+import SamplingStrategy from './SamplingStrategy'
+
 import { sample } from '@/random'
 import { Triple } from '@/Triple'
 
 
-export default class IntraRepetitionSamplingStrategy {
+export default class IntraRepetitionSamplingStrategy implements SamplingStrategy {
     nSamples: number
 
     constructor(nSamples: number) {

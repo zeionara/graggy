@@ -3,8 +3,8 @@ import { RelationConfig } from '@/relation/RelationConfig'
 import { SubsetConfig } from '@/subset/SubsetConfig'
 
 import GraphExportWrapper from './GraphExportWrapper'
-import TripleExportWrapper from './TripleExportWrapper'
 import TripleStore from './TripleStore'
+import SamplingStrategy from './samplingStrategies/SamplingStrategy'
 
 export default class Exporter {
     nRelationInstances: Record<string, number>
@@ -24,16 +24,14 @@ export default class Exporter {
         this.store = new TripleStore()
     }
 
-    export(filename: string, graphs, strategies) {
+    export(filename: string, graphs, strategies: SamplingStrategy[]) {
         const files = new Tar()
 
-        const wrappedGraphs = graphs.map(graph => {
+        graphs.map(graph => {
             const wrappedGraph = new GraphExportWrapper(graph, this.store, this.subsets, this.relations, this.nRepetitions, this.forbidSameTripleInMultipleSubsets)
             strategies.forEach(strategy => strategy.sample(wrappedGraph))
             return wrappedGraph
         })
-
-        // const mergedTripleLists = mergeListOfObjectsOfLists(wrappedGraphs.map(graph => graph.triples))
 
         for (const [subsetFilename, subsetTriples] of Object.entries(this.store.triples)) {
             files.add(
