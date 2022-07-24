@@ -29,6 +29,7 @@ export default class WorkSpace extends Vue {
     message = useMessage()
 
     forbidSameTripleInMultipleSubsetsSwitch = App.config.switch['forbid-same-triple-in-multiple-subsets']
+    allowLoopsSwitch = App.config.switch['allow-loops']
 
     // Global variables
 
@@ -93,7 +94,7 @@ export default class WorkSpace extends Vue {
         exportAsArchive(
             this.$refs.graphs, (this.$refs.relations as RelationsPane).relations, (this.$refs.subsets as SubsetsPane).subsets,
             `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`, this.nRepetitions, this.nRelationsToSample,
-            this.forbidSameTripleInMultipleSubsetsSwitch
+            this.forbidSameTripleInMultipleSubsetsSwitch, this.allowLoopsSwitch
         )
     }
 
@@ -180,7 +181,13 @@ export default class WorkSpace extends Vue {
 
             if (currentNnodes > 1) {
                 // nRelationsToSampleMax = getFactorial(currentNnodes) / (2 * getFactorial(currentNnodes - 2)) * nRelations * nSubsets - currentNgraphRelations
-                nRelationsToSampleMax = currentNnodes * (currentNnodes - 1) * nRelations * nSubsets * nRepetitions * nRepetitions - currentNgraphRelations
+                // nRelationsToSampleMax = currentNnodes * (currentNnodes - 1) * nRelations * nSubsets * nRepetitions * nRepetitions - currentNgraphRelations
+                if (this.allowLoopsSwitch) {
+                    nRelationsToSampleMax = currentNnodes * currentNnodes * nRelations * nSubsets * nRepetitions * nRepetitions - currentNgraphRelations
+                } else {
+                    // console.log(currentNnodes, nRepetitions, nRelations, nSubsets)
+                    nRelationsToSampleMax = currentNnodes * nRepetitions * (currentNnodes * nRepetitions - 1) * nRelations * nSubsets - currentNgraphRelations
+                }
                 // console.log(nRelationsToSampleMax)
             } else {
                 nRelationsToSampleMax = 0

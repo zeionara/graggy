@@ -48,9 +48,9 @@ export default class GraphExportWrapper {
 
         graph.nodes.forEach(lhs => {
             graph.nodes.forEach(rhs => {
-                if (lhs !== rhs) {
-                    nNodePairInstances[this.nodePairToString(new NodePair(lhs, rhs))] = 0
-                }
+                // if (lhs !== rhs) {
+                nNodePairInstances[this.nodePairToString(new NodePair(lhs, rhs))] = 0
+                // }
             })
         })
 

@@ -63,6 +63,9 @@
         <Switch
             purpose="forbid same triple to appear in multiple subsets" v-bind:defaultValue = "forbidSameTripleInMultipleSubsetsSwitch" @update-value = "this.forbidSameTripleInMultipleSubsetsSwitch = $event.value; updateRelationsToSampleSlider()"
         />
+        <Switch
+            purpose="allow loops" v-bind:defaultValue = "allowLoopsSwitch" @update-value = "this.allowLoopsSwitch = $event.value; updateRelationsToSampleSlider()"
+        />
         <Slider
             purpose="number of relations to sample" v-bind:defaultValue = "nRelationsToSample"
             @update-value = "this.nRelationsToSample = $event.value"

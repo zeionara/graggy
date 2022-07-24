@@ -18,6 +18,7 @@ switch:
     node-rename: false
     live-redraw: false
     forbid-same-triple-in-multiple-subsets: true
+    allow-loops: false
 subset:
     items:
         - name: train

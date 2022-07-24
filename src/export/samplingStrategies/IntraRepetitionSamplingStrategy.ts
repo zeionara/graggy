@@ -11,9 +11,11 @@ import { Triple } from '@/Triple'
 
 export default class IntraRepetitionSamplingStrategy implements SamplingStrategy {
     nSamples: number
+    allowLoops: boolean
 
-    constructor(nSamples: number) {
+    constructor(nSamples: number, allowLoops: boolean) {
         this.nSamples = nSamples
+        this.allowLoops = allowLoops
     }
     
     sample(wrappedGraph: GraphExportWrapper) {
@@ -21,10 +23,11 @@ export default class IntraRepetitionSamplingStrategy implements SamplingStrategy
 
         wrappedGraph.graph.nodes.forEach(lhs => {
             wrappedGraph.graph.nodes.forEach(rhs => {
-                if (lhs !== rhs) {
-                    wrappedGraph.relations.forEach(relation => {
-                        wrappedGraph.subsets.forEach(subset => {
-                            if (wrappedGraph.nRepetitions < 2) {
+                // if (lhs !== rhs) {
+                wrappedGraph.relations.forEach(relation => {
+                    wrappedGraph.subsets.forEach(subset => {
+                        if (wrappedGraph.nRepetitions < 2) {
+                            if (this.allowLoops || lhs !== rhs) {
                                 tripleWeights[
                                     wrappedGraph.wrappedTripleToString(
                                         new TripleExportWrapper(
@@ -36,9 +39,11 @@ export default class IntraRepetitionSamplingStrategy implements SamplingStrategy
                                         )
                                     )
                                 ] = wrappedGraph.nRelationInstances[wrappedGraph.relationToString(relation)] + wrappedGraph.nNodePairInstances[wrappedGraph.nodePairToString(new NodePair(lhs, rhs))]
-                            } else {
-                                for (let i = 0; i < wrappedGraph.nRepetitions; i++) {
-                                    for (let j = 0; j < wrappedGraph.nRepetitions; j++) {
+                            }
+                        } else {
+                            for (let i = 0; i < wrappedGraph.nRepetitions; i++) {
+                                for (let j = 0; j < wrappedGraph.nRepetitions; j++) {
+                                    if (this.allowLoops || !(lhs === rhs && i === j)) {
                                         tripleWeights[
                                             wrappedGraph.wrappedTripleToString(
                                                 new TripleExportWrapper(
@@ -57,15 +62,16 @@ export default class IntraRepetitionSamplingStrategy implements SamplingStrategy
                                     }
                                 }
                             }
-                        })
+                        }
                     })
-                }
+                })
+                // }
             })
         })
 
         const possibleTriples = Object.keys(tripleWeights)
 
-        console.log(possibleTriples)
+        // console.log(tripleWeights)
 
         let i = 0
         let maximumNgenerableTriples = possibleTriples.length - wrappedGraph.seenTriples.size
