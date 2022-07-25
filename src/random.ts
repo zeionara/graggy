@@ -51,4 +51,11 @@ function sample(probabilities: Record<string, number>, shouldRetry: (string) => 
     }
 }
 
-export { sample, alignProbabilities }
+function pop<T>(items: Array<T>) {
+    const i = Math.floor(Math.random() * items.length)
+    const item = items[i]
+    items.splice(i, 1)
+    return item
+}
+
+export { sample, alignProbabilities, pop }

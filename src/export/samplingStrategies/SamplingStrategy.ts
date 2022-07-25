@@ -2,5 +2,10 @@ import GraphExportWrapper from '../GraphExportWrapper'
 
 
 export default interface SamplingStrategy {
-    sample(wrappedGraph: GraphExportWrapper);
+    label: string
+
+    nSamples: number
+    allowLoops: boolean
+
+    sample(wrappedGraph: GraphExportWrapper)
 }

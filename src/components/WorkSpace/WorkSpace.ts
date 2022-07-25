@@ -12,6 +12,9 @@ import SubsetsPane from '@/components/SubsetsPane.vue'
 import Switch from '@/components/Switch.vue'
 import Slider from '@/components/Slider.vue'
 import Graph from '@/components/Graph/Graph.vue'
+import WeightedRepetitionSamplingStrategy from '@/export/samplingStrategies/WeightedRepetitionSamplingStrategy'
+import UniformRepetitionSamplingStrategy from '@/export/samplingStrategies/UniformRepetitionSamplingStrategy'
+import SamplingStrategy from '@/export/samplingStrategies/SamplingStrategy'
 // import dateFormat from '@/vendor/dateFormat.min'
 // import dateFormat from '@/vendor/dateFormat.min.js'
 const format = await import('../../vendor/dateFormat.min.js')
@@ -89,12 +92,26 @@ export default class WorkSpace extends Vue {
     gridColor = App.config.graph["grid-color"]
     nodeSize = App.config.node.size
 
+    samplingStrategies = [
+        new WeightedRepetitionSamplingStrategy(this.nRelationsToSample, this.allowLoopsSwitch),
+        new UniformRepetitionSamplingStrategy(this.nRelationsToSample, this.allowLoopsSwitch)
+    ]
+    labelToSamplingStrategy = new Map(this.samplingStrategies.map(strategy => [strategy.label, strategy]))
+    // samplingStrategyOptions = [{label: 'foo', value: 'foo'}, {label: 'bar', value: 'bar'}] // this.samplingStrategies.map(strategy => {return {label: strategy.label, value: strategy}})
+    samplingStrategyOptions = this.samplingStrategies.map(strategy => {return {label: strategy.label, value: strategy.label}})
+    samplingStrategy: SamplingStrategy = this.samplingStrategies[0]  // = this.samplingStrategyOptions[0].label
+    // samplingStrategyOption = this.samplingStrategyOptions[0]
+    samplingStrategyLabel = this.samplingStrategyOptions[0].label
+
     exportTriples() {
         // console.log(this.forbidSameTripleInMultipleSubsetsSwitch)
+        this.samplingStrategy.nSamples = this.nRelationsToSample
+        this.samplingStrategy.allowLoops = this.allowLoopsSwitch
+
         exportAsArchive(
             this.$refs.graphs, (this.$refs.relations as RelationsPane).relations, (this.$refs.subsets as SubsetsPane).subsets,
-            `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`, this.nRepetitions, this.nRelationsToSample,
-            this.forbidSameTripleInMultipleSubsetsSwitch, this.allowLoopsSwitch
+            `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`, this.nRepetitions,
+            this.forbidSameTripleInMultipleSubsetsSwitch, [this.samplingStrategy]
         )
     }
 
@@ -134,9 +151,11 @@ export default class WorkSpace extends Vue {
         this.nGraphs -= 1
     }
 
+    updateSamplingStrategy(label: string) {
+        this.samplingStrategy = this.labelToSamplingStrategy.get(label);
+    }
+
     updateRelationsToSampleSlider(nNodes: number = undefined, nRelations: number = undefined, nSubsets: number = undefined, nGraphRelations: number = undefined, nRepetitions: number = undefined) {
-        // let maxNnodes = undefined
-        
         if (this.$refs.relations === undefined) {
             return
         }
