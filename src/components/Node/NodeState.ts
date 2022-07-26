@@ -18,6 +18,18 @@ class NodeState {
         this.y = y
         this.transform = transform
     }
+
+    get exportable() {
+        return {
+            name: this.name,
+            locked: this.locked,
+            virtualX: this.virtualX,
+            virtualY: this.virtualY,
+            x: this.x,
+            y: this.y,
+            transform: this.transform
+        }
+    }
 }
 
 export { NodeState }

@@ -11,7 +11,7 @@ import { RelationConfig } from '@/relation/RelationConfig'
 
 class AbstractGraph extends Vue {
 
-    name = ''
+    name: string = undefined  // ''
 
     nGraphs!: number
 
@@ -73,6 +73,13 @@ class AbstractGraph extends Vue {
 
     moveDown() {
         this.$emit("swapGraphs", {lhs: this.index, rhs: this.index + 1})
+    }
+
+    get_exportable() {
+        return {
+            name: this.name,
+            nodes: (this.nodes as any).map(node => node.get_state().exportable)
+        }
     }
 }
 

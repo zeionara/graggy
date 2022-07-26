@@ -108,6 +108,8 @@ export default class WorkSpace extends Vue {
         this.samplingStrategy.nSamples = this.nRelationsToSample
         this.samplingStrategy.allowLoops = this.allowLoopsSwitch
 
+        console.log(this.mapGraphs(graph => graph.get_exportable()))
+
         exportAsArchive(
             this.$refs.graphs, (this.$refs.relations as RelationsPane).relations, (this.$refs.subsets as SubsetsPane).subsets,
             `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`, this.nRepetitions,
@@ -118,6 +120,12 @@ export default class WorkSpace extends Vue {
     forEachGraph(callback: (graph) => any) {
         if (this.$refs.graphs) {
             (this.$refs.graphs as (typeof Graph[])).forEach(callback)
+        }
+    }
+
+    mapGraphs(callback: (graph) => any) {
+        if (this.$refs.graphs) {
+            return (this.$refs.graphs as (typeof Graph[])).map(callback)
         }
     }
 
