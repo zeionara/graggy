@@ -11,7 +11,7 @@ import { RelationConfig } from '@/relation/RelationConfig'
 
 class AbstractGraph extends Vue {
 
-    name: string = undefined  // ''
+    name: string = null
 
     nGraphs!: number
 

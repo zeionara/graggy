@@ -30,6 +30,15 @@ export default class Exporter {
         graphs.map(graph => {
             const wrappedGraph = new GraphExportWrapper(graph, this.store, this.subsets, this.relations, this.nRepetitions, this.forbidSameTripleInMultipleSubsets)
             strategies.forEach(strategy => strategy.sample(wrappedGraph))
+
+            files.add(
+                {
+                    [`${wrappedGraph.folder}/description.json`]: {
+                        contents: JSON.stringify(graph.get_exportable(), null, 2)
+                    }
+                }
+            )
+
             return wrappedGraph
         })
 
@@ -42,6 +51,7 @@ export default class Exporter {
                 }
             )
         }
+
 
         files.gz().download(filename)
     }
