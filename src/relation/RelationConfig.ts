@@ -21,6 +21,14 @@ class RelationConfig {
     get id() {
         return this.name
     }
+
+    getExportable() {
+        return {
+            color: this.color,
+            name: this.name,
+            disposable: this.disposable
+        }
+    }
 }
 
 export { RelationConfig }

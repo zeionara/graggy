@@ -75,10 +75,11 @@ class AbstractGraph extends Vue {
         this.$emit("swapGraphs", {lhs: this.index, rhs: this.index + 1})
     }
 
-    get_exportable() {
+    getExportable() {
         return {
             name: this.name,
-            nodes: (this.nodes as any).map(node => node.get_state().exportable)
+            nodes: (this.nodes as any).map(node => node.get_state().exportable),
+            relations: (this.relations as any).map(relation => relation.getExportable())
         }
     }
 }

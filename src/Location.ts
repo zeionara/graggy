@@ -6,6 +6,13 @@
         this.x = x
         this.y = y
     }
+
+    getExportable() {
+        return {
+            x: this.x,
+            y: this.y
+        }
+    }
  }
 
  export { Location }

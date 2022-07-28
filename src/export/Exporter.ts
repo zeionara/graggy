@@ -34,13 +34,23 @@ export default class Exporter {
             files.add(
                 {
                     [`${wrappedGraph.folder}/description.json`]: {
-                        contents: JSON.stringify(graph.get_exportable(), null, 2)
+                        contents: JSON.stringify(graph.getExportable(), null, 2)
                     }
                 }
             )
 
             return wrappedGraph
         })
+
+        files.add(
+            {
+                [`description.json`]: {
+                    contents: JSON.stringify({
+                        relations: this.relations.map(relation => relation.getExportable())
+                    }, null, 2)
+                }
+            }
+        )
 
         for (const [subsetFilename, subsetTriples] of Object.entries(this.store.triples)) {
             files.add(

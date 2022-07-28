@@ -46,6 +46,20 @@ class UserDefinedPathRelation implements Relation {
         ctx.lineWidth = previous_line_thickness
         ctx.setLineDash(previous_line_dash)
     }
+
+    getExportable() {
+        return {
+            src: this.src.getExportable(),
+            dst: this.dst.getExportable(),
+
+            type: this.type.name,
+            thickness: this.thickness,
+            subset: this.subset.name,
+
+            // beginning: this.beginning.getExportable(),
+            segments: this.segments.map(segment => segment.getExportable())
+        }
+    }
 }
 
 export { UserDefinedPathRelation }

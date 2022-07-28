@@ -15,6 +15,15 @@ class Connector extends Location {
     draw(ctx: CanvasRenderingContext2D) {
         drawFilledSquare(ctx, this.x, this.y, this.size, this.relation.color)
     }
+
+    getExportable() {
+        const exportable = super.getExportable()
+
+        exportable['size'] = this.size
+        exportable['relation'] = this.relation.name
+
+        return exportable
+    }
 }
 
 export { Connector }

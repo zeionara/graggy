@@ -44,6 +44,20 @@ class LinearRelation implements Relation {
             ctx.setLineDash(previous_line_dash)
         }
     }
+
+    getExportable() {
+        return {
+            src: this.src.getExportable(),
+            dst: this.dst.getExportable(),
+
+            type: this.type.name,
+            thickness: this.thickness,
+            subset: this.subset.name
+
+            // beginning: this.beginning.getExportable(),
+            // ending: this.ending.getExportable()
+        }
+    }
 }
 
 export { LinearRelation }
