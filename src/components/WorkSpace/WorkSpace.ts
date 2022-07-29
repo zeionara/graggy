@@ -1,4 +1,9 @@
-import { NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, NIcon, useDialog, useMessage } from 'naive-ui'
+import { NUpload, NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, NIcon, useDialog, useMessage } from 'naive-ui'
+import { Gzip, Gunzip, RawInflate } from 'zlibt2'
+import Pako from 'pako'
+// import Tar from 'tar'
+// import { Readable } from 'stream'
+
 import { AddOutline as PlusIcon } from '@vicons/ionicons5'
 import { Options, Vue } from 'vue-class-component';
 import { RelationConfig } from '@/relation/RelationConfig'
@@ -15,13 +20,14 @@ import Graph from '@/components/Graph/Graph.vue'
 import WeightedRepetitionSamplingStrategy from '@/export/samplingStrategies/WeightedRepetitionSamplingStrategy'
 import UniformRepetitionSamplingStrategy from '@/export/samplingStrategies/UniformRepetitionSamplingStrategy'
 import SamplingStrategy from '@/export/samplingStrategies/SamplingStrategy'
+import untar from '@/import'
 // import dateFormat from '@/vendor/dateFormat.min'
 // import dateFormat from '@/vendor/dateFormat.min.js'
 const format = await import('../../vendor/dateFormat.min.js')
 
 @Options({
   components: {
-    NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, useDialog, useMessage,
+    NUpload, NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, PlusIcon, NIcon, useDialog, useMessage,
     App,
     RelationsPane, SubsetsPane, Switch, Slider, Graph
   }
@@ -115,6 +121,47 @@ export default class WorkSpace extends Vue {
             `graph-${format.dateFormat(new Date(), 'd-m-Y h:i:s')}.tar.gz`, this.nRepetitions,
             this.forbidSameTripleInMultipleSubsetsSwitch, [this.samplingStrategy]
         )
+    }
+
+    import(foo) {
+        untar(foo.file.file).then(result => console.log(result))
+        // foo.file.file.arrayBuffer().then(result => {
+        //     untar(result)
+        //     // console.log(result)
+        //     // const gzip = new Gzip(result)
+        //     // console.log(gzip)
+        //     // console.log(gzip.decompress())
+        //     // console.log(gzip.member)
+        //     //
+        //     // console.log(new Gunzip(new Uint8Array(result)).decompress())
+        //     // console.log(new Uint8Array(result))
+        //     // const compressed = new Gzip(new Uint8Array(result)).compress()
+
+        //     // const datas = [1, 2, 3, 4, 5]
+        //     // const gzzip = new Gzip(datas)
+        //     // const compressed = gzzip.compress()
+
+        //     // console.log(new Gunzip(new Uint8Array(compressed)).decompress())
+        //     // console.log(new Gunzip(new Uint8Array(result)).decompress())
+        //     // const uncompressed = Pako.ungzip(new Uint8Array(result))
+        //     // let string = new TextDecoder().decode(uncompressed.slice(0, 512))
+
+        //     // // console.log(uncompressed)
+        //     // console.log(string)
+
+        //     // string = new TextDecoder().decode(uncompressed.slice(512, 1024))
+        //     // console.log(string)
+
+        //     // console.log(Readable.from(uncompressed))
+
+        //     // const writableStream = Tar.x({}) // .then(entry => {console.log(entry)})
+        //     
+        //     // console.log(writableStream)
+
+        //     // console.log(string)
+
+        //     // console.log(compressed)
+        // })
     }
 
     forEachGraph(callback: (graph) => any) {

@@ -76,6 +76,12 @@
             <n-select v-model:value="samplingStrategyLabel" :options="samplingStrategyOptions" @update-value = "updateSamplingStrategy($event)"/>
         </n-space>
         <n-divider title-placement = "left">
+            Import options
+        </n-divider>
+        <n-upload :custom-request = "import">
+            <n-button>import</n-button>
+        </n-upload>
+        <n-divider title-placement = "left">
             Relation properties
         </n-divider>
         <RelationsPane
