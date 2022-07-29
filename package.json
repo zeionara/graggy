@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@types/adm-zip": "^0.5.0",
+    "@types/pako": "^2.0.0",
     "@vicons/ionicons5": "^0.12.0",
     "@vue/cli-plugin-eslint": "^5.0.4",
     "adm-zip": "^0.5.9",
@@ -20,6 +21,7 @@
     "interactjs": "^1.10.11",
     "js-yaml": "^4.1.0",
     "memory-tar-create": "^0.0.3",
+    "pako": "^2.0.4",
     "path-browserify": "^1.0.1",
     "stream-browserify": "^3.0.0",
     "typescript-eslint": "^0.0.1-alpha.0",

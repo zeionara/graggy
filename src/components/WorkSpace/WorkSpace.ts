@@ -1,5 +1,5 @@
 import { NUpload, NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, NIcon, useDialog, useMessage } from 'naive-ui'
-import { Gzip, Gunzip, RawInflate } from 'zlibt2'
+// import { Gzip, Gunzip, RawInflate } from 'zlibt2'
 import Pako from 'pako'
 // import Tar from 'tar'
 // import { Readable } from 'stream'
