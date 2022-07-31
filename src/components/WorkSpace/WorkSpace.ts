@@ -1,16 +1,11 @@
-import { NUpload, NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, NIcon, useDialog, useMessage } from 'naive-ui'
-// import { Gzip, Gunzip, RawInflate } from 'zlibt2'
-import Pako from 'pako'
-// import Tar from 'tar'
-// import { Readable } from 'stream'
+import App from '@/App.vue'
 
+import { NUpload, NSwitch, NButton, NSpace, NSelect, NCode, NInput, NDivider, NColorPicker, NRadioGroup, NRadio, NIcon, useDialog, useMessage } from 'naive-ui'
 import { AddOutline as PlusIcon } from '@vicons/ionicons5'
 import { Options, Vue } from 'vue-class-component';
 import { RelationConfig } from '@/relation/RelationConfig'
 import { SubsetConfig } from '@/subset/SubsetConfig'
 import { exportAsArchive } from '@/export/main'
-// import { getFactorial } from '@/math'
-import App from '@/App.vue'
 
 import RelationsPane from '@/components/RelationsPane.vue'
 import SubsetsPane from '@/components/SubsetsPane.vue'
@@ -20,9 +15,8 @@ import Graph from '@/components/Graph/Graph.vue'
 import WeightedRepetitionSamplingStrategy from '@/export/samplingStrategies/WeightedRepetitionSamplingStrategy'
 import UniformRepetitionSamplingStrategy from '@/export/samplingStrategies/UniformRepetitionSamplingStrategy'
 import SamplingStrategy from '@/export/samplingStrategies/SamplingStrategy'
-import untar from '@/import'
-// import dateFormat from '@/vendor/dateFormat.min'
-// import dateFormat from '@/vendor/dateFormat.min.js'
+import untar from '@/import/main'
+
 const format = await import('../../vendor/dateFormat.min.js')
 
 @Options({
@@ -124,44 +118,16 @@ export default class WorkSpace extends Vue {
     }
 
     import(foo) {
-        untar(foo.file.file).then(result => console.log(result))
-        // foo.file.file.arrayBuffer().then(result => {
-        //     untar(result)
-        //     // console.log(result)
-        //     // const gzip = new Gzip(result)
-        //     // console.log(gzip)
-        //     // console.log(gzip.decompress())
-        //     // console.log(gzip.member)
-        //     //
-        //     // console.log(new Gunzip(new Uint8Array(result)).decompress())
-        //     // console.log(new Uint8Array(result))
-        //     // const compressed = new Gzip(new Uint8Array(result)).compress()
-
-        //     // const datas = [1, 2, 3, 4, 5]
-        //     // const gzzip = new Gzip(datas)
-        //     // const compressed = gzzip.compress()
-
-        //     // console.log(new Gunzip(new Uint8Array(compressed)).decompress())
-        //     // console.log(new Gunzip(new Uint8Array(result)).decompress())
-        //     // const uncompressed = Pako.ungzip(new Uint8Array(result))
-        //     // let string = new TextDecoder().decode(uncompressed.slice(0, 512))
-
-        //     // // console.log(uncompressed)
-        //     // console.log(string)
-
-        //     // string = new TextDecoder().decode(uncompressed.slice(512, 1024))
-        //     // console.log(string)
-
-        //     // console.log(Readable.from(uncompressed))
-
-        //     // const writableStream = Tar.x({}) // .then(entry => {console.log(entry)})
-        //     
-        //     // console.log(writableStream)
-
-        //     // console.log(string)
-
-        //     // console.log(compressed)
-        // })
+        untar(foo.file.file).then(folder => {
+            folder.folders.forEach(graph => {
+                graph.files.forEach(file => {
+                    if (file.name === 'description') {
+                        console.log(file.content)
+                        this.createGraph()
+                    }
+                })
+            })
+        })
     }
 
     forEachGraph(callback: (graph) => any) {
