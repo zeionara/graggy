@@ -78,7 +78,7 @@ class AbstractGraph extends Vue {
     getExportable() {
         return {
             name: this.name,
-            nodes: (this.nodes as any).map(node => node.get_state().exportable),
+            nodes: (this.nodes as any).map(node => node.getExportable()),
             relations: (this.relations as any).map(relation => relation.getExportable())
         }
     }

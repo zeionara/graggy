@@ -73,9 +73,13 @@ export default class Node extends ShapedNode {
         style.transform = node.transform
     }
 
-    get_state() {
+    getState() {
         const style = this.element.style as NodeElementCSSStyleDeclaration
         return new NodeState(this.locked, this.name, style.virtualX, style.virtualY, style.x, style.y, style.transform)
+    }
+
+    getExportable() {
+        return this.getState().exportable
     }
 }
 </script>

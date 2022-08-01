@@ -16,6 +16,7 @@ import WeightedRepetitionSamplingStrategy from '@/export/samplingStrategies/Weig
 import UniformRepetitionSamplingStrategy from '@/export/samplingStrategies/UniformRepetitionSamplingStrategy'
 import SamplingStrategy from '@/export/samplingStrategies/SamplingStrategy'
 import untar from '@/import/main'
+import ImportableGraph from '@/components/Graph/ImportableGraph'
 
 const format = await import('../../vendor/dateFormat.min.js')
 
@@ -122,8 +123,7 @@ export default class WorkSpace extends Vue {
             folder.folders.forEach(graph => {
                 graph.files.forEach(file => {
                     if (file.name === 'description') {
-                        console.log(file.content)
-                        this.createGraph()
+                        this.createGraph(file.content, true)
                     }
                 })
             })
@@ -158,8 +158,18 @@ export default class WorkSpace extends Vue {
        })
     }
 
-    createGraph() {
+    createGraph(graph: ImportableGraph, atTop = false) {
+        // console.log(graph.name)
         this.nGraphs += 1
+        this.$nextTick(() => {
+            this.getLastGraph().import(graph)
+
+            if (atTop) {
+                for (let i = this.nGraphs - 1; i > 0; i--) {
+                    this.swapGraphs({lhs: i, rhs: i - 1})
+                }
+            }
+        })
     }
 
     deleteGraph(index: number) {
@@ -170,6 +180,10 @@ export default class WorkSpace extends Vue {
             this.$refs.graphs[destinationIndex].assume(this.$refs.graphs[sourceIndex])
         }
         this.nGraphs -= 1
+    }
+
+    getLastGraph() {
+        return this.$refs.graphs[(this.$refs.graphs as Graph[]).length - 1]
     }
 
     updateSamplingStrategy(label: string) {

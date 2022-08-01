@@ -38,6 +38,7 @@ import { makeUnlockedNodesDraggable, makeUnlockedNodesDraggableWithinGrid } from
 import { ShapedGraph } from '@/components/Graph/ShapedGraph'
 import Node from '@/components/Node/Node.vue'
 import { TripleSet } from '@/TripleSet'
+import ImportableGraph from './ImportableGraph'
 
 @Options({
     components: { 
@@ -137,7 +138,7 @@ export default class Graph extends ShapedGraph {
         // Reproduce nodes state
 
         if (graph.$refs.nodes) {
-            const nodes = graph.$refs.nodes.map(node => node.get_state())
+            const nodes = graph.$refs.nodes.map(node => node.getState())
             this.$nextTick(() => {
                 try {
                     (this.$refs.nodes as Array<Node>).forEach((node, i) => node.assume(nodes[i]))
@@ -148,6 +149,38 @@ export default class Graph extends ShapedGraph {
         }
 
         this.redraw()
+    }
+
+    import(graph: ImportableGraph) {
+        this.name = graph.name
+
+        // this.connectors = graph.connectors
+        // this.relations = graph.relations
+
+        // this.nNodes = graph.nNodes
+        // this.nodeInitialLocations = graph.nodeInitialLocations
+        // this.triples = graph.triples
+        // this.currentHeads = graph.currentHeads
+
+        // // From shaped graph
+
+        // this.drawingRelation = graph.drawingRelation
+        // this.currentHeadConnectorLocation = graph.currentHeadConnectorLocation
+
+        // // Reproduce nodes state
+
+        // if (graph.$refs.nodes) {
+        //     const nodes = graph.$refs.nodes.map(node => node.get_state())
+        //     this.$nextTick(() => {
+        //         try {
+        //             (this.$refs.nodes as Array<Node>).forEach((node, i) => node.assume(nodes[i]))
+        //         } catch (e) {
+        //             console.log("There was a type error because of vue list rendering delay. Never mind, it doesn't seem to impact anything.")
+        //         }
+        //     })
+        // }
+
+        // this.redraw()
     }
 
     clear() {
